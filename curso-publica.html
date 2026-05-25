@@ -1,0 +1,749 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Publica con IA. Sin que se note. — AuryOnTech</title>
+<meta name="description" content="No es otro curso de ChatGPT. Es el sistema para pasar de prompt a contenido publicado, con tu voz, en 10 minutos por pieza. Gratis."/>
+<meta property="og:title" content="Publica con IA. Sin que se note. — AuryOnTech"/>
+<meta property="og:description" content="5 módulos, 12 lecciones y 7 entregables para publicar contenido real con IA sin que suene a máquina."/>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#000000;--ink2:#070707;--ink3:#0F0F10;--ink4:#161617;
+  --dawn:#C46030;--dawn-l:#D88050;--dawn-ll:#ECA878;--dawn-pale:#2A1008;
+  --sky:#3A6494;--sky-l:#5A84B4;
+  --ice:#B8D4EC;--ice-l:#D0E8F8;
+  --snow:#EEF4F8;--bone:#EDE4D8;--bone2:#D8CCBC;--bone3:#B4A898;
+  --warm:#7A6E60;--warm-l:#9A8E80;
+  --green:#2D9E6B;--green-l:#3DBE88;
+  --border:rgba(238,244,248,.07);--border-dawn:rgba(196,96,48,.22);--border-sky:rgba(58,100,148,.2);
+  --shadow:0 8px 32px rgba(0,0,0,.4);--shadow-lg:0 24px 80px rgba(0,0,0,.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:#000000;color:var(--bone);overflow-x:hidden;}
+body::after{display:none;}
+.snow-field{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;}
+.flake{position:absolute;top:-20px;color:var(--ice-l);font-size:12px;animation:snowfall linear infinite;opacity:0;user-select:none;}
+@keyframes snowfall{0%{transform:translateY(-20px) rotate(0deg);opacity:0;}5%{opacity:.6;}95%{opacity:.3;}100%{transform:translateY(110vh) rotate(360deg);opacity:0;}}
+.cr{position:fixed;width:9px;height:9px;background:var(--dawn);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s;}
+.crr{position:fixed;width:30px;height:30px;border:1.5px solid var(--dawn-l);border-radius:50%;pointer-events:none;z-index:9997;transform:translate(-50%,-50%);opacity:.3;transition:width .3s,height .3s;}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:16px 60px;transition:background .4s,border-color .4s;border-bottom:1px solid transparent;}
+.nav.scrolled{background:rgba(7,9,15,.94);backdrop-filter:blur(20px);border-color:var(--border);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-mark{width:34px;height:34px;border-radius:10px;overflow:hidden;border:1px solid var(--border-dawn);background:#000000;}
+.nav-mark img{width:100%;height:100%;object-fit:cover;}
+.nav-word{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:1.1rem;color:var(--bone);letter-spacing:-.02em;}
+.nav-word span{color:var(--dawn-l);}
+.nav-back{font-size:.85rem;font-weight:500;color:var(--warm-l);text-decoration:none;transition:color .2s;display:flex;align-items:center;gap:6px;}
+.nav-back:hover{color:var(--bone);}
+.nav-cta-pill{background:var(--dawn);color:var(--snow);font-weight:600;font-size:.84rem;padding:8px 20px;border-radius:100px;text-decoration:none;box-shadow:0 4px 18px rgba(0,0,0,.5);transition:box-shadow .2s,transform .15s;}
+.nav-cta-pill:hover{box-shadow:0 4px 18px rgba(0,0,0,.5);transform:translateY(-1px);color:var(--snow);}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding:120px 60px 80px;position:relative;overflow:hidden;background:radial-gradient(ellipse 80% 60% at 15% 15%,rgba(196,96,48,.2) 0%,transparent 55%),radial-gradient(ellipse 60% 50% at 85% 30%,rgba(58,100,148,.12) 0%,transparent 55%),linear-gradient(175deg,#120A04 0%,#0A0E1C 40%,#07090F 100%);}
+.hero-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(ellipse 70% 70% at 40% 50%,black 10%,transparent 100%);}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;animation:orbF linear infinite;}
+.orb1{display:none;}
+.orb2{display:none;}
+@keyframes orbF{0%{transform:translateY(0) scale(1);}33%{transform:translateY(-24px) scale(1.04);}66%{transform:translateY(12px) scale(.97);}100%{transform:translateY(0) scale(1);}}
+.aurora{display:none;}
+.hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;position:relative;z-index:2;max-width:1100px;margin:0 auto;width:100%;}
+.course-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(196,96,48,.1);border:1px solid var(--border-dawn);color:var(--dawn-ll);font-size:.73rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:24px;animation:fadeUp .5s ease both;}
+.badge-dot{width:6px;height:6px;background:var(--dawn);border-radius:50%;flex-shrink:0;animation:pulse 2s ease-in-out infinite;}
+.hero-h1{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:clamp(2.4rem,4vw,3.8rem);line-height:1.06;letter-spacing:-.03em;color:var(--snow);margin-bottom:16px;animation:fadeUp .6s ease .1s both;}
+.hero-h1 .accent{color:var(--dawn-l);font-style:italic;font-family:'DM Sans',sans-serif;font-weight:300;}
+.hero-tagline{font-size:1.05rem;color:var(--bone2);line-height:1.7;max-width:460px;margin-bottom:32px;font-weight:300;animation:fadeUp .6s ease .2s both;}
+.hero-tagline strong{color:var(--snow);font-weight:500;}
+.hero-includes{display:flex;flex-direction:column;gap:10px;margin-bottom:36px;animation:fadeUp .6s ease .25s both;}
+.hi{display:flex;align-items:center;gap:10px;font-size:.88rem;color:var(--warm-l);}
+.hi-check{width:18px;height:18px;border-radius:50%;background:rgba(45,158,107,.2);border:1px solid rgba(45,158,107,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--green-l);font-size:.7rem;font-weight:700;}
+.price-block{display:flex;align-items:center;gap:16px;margin-bottom:28px;animation:fadeUp .6s ease .3s both;}
+.price-num{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:3rem;color:var(--snow);letter-spacing:-.04em;line-height:1;}
+.price-desc{font-size:.82rem;color:var(--warm);line-height:1.5;}
+.btn-buy{background:var(--dawn);color:var(--snow);font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:1rem;padding:16px 36px;border-radius:100px;text-decoration:none;display:inline-block;box-shadow:0 4px 18px rgba(0,0,0,.5);transition:box-shadow .2s,transform .15s;position:relative;overflow:hidden;animation:fadeUp .6s ease .35s both;}
+.btn-buy::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);transform:translateX(-100%);transition:transform .5s;}
+.btn-buy:hover::after{transform:translateX(100%);}
+.btn-buy:hover{box-shadow:0 4px 18px rgba(0,0,0,.5);transform:translateY(-2px);color:var(--snow);}
+.guarantee{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--warm);margin-top:14px;animation:fadeUp .6s ease .4s both;}
+
+/* PIPELINE VISUAL */
+.hero-visual{position:relative;display:flex;justify-content:center;align-items:center;animation:fadeUp .8s ease .2s both;}
+.pipeline-wrap{width:100%;max-width:420px;}
+.pipeline-card{background:#000000;border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 0 0 1px var(--border-dawn),var(--shadow-lg);position:relative;}
+.pipeline-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--dawn),transparent);}
+.pipeline-topbar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);background:#000000;}
+.pipe-dots{display:flex;gap:5px;}
+.pipe-dot{width:9px;height:9px;border-radius:50%;}
+.pipe-dot-r{background:#E06060;opacity:.7;}
+.pipe-dot-y{background:#E0B060;opacity:.7;}
+.pipe-dot-g{background:#60C060;opacity:.7;}
+.pipe-title{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--warm);margin-left:6px;letter-spacing:.06em;}
+.pipeline-body{padding:20px;}
+.pipeline-steps{display:flex;flex-direction:column;gap:6px;}
+.pipe-step{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:#000000;opacity:.35;transform:translateX(-6px);transition:opacity .5s,transform .5s,border-color .5s,background .5s;}
+.pipe-step.active{opacity:1;transform:translateX(0);border-color:var(--border-dawn);background:rgba(196,96,48,.06);}
+.pipe-step.done{opacity:.7;transform:translateX(0);border-color:rgba(45,158,107,.2);background:rgba(45,158,107,.04);}
+.pipe-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;}
+.pipe-step.active .pipe-icon{background:rgba(196,96,48,.15);}
+.pipe-step.done .pipe-icon{background:rgba(45,158,107,.12);}
+.pipe-step:not(.active):not(.done) .pipe-icon{background:rgba(255,255,255,.04);}
+.pipe-label{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.85rem;color:var(--snow);}
+.pipe-sub{font-size:.7rem;color:var(--warm-l);font-family:'DM Mono',monospace;margin-top:1px;}
+.pipe-check{margin-left:auto;font-size:.75rem;color:var(--green-l);opacity:0;transition:opacity .3s;}
+.pipe-step.done .pipe-check{opacity:1;}
+.pipe-connector{width:1px;height:10px;background:var(--border);margin-left:27px;}
+.pipeline-result{margin-top:14px;padding:12px 14px;background:rgba(45,158,107,.07);border:1px solid rgba(45,158,107,.2);border-radius:10px;display:flex;align-items:center;gap:10px;opacity:0;transition:opacity .6s;}
+.pipeline-result.shown{opacity:1;}
+.pr-icon{font-size:1.1rem;}
+.pr-text{font-size:.78rem;color:var(--green-l);font-family:'DM Mono',monospace;}
+.pr-label{font-size:.65rem;color:var(--warm);margin-top:2px;}
+.pipe-chip{position:absolute;background:#000000;border:1px solid var(--border-dawn);border-radius:12px;padding:10px 14px;box-shadow:var(--shadow);font-size:.75rem;}
+.pc-1{top:-14px;right:-28px;animation:floatBob 4.2s ease-in-out infinite;}
+.pc-2{bottom:8px;left:-28px;animation:floatBob 4.8s ease-in-out infinite -2s;}
+.pc-label{color:var(--warm);font-size:.62rem;margin-bottom:3px;}
+.pc-val{color:var(--bone);font-weight:700;}
+.pc-sub{color:var(--dawn-l);font-size:.64rem;margin-top:2px;font-family:'DM Mono',monospace;}
+
+/* TIPOGRAFÍA COMÚN */
+.sk{display:block;font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--dawn-l);margin-bottom:14px;}
+.h2{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:clamp(1.9rem,3vw,2.6rem);line-height:1.1;letter-spacing:-.03em;color:var(--snow);}
+.h2 em{font-style:italic;color:var(--dawn-l);font-family:'DM Sans',sans-serif;font-weight:300;}
+.sub{color:var(--warm-l);font-size:.94rem;line-height:1.78;max-width:480px;font-weight:300;margin-top:14px;}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.vis{opacity:1;transform:translateY(0);}
+
+/* DIFERENCIADOR */
+.diferencia{padding:100px 60px;background:#000000;position:relative;overflow:hidden;}
+.diferencia .inner{max-width:900px;margin:0 auto;}
+.diferencia-head{margin-bottom:40px;}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:32px;}
+.compare-col{border-radius:14px;padding:24px 26px;}
+.compare-col.bad{background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.12);}
+.compare-col.good{background:rgba(45,158,107,.05);border:1px solid rgba(45,158,107,.18);}
+.compare-col-head{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.compare-col.bad .compare-col-head{color:#ef4444;}
+.compare-col.good .compare-col-head{color:var(--green-l);}
+.compare-col ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
+.compare-col ul li{font-size:.85rem;line-height:1.5;padding-left:16px;position:relative;}
+.compare-col.bad ul li{color:#fca5a5;}
+.compare-col.bad ul li::before{content:'✕';position:absolute;left:0;font-size:.7rem;top:3px;color:#ef4444;}
+.compare-col.good ul li{color:#86efac;}
+.compare-col.good ul li::before{content:'✓';position:absolute;left:0;font-size:.7rem;top:3px;color:var(--green-l);}
+
+/* PROBLEMA */
+.problema{padding:100px 60px;background:#000000;position:relative;overflow:hidden;}
+.problema .inner{max-width:900px;margin:0 auto;}
+.problema-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:48px;}
+.problem-points{display:flex;flex-direction:column;gap:16px;}
+.pp{display:flex;gap:14px;align-items:flex-start;}
+.pp-icon{width:38px;height:38px;border-radius:10px;background:rgba(196,96,48,.08);border:1px solid var(--border-dawn);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.9rem;}
+.pp-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.92rem;color:var(--snow);margin-bottom:4px;}
+.pp-desc{font-size:.82rem;color:var(--warm-l);line-height:1.55;}
+.stat-block{background:#000000;border:1px solid var(--border-dawn);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:20px;}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.stat-row:last-child{border-bottom:none;padding-bottom:0;}
+.stat-label{font-size:.84rem;color:var(--warm-l);}
+.stat-val{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1.3rem;color:var(--dawn-l);}
+.stat-val.big{font-size:1.9rem;color:var(--snow);}
+
+/* PARA QUIÉN */
+.forw{padding:100px 60px;background:#000000;position:relative;overflow:hidden;}
+.forw .inner{max-width:760px;margin:0 auto;}
+.forw-list{display:flex;flex-direction:column;gap:16px;margin-top:32px;}
+.fw-item{display:flex;align-items:flex-start;gap:14px;background:#000000;border:1px solid var(--border);border-radius:12px;padding:16px 20px;transition:border-color .2s;}
+.fw-item:hover{border-color:var(--border-dawn);}
+.fw-icon{width:36px;height:36px;border-radius:10px;background:rgba(196,96,48,.1);border:1px solid var(--border-dawn);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Mono',monospace;font-size:.72rem;font-weight:700;color:var(--dawn-l);}
+.fw-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.9rem;color:var(--snow);margin-bottom:4px;}
+.fw-desc{font-size:.8rem;color:var(--warm-l);line-height:1.5;}
+.forw-nolist{margin-top:32px;display:flex;flex-direction:column;gap:12px;}
+.no-item{display:flex;align-items:center;gap:10px;font-size:.86rem;color:var(--warm-l);}
+.no-x{width:18px;height:18px;border-radius:50%;background:rgba(220,50,50,.1);border:1px solid rgba(220,50,50,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#E06060;font-size:.65rem;font-weight:700;}
+
+/* MÓDULOS */
+.learn{padding:100px 60px;background:#000000;position:relative;overflow:hidden;}
+.learn .inner{max-width:1000px;margin:0 auto;}
+.learn-head{text-align:center;margin-bottom:56px;}
+.learn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.lc{background:#000000;border:1px solid var(--border);border-radius:16px;padding:26px;transition:border-color .3s,transform .3s;position:relative;overflow:hidden;}
+.lc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--dawn),transparent);opacity:0;transition:opacity .3s;}
+.lc:hover::before{opacity:1;}
+.lc:hover{border-color:var(--border-dawn);transform:translateY(-4px);}
+.lc-num{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:2.4rem;color:rgba(196,96,48,.1);line-height:1;margin-bottom:12px;}
+.lc h3{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.92rem;color:var(--snow);margin-bottom:8px;}
+.lc p{font-size:.82rem;color:var(--warm-l);line-height:1.65;font-weight:300;}
+.lc-tag{display:inline-block;margin-top:12px;font-size:.68rem;font-weight:600;padding:4px 10px;border-radius:100px;background:rgba(196,96,48,.09);color:var(--dawn-l);}
+
+/* ENTREGABLES */
+.entregables{padding:100px 60px;background:#000000;}
+.entregables .inner{max-width:860px;margin:0 auto;}
+.entregables-head{text-align:center;margin-bottom:48px;}
+.entregables-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.entregable{display:flex;align-items:flex-start;gap:14px;background:#000000;border:1px solid var(--border);border-radius:12px;padding:18px 20px;transition:border-color .2s;}
+.entregable:hover{border-color:var(--border-dawn);}
+.ent-num{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1.6rem;color:rgba(196,96,48,.15);line-height:1;flex-shrink:0;min-width:28px;}
+.ent-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.88rem;color:var(--snow);margin-bottom:3px;}
+.ent-desc{font-size:.78rem;color:var(--warm-l);line-height:1.5;}
+
+/* CONTENIDO */
+.contents{padding:100px 60px;background:#000000;}
+.contents .inner{max-width:720px;margin:0 auto;}
+.contents-head{text-align:center;margin-bottom:48px;}
+.module-block{margin-bottom:32px;}
+.module-label{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.mod-num{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--dawn);font-weight:500;letter-spacing:.1em;text-transform:uppercase;}
+.mod-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.88rem;color:var(--warm-l);}
+.chapter{display:flex;gap:14px;padding:13px 0;border-bottom:1px solid var(--border);}
+.chapter:last-child{border-bottom:none;}
+.ch-num{font-family:'DM Mono',monospace;font-size:.68rem;font-weight:500;color:var(--dawn-l);flex-shrink:0;padding-top:3px;min-width:28px;}
+.ch-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.88rem;color:var(--snow);margin-bottom:3px;}
+.ch-desc{font-size:.79rem;color:var(--warm-l);line-height:1.55;font-weight:300;}
+.ch-tag{display:inline-block;margin-top:6px;font-size:.67rem;font-weight:600;padding:3px 9px;border-radius:100px;}
+.ch-tag.free{background:rgba(45,158,107,.12);color:var(--green-l);}
+.ch-tag.act{background:rgba(196,96,48,.1);color:var(--dawn-l);}
+.ch-tag.tmpl{background:rgba(58,100,148,.15);color:var(--sky-l);}
+.ch-tag.prompt{background:rgba(184,212,236,.1);color:var(--ice);}
+
+/* INSTRUCTORA */
+.instructor{padding:100px 60px;background:#000000;}
+.instructor .inner{max-width:800px;margin:0 auto;display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;}
+.inst-img{width:200px;filter:drop-shadow(0 12px 32px rgba(0,0,0,.6));animation:floatBob 5s ease-in-out infinite;}
+.inst-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(196,96,48,.1);border:1px solid var(--border-dawn);color:var(--dawn-ll);font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:100px;margin-bottom:16px;}
+.inst-name{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1.8rem;color:var(--snow);margin-bottom:12px;letter-spacing:-.02em;}
+.inst-bio{font-size:.9rem;color:var(--warm-l);line-height:1.75;font-weight:300;margin-bottom:20px;}
+.inst-stats{display:flex;gap:28px;}
+.is-num{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1.4rem;color:var(--dawn-l);}
+.is-label{font-size:.72rem;color:var(--warm);margin-top:2px;}
+
+/* FAQ */
+.faq{padding:100px 60px;background:#000000;}
+.faq .inner{max-width:700px;margin:0 auto;}
+.faq-head{text-align:center;margin-bottom:48px;}
+.faq-item{border-bottom:1px solid var(--border);}
+.faq-q{width:100%;background:none;border:none;text-align:left;padding:20px 0;font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.95rem;color:var(--snow);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;transition:color .2s;}
+.faq-q:hover{color:var(--dawn-l);}
+.faq-arrow{font-size:.8rem;color:var(--dawn-l);transition:transform .3s;flex-shrink:0;}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s;}
+.faq-a.open{max-height:280px;padding-bottom:20px;}
+.faq-a p{font-size:.88rem;color:var(--warm-l);line-height:1.7;font-weight:300;}
+
+/* CTA FINAL */
+.cta-final{padding:120px 60px;background:radial-gradient(ellipse 80% 60% at 20% 40%,rgba(196,96,48,.14) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 60%,rgba(58,100,148,.1) 0%,transparent 55%),var(--ink3);position:relative;overflow:hidden;}
+.cta-final .inner{max-width:640px;margin:0 auto;text-align:center;position:relative;z-index:2;}
+.cta-aury{width:110px;margin:0 auto 24px;filter:drop-shadow(0 12px 32px rgba(0,0,0,.6));animation:floatBob 4.5s ease-in-out infinite;display:block;}
+.cta-final .h2{font-size:clamp(2rem,3.2vw,2.8rem);}
+.cta-final .sub{margin:14px auto 32px;text-align:center;}
+.price-final{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:2.5rem;color:var(--snow);letter-spacing:-.04em;margin-bottom:24px;}
+.price-final span{color:var(--dawn-l);}
+.cta-note{font-size:.78rem;color:var(--warm);margin-top:14px;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+@keyframes floatBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+@media(max-width:960px){
+  body{cursor:auto;}.cr,.crr{display:none;}
+  .nav{padding:14px 24px;}
+  .hero{padding:100px 24px 60px;}
+  .hero-inner{grid-template-columns:1fr;gap:48px;}
+  .hero-visual{order:-1;}
+  .pc-1,.pc-2{display:none;}
+  .diferencia,.problema,.forw,.learn,.entregables,.contents,.instructor,.faq,.cta-final{padding:70px 24px;}
+  .compare-grid{grid-template-columns:1fr;}
+  .problema-grid{grid-template-columns:1fr;}
+  .learn-grid{grid-template-columns:1fr;}
+  .entregables-grid{grid-template-columns:1fr;}
+  .instructor .inner{grid-template-columns:1fr;}
+  .inst-img{width:160px;margin:0 auto;}
+  .inst-stats{flex-wrap:wrap;gap:20px;}
+}
+</style>
+</head>
+<body>
+
+<div class="snow-field" id="snowField"></div>
+<div class="cr" id="cr"></div>
+<div class="crr" id="crr"></div>
+
+<nav class="nav" id="nav">
+  <a href="https://auryontech.com" class="nav-logo">
+    <div class="nav-mark"><img decoding="async" src="assets/img/Aury-Art-Computadora-1-2.png" alt="Aury"/></div>
+    <span class="nav-word">Aury<span>OnTech</span></span>
+  </a>
+  <a href="https://auryontech.com" class="nav-back">← Volver al inicio</a>
+  <a href="#empezar" class="nav-cta-pill">Empezar gratis</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="aurora"></div>
+
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="course-badge"><span class="badge-dot"></span>Curso gratuito · 5 Módulos · Contenido real con IA</div>
+      <h1 class="hero-h1">Publica con IA.<br/><span class="accent">Sin que se note.</span></h1>
+      <p class="hero-tagline"><strong>No es otro curso de ChatGPT.</strong> Es el sistema para pasar de prompt a contenido publicado, con tu voz, en 10 minutos por pieza.</p>
+
+      <div class="hero-includes">
+        <div class="hi"><div class="hi-check">✓</div>El sistema de los 3 tipos de contenido que mueven negocios reales</div>
+        <div class="hi"><div class="hi-check">✓</div>Guion de Reel, carrusel de 7 slides y email de la semana — listos para usar</div>
+        <div class="hi"><div class="hi-check">✓</div>Calendario de 4 semanas listo para copiar y ejecutar</div>
+        <div class="hi"><div class="hi-check">✓</div>Los 5 síntomas del contenido que suena a IA y cómo eliminarlos</div>
+        <div class="hi"><div class="hi-check">✓</div>Herramientas 100% gratuitas · Sin tarjeta ni suscripción</div>
+      </div>
+
+      <div class="price-block">
+        <div class="price-num">Gratis</div>
+        <div class="price-desc">Para siempre<br/>Sin suscripción</div>
+      </div>
+
+      <a href="index.htmlmaterial-publica-con-ia-sin-que-se-note/" class="btn-buy" id="empezar">Quiero publicar con IA →</a>
+      <div class="guarantee">📲 ChatGPT gratuito es suficiente · Acceso inmediato · Sin tarjeta</div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="pipe-chip pc-1">
+        <div class="pc-label">Tiempo por pieza</div>
+        <div class="pc-val">10 minutos</div>
+        <div class="pc-sub">de prompt a publicado</div>
+      </div>
+      <div class="pipe-chip pc-2">
+        <div class="pc-label">Entregables</div>
+        <div class="pc-val">7 piezas</div>
+        <div class="pc-sub">listas al terminar</div>
+      </div>
+      <div class="pipeline-wrap">
+        <div class="pipeline-card">
+          <div class="pipeline-topbar">
+            <div class="pipe-dots">
+              <div class="pipe-dot pipe-dot-r"></div>
+              <div class="pipe-dot pipe-dot-y"></div>
+              <div class="pipe-dot pipe-dot-g"></div>
+            </div>
+            <span class="pipe-title">flujo_de_produccion.txt</span>
+          </div>
+          <div class="pipeline-body">
+            <div class="pipeline-steps" id="pipeSteps">
+              <div class="pipe-step" data-step="0">
+                <div class="pipe-icon">💡</div>
+                <div><div class="pipe-label">Idea</div><div class="pipe-sub">tema + objetivo</div></div>
+                <div class="pipe-check">✓</div>
+              </div>
+              <div class="pipe-connector"></div>
+              <div class="pipe-step" data-step="1">
+                <div class="pipe-icon">⚡</div>
+                <div><div class="pipe-label">Prompt</div><div class="pipe-sub">estructura fija</div></div>
+                <div class="pipe-check">✓</div>
+              </div>
+              <div class="pipe-connector"></div>
+              <div class="pipe-step" data-step="2">
+                <div class="pipe-icon">📝</div>
+                <div><div class="pipe-label">Borrador</div><div class="pipe-sub">generado en 30 seg</div></div>
+                <div class="pipe-check">✓</div>
+              </div>
+              <div class="pipe-connector"></div>
+              <div class="pipe-step" data-step="3">
+                <div class="pipe-icon">🎯</div>
+                <div><div class="pipe-label">Tu voz</div><div class="pipe-sub">filtro del módulo 4</div></div>
+                <div class="pipe-check">✓</div>
+              </div>
+              <div class="pipe-connector"></div>
+              <div class="pipe-step" data-step="4">
+                <div class="pipe-icon">🚀</div>
+                <div><div class="pipe-label">Publicado</div><div class="pipe-sub">con tu nombre</div></div>
+                <div class="pipe-check">✓</div>
+              </div>
+            </div>
+            <div class="pipeline-result" id="pipeResult">
+              <div class="pr-icon">✅</div>
+              <div><div class="pr-text">Contenido publicado</div><div class="pr-label">que no suena a IA</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIFERENCIADOR -->
+<section class="diferencia">
+  <div class="inner">
+    <div class="diferencia-head reveal">
+      <span class="sk">Por qué este curso es distinto</span>
+      <h2 class="h2">No más prompts genéricos.<br/><em>Un sistema de producción completo.</em></h2>
+      <p class="sub">Los cursos de IA te enseñan a usar la herramienta. Este te enseña a publicar con ella sin que nadie lo note.</p>
+    </div>
+    <div class="compare-grid reveal">
+      <div class="compare-col bad">
+        <div class="compare-col-head">✕ Lo que enseñan los demás</div>
+        <ul>
+          <li>Cómo escribir prompts</li>
+          <li>Teoría sobre herramientas de IA</li>
+          <li>Resultados que suenan a máquina</li>
+          <li>Ideas sueltas sin estructura</li>
+          <li>Contenido genérico para cualquier negocio</li>
+        </ul>
+      </div>
+      <div class="compare-col good">
+        <div class="compare-col-head">✓ Lo que aprenderás aquí</div>
+        <ul>
+          <li>Sistema de producción de principio a fin</li>
+          <li>3 formatos dominados con estructura probada</li>
+          <li>Contenido con tu voz que nadie identificaría como IA</li>
+          <li>Calendario de un mes funcionando</li>
+          <li>7 piezas reales publicadas al terminar</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMA -->
+<section class="problema">
+  <div class="inner">
+    <div class="reveal">
+      <span class="sk">El problema real</span>
+      <h2 class="h2">No te falta creatividad.<br/><em>Te falta sistema.</em></h2>
+    </div>
+    <div class="problema-grid reveal">
+      <div class="problem-points">
+        <div class="pp">
+          <div class="pp-icon">📱</div>
+          <div>
+            <div class="pp-title">Tienes ChatGPT y sigues publicando una vez cada dos semanas</div>
+            <div class="pp-desc">Abres la herramienta sin saber qué pedir ni en qué formato. La IA te da algo genérico. Lo cierras.</div>
+          </div>
+        </div>
+        <div class="pp">
+          <div class="pp-icon">✏️</div>
+          <div>
+            <div class="pp-title">Lo que genera no suena a ti</div>
+            <div class="pp-desc">Lo editas tanto que tardas más que escribiéndolo a mano. La IA no te ahorra tiempo — te lo complica.</div>
+          </div>
+        </div>
+        <div class="pp">
+          <div class="pp-icon">🔄</div>
+          <div>
+            <div class="pp-title">Empiezas desde cero cada vez</div>
+            <div class="pp-desc">Sin calendario, sin estructura, sin sistema. Cada publicación es un esfuerzo enorme que no se debería repetir.</div>
+          </div>
+        </div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-row">
+          <span class="stat-label">Tiempo medio por pieza sin sistema</span>
+          <span class="stat-val">2 horas</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Tiempo medio por pieza con este sistema</span>
+          <span class="stat-val">10 min</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Formatos dominados al terminar el curso</span>
+          <span class="stat-val">3</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Piezas publicadas como actividad final</span>
+          <span class="stat-val big">7</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARA QUIÉN -->
+<section class="forw">
+  <div class="inner">
+    <div class="reveal">
+      <span class="sk">Para quién es</span>
+      <h2 class="h2">Si ya usas IA pero tu contenido<br/><em>sigue sin funcionar como quieres,</em></h2>
+      <p class="sub">este curso resuelve exactamente ese problema.</p>
+    </div>
+    <div class="forw-list reveal">
+      <div class="fw-item">
+        <div class="fw-icon">A</div>
+        <div>
+          <div class="fw-title">Tienes un negocio y publicas de forma irregular porque crear contenido te lleva demasiado tiempo</div>
+          <div class="fw-desc">Este sistema reduce la producción de una pieza de dos horas a diez minutos. Sin sacrificar calidad ni voz propia.</div>
+        </div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-icon">B</div>
+        <div>
+          <div class="fw-title">Usas IA pero el resultado siempre suena genérico y acabas reescribiéndolo entero</div>
+          <div class="fw-desc">El módulo 4 está dedicado en exclusiva a esto. Los 5 síntomas del texto robot y cómo eliminarlos antes de publicar.</div>
+        </div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-icon">C</div>
+        <div>
+          <div class="fw-title">Hiciste el curso de prompts y quieres el siguiente paso concreto</div>
+          <div class="fw-desc">Perfecto. Ya tienes la técnica. Aquí está el sistema de producción que la convierte en contenido publicado de forma consistente.</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:48px;">
+      <div class="reveal"><span class="sk" style="color:var(--warm-l)">Para quién NO es</span></div>
+      <div class="forw-nolist reveal">
+        <div class="no-item"><div class="no-x">✕</div>Si ya publicas 5 veces a la semana de forma consistente — aquí no hay nada nuevo para ti</div>
+        <div class="no-item"><div class="no-x">✕</div>Si buscas estrategia de marca, identidad visual o diseño — eso no está en este curso</div>
+        <div class="no-item"><div class="no-x">✕</div>Si no tienes 20 minutos los lunes para planificar. Sin ese hábito, el sistema no funciona.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LO QUE APRENDES -->
+<section class="learn">
+  <div class="inner">
+    <div class="learn-head reveal">
+      <span class="sk">Lo que vas a dominar</span>
+      <h2 class="h2">Cinco módulos. Un resultado:<br/><em>contenido publicado con tu voz.</em></h2>
+      <p class="sub" style="margin:14px auto 0;text-align:center;">Cada módulo termina con algo concreto que produces para tu negocio real.</p>
+    </div>
+    <div class="learn-grid reveal">
+      <div class="lc">
+        <div class="lc-num">01</div>
+        <h3>El cuello de botella no son las ideas</h3>
+        <p>Los 3 bloqueos reales que impiden publicar, los formatos que generan el 80% del impacto y cómo elegir tu plataforma principal.</p>
+        <span class="lc-tag">3 lecciones · actividad</span>
+      </div>
+      <div class="lc">
+        <div class="lc-num">02</div>
+        <h3>El sistema de los 3 tipos de contenido</h3>
+        <p>Entretiene, educa, vende — la proporción exacta y el prompt para generar un calendario de 4 semanas completo en 20 minutos.</p>
+        <span class="lc-tag">2 lecciones · calendario</span>
+      </div>
+      <div class="lc">
+        <div class="lc-num">03</div>
+        <h3>Produce cada formato con IA en menos de 10 minutos</h3>
+        <p>Guion de Reel, carrusel de 7 slides, email de 5 párrafos. Y cómo multiplicar un tema en 3 formatos sin que parezca el mismo contenido.</p>
+        <span class="lc-tag">4 lecciones · prompts</span>
+      </div>
+      <div class="lc">
+        <div class="lc-num">04</div>
+        <h3>Que no se note que usaste IA</h3>
+        <p>Los 5 síntomas del contenido que delata a la IA y el 10% que siempre tienes que escribir tú. El módulo que más diferencia a este curso.</p>
+        <span class="lc-tag">2 lecciones · filtro</span>
+      </div>
+      <div class="lc">
+        <div class="lc-num">05</div>
+        <h3>El flujo semanal en marcha</h3>
+        <p>El proceso de los lunes en 20 minutos y el ciclo de producción de 10 minutos por pieza. La actividad final: una semana completa publicada.</p>
+        <span class="lc-tag">2 lecciones · sistema</span>
+      </div>
+      <div class="lc" style="background:rgba(196,96,48,.04);border-color:var(--border-dawn);">
+        <div class="lc-num" style="color:rgba(196,96,48,.25);">🐧</div>
+        <h3 style="color:var(--dawn-ll);">Certificado de finalización</h3>
+        <p>Al completar el curso descarga tu certificado personalizado en PDF. El mismo diseño que en todos los cursos de AuryOnTech.</p>
+        <span class="lc-tag" style="background:rgba(196,96,48,.15);color:var(--dawn-ll);">Descargable</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ENTREGABLES -->
+<section class="entregables">
+  <div class="inner">
+    <div class="entregables-head reveal">
+      <span class="sk">Los 7 entregables</span>
+      <h2 class="h2">Al terminar no tienes conocimiento.<br/><em>Tienes cosas publicadas.</em></h2>
+      <p class="sub" style="text-align:center;margin:14px auto 0;">Esto es lo que produces durante el curso y que puedes usar desde el día que terminas.</p>
+    </div>
+    <div class="entregables-grid reveal">
+      <div class="entregable">
+        <div class="ent-num">01</div>
+        <div><div class="ent-title">Guion de Reel listo para grabar</div><div class="ent-desc">Gancho, desarrollo y CTA estructurado. Solo abre la cámara.</div></div>
+      </div>
+      <div class="entregable">
+        <div class="ent-num">02</div>
+        <div><div class="ent-title">Carrusel de 7 slides para Canva</div><div class="ent-desc">Texto completo por slide listo para copiar al diseño.</div></div>
+      </div>
+      <div class="entregable">
+        <div class="ent-num">03</div>
+        <div><div class="ent-title">Email semanal escrito y listo para enviar</div><div class="ent-desc">Los 5 párrafos con asunto, cuerpo y CTA cerrado.</div></div>
+      </div>
+      <div class="entregable">
+        <div class="ent-num">04</div>
+        <div><div class="ent-title">Calendario de contenido de 4 semanas</div><div class="ent-desc">Temas, formatos y objetivos definidos para el mes completo.</div></div>
+      </div>
+      <div class="entregable">
+        <div class="ent-num">05</div>
+        <div><div class="ent-title">Filtro para detectar texto de IA</div><div class="ent-desc">El checklist de los 5 síntomas para revisar antes de publicar.</div></div>
+      </div>
+      <div class="entregable">
+        <div class="ent-num">06</div>
+        <div><div class="ent-title">El prompt de multiplicación de contenido</div><div class="ent-desc">1 tema convertido en 3 formatos distintos sin repetirse.</div></div>
+      </div>
+      <div class="entregable" style="grid-column:1/-1;border-color:var(--border-dawn);background:rgba(196,96,48,.04);">
+        <div class="ent-num" style="color:rgba(196,96,48,.3);">07</div>
+        <div><div class="ent-title" style="color:var(--dawn-ll);">El proceso de los lunes documentado</div><div class="ent-desc">El sistema de planificación semanal de 20 minutos listo para repetir cada semana.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTENIDO -->
+<section class="contents">
+  <div class="inner">
+    <div class="contents-head reveal">
+      <span class="sk">Contenido del curso</span>
+      <h2 class="h2">Las 12 lecciones,<br/><em>módulo por módulo.</em></h2>
+    </div>
+    <div class="reveal">
+
+      <div class="module-block">
+        <div class="module-label"><span class="mod-num">Módulo 01</span><span class="mod-title">El cuello de botella no son las ideas</span></div>
+        <div class="chapter"><div class="ch-num">1.1</div><div><div class="ch-title">Por qué no publicas aunque tengas ChatGPT</div><div class="ch-desc">Los 3 bloqueos reales: no saber qué pedir, que el resultado no suene a ti y no tener sistema. Diagnóstico con actividad.</div><span class="ch-tag act">Actividad</span></div></div>
+        <div class="chapter"><div class="ch-num">1.2</div><div><div class="ch-title">Los 3 formatos que mueven el 80% del impacto</div><div class="ch-desc">Reel, carrusel y email. Por qué son suficientes y por qué intentar más formatos te paraliza en lugar de ayudarte.</div><span class="ch-tag free">Quiz incluido</span></div></div>
+        <div class="chapter"><div class="ch-num">1.3</div><div><div class="ch-title">Una plataforma, un sistema, un resultado</div><div class="ch-desc">Tabla comparativa por plataforma y la regla del 80/20 del contenido. Eliges una y construyes desde ahí.</div><span class="ch-tag act">Checklist</span></div></div>
+      </div>
+
+      <div class="module-block">
+        <div class="module-label"><span class="mod-num">Módulo 02</span><span class="mod-title">El sistema de los 3 tipos de contenido</span></div>
+        <div class="chapter"><div class="ch-num">2.1</div><div><div class="ch-title">Contenido que entretiene, educa y vende</div><div class="ch-desc">La lógica detrás de la proporción 50/25/25 y por qué publicar solo contenido de venta te hace invisible.</div><span class="ch-tag free">Gratis</span></div></div>
+        <div class="chapter"><div class="ch-num">2.2</div><div><div class="ch-title">El calendario de 4 semanas</div><div class="ch-desc">El prompt completo para generar un mes de contenido planificado en 20 minutos. Listo para copiar y ejecutar.</div><span class="ch-tag prompt">Prompt copiable</span></div></div>
+      </div>
+
+      <div class="module-block">
+        <div class="module-label"><span class="mod-num">Módulo 03</span><span class="mod-title">Produce cada formato con IA en menos de 10 minutos</span></div>
+        <div class="chapter"><div class="ch-num">3.1</div><div><div class="ch-title">El guion de Reel: gancho, desarrollo y CTA</div><div class="ch-desc">La estructura de los 3 bloques y el prompt para generar el guion completo. Con el error más frecuente en ganchos.</div><span class="ch-tag prompt">Prompt copiable</span></div></div>
+        <div class="chapter"><div class="ch-num">3.2</div><div><div class="ch-title">El carrusel que enseña: estructura de 7 slides</div><div class="ch-desc">Qué va en cada slide, por qué la slide 6 genera más guardados y el prompt completo para producirlo.</div><span class="ch-tag prompt">Prompt copiable</span></div></div>
+        <div class="chapter"><div class="ch-num">3.3</div><div><div class="ch-title">El email de la semana: los 5 párrafos que siempre funcionan</div><div class="ch-desc">La estructura apertura — problema — valor — transición — CTA con el prompt listo para usar cada semana.</div><span class="ch-tag prompt">Prompt copiable</span></div></div>
+        <div class="chapter"><div class="ch-num">3.4</div><div><div class="ch-title">Un contenido, tres formatos — sin repetirte</div><div class="ch-desc">El prompt de multiplicación: un tema abordado desde tres ángulos distintos para tres piezas que parecen independientes.</div><span class="ch-tag tmpl">Plantilla</span></div></div>
+      </div>
+
+      <div class="module-block">
+        <div class="module-label"><span class="mod-num">Módulo 04</span><span class="mod-title">Que no se note que usaste IA</span></div>
+        <div class="chapter"><div class="ch-num">4.1</div><div><div class="ch-title">Los 5 síntomas del contenido que suena a robot</div><div class="ch-desc">Frases genéricas de apertura, adjetivos vacíos, conclusiones redundantes y ausencia de especificidad. Cómo detectarlos y eliminarlos.</div><span class="ch-tag act">Filtro incluido</span></div></div>
+        <div class="chapter"><div class="ch-num">4.2</div><div><div class="ch-title">El 10% que siempre escribe el humano</div><div class="ch-desc">Qué parte nunca puede delegar a la IA y la prueba definitiva para saber si tu contenido suena a ti o a cualquiera.</div><span class="ch-tag act">Actividad</span></div></div>
+      </div>
+
+      <div class="module-block">
+        <div class="module-label"><span class="mod-num">Módulo 05</span><span class="mod-title">El flujo semanal en marcha</span></div>
+        <div class="chapter"><div class="ch-num">5.1</div><div><div class="ch-title">Lunes de planificación: 7 contenidos en 20 minutos</div><div class="ch-desc">El proceso de los 3 pasos que elimina para siempre la pregunta «¿qué publico hoy?». Con recordatorio y plantilla.</div><span class="ch-tag act">Sistema</span></div></div>
+        <div class="chapter"><div class="ch-num">5.2</div><div><div class="ch-title">Produce, revisa y publica — el ciclo de los 10 minutos</div><div class="ch-desc">El flujo minuto a minuto y la actividad final: una semana completa de contenido publicado con este sistema.</div><span class="ch-tag act">Actividad final</span></div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- INSTRUCTORA -->
+<section class="instructor">
+  <div class="inner reveal">
+    <img decoding="async" class="inst-img" src="assets/img/Aury-Estudiando.png" alt="Aury"/>
+    <div>
+      <div class="inst-badge">Tu instructora</div>
+      <div class="inst-name">Aury</div>
+      <p class="inst-bio">Empezó vendiendo pescado en la Antártida y gestionando todo a mano. Cuando descubrió la automatización y la IA, su negocio cambió por completo. Hoy ayuda a negocios de todo tipo a usar la tecnología de forma práctica y sin tecnicismos.</p>
+      <p class="inst-bio">Este sistema nació de publicar contenido real para un negocio real. No teoría sobre lo que debería funcionar — lo que funciona cuando tienes poco tiempo y necesitas que el contenido suene a ti.</p>
+      <div class="inst-stats">
+        <div><div class="is-num">12</div><div class="is-label">lecciones prácticas</div></div>
+        <div><div class="is-num">7</div><div class="is-label">entregables reales</div></div>
+        <div><div class="is-num">0€</div><div class="is-label">para empezar</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <div class="inner">
+    <div class="faq-head reveal">
+      <span class="sk">Preguntas frecuentes</span>
+      <h2 class="h2">Lo que suelen<br/><em>preguntar antes de apuntarse.</em></h2>
+    </div>
+    <div class="reveal">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">¿En qué se diferencia del curso de prompts de AuryOnTech? <span class="faq-arrow">↓</span></button>
+        <div class="faq-a"><p>El curso de prompts enseña la técnica: cómo hablarle a la IA para obtener mejores resultados. Este curso enseña el sistema de producción completo: qué publicar, en qué formato, con qué estructura y cómo publicarlo sin que suene a máquina. Son complementarios — el de prompts es el martillo, este es el plano de construcción. Puedes hacer este curso aunque no hayas hecho el de prompts.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">¿Necesito tener ya una audiencia o seguidores para hacer este curso? <span class="faq-arrow">↓</span></button>
+        <div class="faq-a"><p>No. El sistema funciona igual si tienes 50 seguidores que si tienes 5.000. De hecho, es más fácil construir el hábito cuando la presión de la audiencia es menor. Empieza ahora, la audiencia llega después de publicar con consistencia.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">¿Funciona para cualquier sector o red social? <span class="faq-arrow">↓</span></button>
+        <div class="faq-a"><p>El sistema de los 3 tipos de contenido y los prompts de producción funcionan en cualquier sector y en cualquier plataforma. La lección 1.3 te ayuda a elegir tu plataforma principal y adaptar el enfoque. Los formatos — Reel, carrusel y email — son los de mayor impacto en Instagram, LinkedIn y TikTok.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">¿Cuánto tiempo necesito para completarlo? <span class="faq-arrow">↓</span></button>
+        <div class="faq-a"><p>Cada lección lleva entre 15 y 25 minutos si haces la actividad incluida. El curso completo puedes terminarlo en un fin de semana. El sistema que instalas al terminar te ahorra entre 5 y 8 horas de producción al mes.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">¿Qué herramientas necesito? ¿Hay algo de pago? <span class="faq-arrow">↓</span></button>
+        <div class="faq-a"><p>Solo necesitas ChatGPT gratuito y Canva gratuito para los carruseles. El email puedes enviarlo desde cualquier plataforma que ya uses — Brevo, Mailchimp o incluso Gmail al principio. No hay ninguna herramienta de pago necesaria para completar el curso.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">¿Por qué es gratis? ¿Qué me vas a vender después? <span class="faq-arrow">↓</span></button>
+        <div class="faq-a"><p>Transparencia total: en AuryOnTech hay otros cursos y servicios de consultoría de pago. Este es gratuito porque queremos que compruebes el valor antes de invertir. Si el sistema funciona para ti, ya verás si quieres ir más lejos. Sin correos de venta agresivos, sin urgencias artificiales.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <div class="inner">
+    <div class="reveal">
+      <img decoding="async" class="cta-aury" src="assets/img/Aury-Saludando.png" alt="Aury"/>
+      <h2 class="h2">Ya tienes la herramienta.<br/><em>Ahora publica con ella.</em></h2>
+      <p class="sub">El sistema completo para pasar de prompt a publicado, con tu voz, en 10 minutos por pieza.</p>
+      <div class="price-final"><span>Gratis</span> · Para siempre</div>
+      <a href="index.htmlmaterial-publica-con-ia-sin-que-se-note/" class="btn-buy">Empezar el curso ahora →</a>
+      <div class="cta-note">Sin tarjeta · ChatGPT gratuito es suficiente · Acceso inmediato</div>
+    </div>
+  </div>
+</section>
+
+<script>
+const cr=document.getElementById('cr'),crr=document.getElementById('crr');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cr.style.left=mx+'px';cr.style.top=my+'px';});
+(function anim(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;crr.style.left=rx+'px';crr.style.top=ry+'px';requestAnimationFrame(anim);})();
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cr.style.width='16px';cr.style.height='16px';crr.style.width='44px';crr.style.height='44px';});
+  el.addEventListener('mouseleave',()=>{cr.style.width='9px';cr.style.height='9px';crr.style.width='30px';crr.style.height='30px';});
+});
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>40));
+const obs=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis');});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+const sf=document.getElementById('snowField');
+const sc=['*','+','·','❄','✦'];
+for(let i=0;i<20;i++){const f=document.createElement('div');f.className='flake';f.textContent=sc[Math.floor(Math.random()*sc.length)];f.style.left=Math.random()*100+'vw';f.style.animationDuration=(8+Math.random()*14)+'s';f.style.animationDelay=(-Math.random()*14)+'s';f.style.fontSize=(8+Math.random()*8)+'px';f.style.opacity=Math.random()*.4;sf.appendChild(f);}
+function toggleFaq(btn){
+  const a=btn.nextElementSibling;
+  const arrow=btn.querySelector('.faq-arrow');
+  const isOpen=a.classList.contains('open');
+  document.querySelectorAll('.faq-a.open').forEach(el=>{el.classList.remove('open');el.previousElementSibling.querySelector('.faq-arrow').style.transform='rotate(0deg)';});
+  if(!isOpen){a.classList.add('open');arrow.style.transform='rotate(180deg)';}
+}
+
+/* PIPELINE ANIMADO */
+const steps=document.querySelectorAll('.pipe-step');
+const result=document.getElementById('pipeResult');
+let current=0;
+function advancePipeline(){
+  steps.forEach((s,i)=>{
+    s.classList.remove('active','done');
+    if(i<current)s.classList.add('done');
+    if(i===current)s.classList.add('active');
+  });
+  result.classList.toggle('shown',current>=steps.length);
+  if(current<steps.length){current++;setTimeout(advancePipeline,900);}
+  else{setTimeout(()=>{current=0;result.classList.remove('shown');advancePipeline();},3500);}
+}
+const heroObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){heroObs.disconnect();setTimeout(advancePipeline,800);}});},{threshold:0.3});
+heroObs.observe(document.querySelector('.hero'));
+</script>
+</body>
+</html>

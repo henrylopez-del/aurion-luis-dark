@@ -11,15 +11,15 @@
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="AuryOnTech — IA y Automatización sin código"/>
 <meta property="og:description" content="Cursos prácticos para automatizar tu negocio con IA. Empieza gratis hoy."/>
-<meta property="og:image" content="https://auryontech.com/wp-content/uploads/2026/03/Aury-enfrente-de-la-Compu.png"/>
+<meta property="og:image" content="assets/img/Aury-enfrente-de-la-Compu.png"/>
 <meta property="og:url" content="https://auryontech.com"/>
 <meta property="og:locale" content="es_ES"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="AuryOnTech — IA y Automatización sin código"/>
 <meta name="twitter:description" content="Cursos prácticos para automatizar tu negocio con IA. Empieza gratis hoy."/>
-<meta name="twitter:image" content="https://auryontech.com/wp-content/uploads/2026/03/Aury-enfrente-de-la-Compu.png"/>
-<link rel="icon" type="image/png" href="https://auryontech.com/wp-content/uploads/2026/03/Aury-Art-Computadora-1-2.png"/>
-<link rel="apple-touch-icon" href="https://auryontech.com/wp-content/uploads/2026/03/Aury-Art-Computadora-1-2.png"/>
+<meta name="twitter:image" content="assets/img/Aury-enfrente-de-la-Compu.png"/>
+<link rel="icon" type="image/png" href="assets/img/Aury-Art-Computadora-1-2.png"/>
+<link rel="apple-touch-icon" href="assets/img/Aury-Art-Computadora-1-2.png"/>
 <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet"/>
 <style>
@@ -37,7 +37,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{font-family:'DM Sans',sans-serif;background:#000000;color:var(--bone);overflow-x:hidden;}
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;opacity:.35;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.045'/%3E%3C/svg%3E");}
+body::after{display:none;}
 #sp{position:fixed;top:0;left:0;height:2px;z-index:9999;width:0%;background:linear-gradient(90deg,var(--dawn),var(--dawn-l),var(--dawn-ll));}
 .cr{position:fixed;width:9px;height:9px;background:var(--dawn);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s;}
 .crr{position:fixed;width:30px;height:30px;border:1.5px solid var(--dawn-l);border-radius:50%;pointer-events:none;z-index:9997;transform:translate(-50%,-50%);opacity:.3;transition:width .3s,height .3s;}
@@ -48,7 +48,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;o
 .aury-bubble{background:var(--ink3);border:1px solid var(--border-dawn);border-radius:16px 16px 4px 16px;padding:12px 16px;max-width:220px;font-size:.8rem;color:var(--bone);line-height:1.55;font-weight:400;box-shadow:var(--shadow);animation:bubblePop .3s cubic-bezier(.34,1.56,.64,1) both;opacity:0;transition:opacity .3s;pointer-events:auto;}
 .aury-bubble.visible{opacity:1;}
 .aury-bubble strong{color:var(--dawn-ll);font-weight:600;}
-.aury-img{width:90px;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 8px 20px rgba(196,96,48,.2));animation:auryFloat 4s ease-in-out infinite;transition:transform .2s;}
+.aury-img{width:90px;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 8px 20px rgba(0,0,0,.6));animation:auryFloat 4s ease-in-out infinite;transition:transform .2s;}
 .aury-img:hover{transform:scale(1.08);}
 @keyframes auryFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
 @keyframes bubblePop{from{transform:scale(.8) translateY(10px);}to{transform:scale(1) translateY(0);}}
@@ -71,7 +71,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;o
 .mmenu a{font-family:'Cabinet Grotesk',sans-serif;font-size:1.8rem;font-weight:700;color:var(--bone);text-decoration:none;transition:color .2s;}
 .mmenu a:hover{color:var(--dawn-l);}
 .mm-close{position:absolute;top:20px;right:24px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--warm);}
-.bg-flow{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+.bg-flow{display:none;}
 .bg-flow svg{position:absolute;opacity:.18;filter:blur(3px);}
 .hero{min-height:100vh;display:flex;align-items:center;padding:120px 60px 80px;position:relative;overflow:hidden;background:#000000;}
 .hero-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(ellipse 70% 70% at 40% 50%,black 10%,transparent 100%);}
@@ -89,10 +89,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;o
 .hero-h1 .accent-ice{color:var(--ice);}
 .hero-sub{font-size:1rem;color:var(--warm-l);line-height:1.8;max-width:440px;margin-bottom:24px;font-weight:300;animation:fadeUp .6s ease .2s both;}
 .hero-ctas{display:flex;gap:12px;flex-wrap:wrap;animation:fadeUp .6s ease .3s both;margin-bottom:0;}
-.btn-dawn{background:var(--dawn);color:var(--snow);font-weight:600;font-size:.9rem;padding:13px 26px;border-radius:100px;text-decoration:none;display:inline-block;box-shadow:0 4px 18px rgba(196,96,48,.3);transition:box-shadow .2s,transform .15s,background .2s;position:relative;overflow:hidden;}
+.btn-dawn{background:var(--dawn);color:var(--snow);font-weight:600;font-size:.9rem;padding:13px 26px;border-radius:100px;text-decoration:none;display:inline-block;box-shadow:0 4px 18px rgba(0,0,0,.5);transition:box-shadow .2s,transform .15s,background .2s;position:relative;overflow:hidden;}
 .btn-dawn::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transform:translateX(-100%);transition:transform .5s;}
 .btn-dawn:hover::after{transform:translateX(100%);}
-.btn-dawn:hover{background:var(--dawn-l);box-shadow:0 6px 28px rgba(196,96,48,.45);transform:translateY(-2px);color:var(--snow);}
+.btn-dawn:hover{background:var(--dawn-l);box-shadow:0 6px 28px rgba(0,0,0,.6);transform:translateY(-2px);color:var(--snow);}
 .btn-ghost{background:transparent;color:var(--bone2);font-weight:500;font-size:.9rem;padding:13px 26px;border-radius:100px;text-decoration:none;display:inline-block;border:1px solid var(--border);transition:border-color .2s,background .2s;}
 .btn-ghost:hover{border-color:rgba(238,244,248,.2);background:rgba(238,244,248,.04);color:var(--bone);}
 .hero-metrics{display:flex;gap:32px;margin-top:44px;padding-top:28px;border-top:1px solid var(--border);animation:fadeUp .6s ease .4s both;}
@@ -100,7 +100,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;o
 .hm-label{font-size:.74rem;color:var(--warm);font-weight:400;margin-top:3px;line-height:1.4;}
 .hero-visual{position:relative;display:flex;justify-content:center;align-items:center;animation:fadeUp .8s ease .2s both;}
 .hero-aury-wrap{position:relative;display:flex;flex-direction:column;align-items:center;}
-.hero-aury-img{width:520px;display:block;filter:drop-shadow(0 20px 40px rgba(196,96,48,.15));}
+.hero-aury-img{width:520px;display:block;filter:drop-shadow(0 20px 40px rgba(0,0,0,.7));}
 .hero-aury-badge{background:rgba(196,96,48,.12);border:1px solid var(--border-dawn);color:var(--dawn-ll);font-size:.74rem;font-weight:600;padding:7px 18px;border-radius:100px;margin-top:8px;letter-spacing:.05em;font-family:'DM Mono',monospace;}
 .hero-speech{position:absolute;top:30px;right:-10px;background:var(--ink3);border:1px solid var(--border-dawn);color:var(--bone);font-weight:500;font-size:.78rem;padding:9px 14px;border-radius:12px 12px 4px 12px;white-space:nowrap;box-shadow:var(--shadow);animation:floatBob 3.5s ease-in-out infinite .5s;}
 .chip{position:absolute;background:var(--ink2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;box-shadow:var(--shadow);font-size:.73rem;}
@@ -222,7 +222,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;o
 .srv.cat-neg::before{background:linear-gradient(90deg,var(--green-pale),var(--green),var(--green-pale));}
 .srv.cat-pago::before{background:linear-gradient(90deg,var(--green-pale),var(--green-l),var(--green-pale));}
 .srv:hover{transform:translateY(-3px);}
-.srv.cat-ia:hover{border-color:var(--border-dawn);box-shadow:0 16px 48px rgba(196,96,48,.1);}
+.srv.cat-ia:hover{border-color:var(--border-dawn);box-shadow:0 16px 48px rgba(0,0,0,.4);}
 .srv.cat-auto:hover{border-color:rgba(58,100,148,.3);box-shadow:0 16px 48px rgba(58,100,148,.1);}
 .srv.cat-neg:hover, .srv.cat-pago:hover{border-color:var(--border-green);box-shadow:0 16px 48px rgba(45,158,107,.1);}
 .srv-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
@@ -274,7 +274,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;o
 
 .cta{padding:120px 60px;background:radial-gradient(ellipse 80% 60% at 20% 40%,rgba(196,96,48,.12) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 60%,rgba(58,100,148,.1) 0%,transparent 55%),var(--ink3);}
 .cta .inner{max-width:640px;margin:0 auto;text-align:center;position:relative;z-index:2;}
-.cta-img{width:180px;margin:0 auto 24px;filter:drop-shadow(0 8px 24px rgba(196,96,48,.25));animation:floatBob 4.5s ease-in-out infinite;}
+.cta-img{width:180px;margin:0 auto 24px;filter:drop-shadow(0 8px 24px rgba(0,0,0,.6));animation:floatBob 4.5s ease-in-out infinite;}
 .cta .h2{font-size:clamp(2rem,3.2vw,2.8rem);}
 .cta .h2 em{color:var(--dawn-l);}
 .cta .sub{margin:14px auto 32px;text-align:center;}
@@ -344,7 +344,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;o
 
 <div class="aury-mascot" id="auryMascot">
   <div class="aury-bubble" id="auryBubble"><strong>¡Hola! Soy Aury.</strong> Vine desde la Antártida para que tu negocio trabaje sin que tengas que mirarlo todo el tiempo.</div>
-  <img decoding="async" class="aury-img" src="https://auryontech.com/wp-content/uploads/2026/03/Aury-Estudiando.png" alt="Mascota Aury, una pingüina de AuryOnTech" id="auryImg" onclick="toggleBubble()"/>
+  <img decoding="async" class="aury-img" src="assets/img/Aury-Estudiando.png" alt="Mascota Aury, una pingüina de AuryOnTech" id="auryImg" onclick="toggleBubble()"/>
 </div>
 
 <div class="mmenu" id="mm">
@@ -358,7 +358,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;o
 
 <nav class="nav" id="nav">
   <a href="#" class="nav-logo">
-    <div class="nav-mark"><img decoding="async" src="https://auryontech.com/wp-content/uploads/2026/03/Aury-Art-Computadora-1-2.png" alt="Logo AuryOnTech"/></div>
+    <div class="nav-mark"><img decoding="async" src="assets/img/Aury-Art-Computadora-1-2.png" alt="Logo AuryOnTech"/></div>
     <span class="nav-word">Aury<span>OnTech</span></span>
   </a>
   <ul class="nav-links">
@@ -405,7 +405,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;o
       <div class="chip chip-3"><div class="chip-label">Último reporte</div><div class="chip-val">Lun 08:00</div><div class="chip-status">Auto-enviado</div></div>
       <div class="hero-aury-wrap">
         <div class="hero-speech">Esto ya funciona solo &#x2744;</div>
-        <img decoding="async" class="hero-aury-img" src="https://auryontech.com/wp-content/uploads/2026/03/Aury-enfrente-de-la-Compu.png" alt="Aury frente a la computadora trabajando"/>
+        <img decoding="async" class="hero-aury-img" src="assets/img/Aury-enfrente-de-la-Compu.png" alt="Aury frente a la computadora trabajando"/>
         <div class="hero-aury-badge">Hola, soy Aury</div>
       </div>
     </div>
@@ -425,7 +425,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;o
   <svg class="ant-element" aria-hidden="true" style="bottom:0;left:0;width:300px;opacity:.06" viewBox="0 0 300 120"><polygon points="0,120 60,50 120,80 180,30 240,70 300,120" fill="#B8D4EC"/><polygon points="60,120 90,60 120,120" fill="#D0E8F8" opacity=".8"/><polygon points="160,120 195,45 230,120" fill="#B8D4EC" opacity=".9"/><ellipse cx="260" cy="110" rx="35" ry="18" fill="#D0E8F8"/><rect x="225" y="95" width="70" height="15" fill="#B8D4EC"/><ellipse cx="260" cy="95" rx="35" ry="20" fill="#D0E8F8"/><rect x="250" y="100" width="12" height="14" rx="6" fill="#0A0E1C"/></svg>
   <div class="inner">
     <div class="about-aury reveal">
-      <img decoding="async" src="https://auryontech.com/wp-content/uploads/2026/03/Aury-Estudiando.png" alt="Aury estudiando" style="width:100%;max-width:300px;filter:drop-shadow(0 20px 40px rgba(58,100,148,.25));animation:floatBob 5s ease-in-out infinite;"/>
+      <img decoding="async" src="assets/img/Aury-Estudiando.png" alt="Aury estudiando" style="width:100%;max-width:300px;filter:drop-shadow(0 20px 40px rgba(58,100,148,.25));animation:floatBob 5s ease-in-out infinite;"/>
       <svg class="about-deco" viewBox="0 0 280 60" aria-hidden="true"><polygon points="20,60 80,20 140,40 200,10 260,60" fill="#B8D4EC" opacity=".3"/><polygon points="60,60 90,30 120,60" fill="#D0E8F8" opacity=".4"/></svg>
     </div>
     <div class="about-text reveal">
@@ -741,7 +741,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;o
   <svg class="ant-element" aria-hidden="true" style="bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:800px;opacity:.05" viewBox="0 0 800 80"><polygon points="0,80 80,30 160,55 280,15 400,50 520,20 640,45 720,25 800,80" fill="#B8D4EC"/><polygon points="60,80 100,35 140,80" fill="#D0E8F8" opacity=".9"/><polygon points="260,80 290,18 320,80" fill="#B8D4EC" opacity=".8"/></svg>
   <div class="inner" style="position:relative;z-index:2;">
     <div class="cta-inner reveal">
-      <img decoding="async" class="cta-img" src="https://auryontech.com/wp-content/uploads/2026/03/Aury-Saludando.png" alt="Aury saludando"/>
+      <img decoding="async" class="cta-img" src="assets/img/Aury-Saludando.png" alt="Aury saludando"/>
       <h2 class="h2">Empieza hoy.<br/><em>El primer curso es gratis.</em></h2>
       <p class="sub">Sin tarjeta de crédito, sin compromiso. En 30 minutos tienes tu primer flujo automático activo y funcionando.</p>
       <div class="cta-btns">
@@ -755,7 +755,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;o
 <footer class="footer">
   <div class="footer-top">
     <div class="footer-brand">
-      <a href="#" class="nav-logo"><div class="nav-mark"><img decoding="async" src="https://auryontech.com/wp-content/uploads/2026/03/Aury-enfrente-de-la-Compu.png" alt="Logo AuryOnTech"/></div><span class="nav-word">Aury<span>OnTech</span></span></a>
+      <a href="#" class="nav-logo"><div class="nav-mark"><img decoding="async" src="assets/img/Aury-enfrente-de-la-Compu.png" alt="Logo AuryOnTech"/></div><span class="nav-word">Aury<span>OnTech</span></span></a>
       <p>Formación en IA, productividad y automatización para negocios y personas que quieren crecer sin trabajar el doble. Madrid, España.</p>
     </div>
     <div class="footer-col">

@@ -1,0 +1,1453 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Cuánto tiempo estás perdiendo? — AuryOnTech</title>
+  <meta name="description" content="Descubre cuántas horas y euros pierdes cada semana en tareas manuales, y qué cursos necesitas para recuperarlas.">
+
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet">
+
+  <style>
+    /* =====================================================
+       VARIABLES
+    ===================================================== */
+    :root {
+      --ink:     #07090F;
+      --dawn:    #C46030;
+      --dawn-l:  #D88050;
+      --dawn-ll: #ECA878;
+      --sky:     #3A6494;
+      --sky-l:   #5A84B4;
+      --sky-ll:  #8AB4D4;
+      --ice:     #B8D4EC;
+      --snow:    #EEF4F8;
+      --bone:    #EDE4D8;
+      --warm:    #7A6E60;
+
+      --r: 'Cabinet Grotesk', system-ui, sans-serif;
+      --s: 'DM Sans', system-ui, sans-serif;
+      --m: 'DM Mono', monospace;
+    }
+
+    /* =====================================================
+       RESET
+    ===================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(196,96,48,.18) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 80% 30%, rgba(58,100,148,.15) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 50% 90%, rgba(58,100,148,.1) 0%, transparent 50%),
+        linear-gradient(175deg, #120A04 0%, #0A0E1C 40%, #07090F 100%);
+      background-attachment: fixed;
+      color: var(--snow);
+      font-family: var(--s);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    @media (pointer: fine) {
+      body { cursor: none; }
+    }
+    @media (pointer: coarse) {
+      .cr, .crr { display: none; }
+    }
+
+    /* =====================================================
+       GRAIN
+    ===================================================== */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.032;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* =====================================================
+       CURSOR
+    ===================================================== */
+    .cr, .crr {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10000;
+      transform: translate(-50%, -50%);
+    }
+    .cr {
+      width: 8px; height: 8px;
+      background: var(--dawn);
+      transition: width .1s, height .1s;
+    }
+    .crr {
+      width: 28px; height: 28px;
+      border: 1.5px solid rgba(196,96,48,.45);
+      transition: width .2s, height .2s, border-color .2s;
+    }
+    body.clicking .cr  { width: 12px; height: 12px; }
+    body.clicking .crr { width: 20px; height: 20px; border-color: var(--dawn); }
+
+    @media (pointer: fine) {
+      body { cursor: none; }
+    }
+    @media (pointer: coarse) {
+      .cr, .crr { display: none; }
+    }
+/* ---- Grid de tarjetas (single select) ---- */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 11px;
+      width: 100%;
+    }
+    /* =====================================================
+       SNOW
+    ===================================================== */
+    #snow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.35;
+    }
+
+    /* =====================================================
+       ORBS
+    ===================================================== */
+    .orbs {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.10;
+      animation: orbF 14s ease-in-out infinite;
+    }
+    .orb-1 { width: 520px; height: 520px; background: var(--dawn);   top: -120px;  left: -120px;  animation-delay: 0s;  }
+    .orb-2 { width: 420px; height: 420px; background: var(--sky);    top:  35%;    right: -140px; animation-delay: -5s; }
+    .orb-3 { width: 360px; height: 360px; background: var(--dawn-l); bottom: -80px; left:  25%;   animation-delay: -9s; }
+
+    @keyframes orbF {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33%      { transform: translate(30px,-30px) scale(1.06); }
+      66%      { transform: translate(-20px,20px) scale(0.94); }
+    }
+
+    /* =====================================================
+       WRAPPER
+    ===================================================== */
+    .calc-wrapper {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* =====================================================
+       NAV
+    ===================================================== */
+    .nav {
+      width: 100%;
+      max-width: 780px;
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .nav-logo img { height: 34px; width: auto; }
+    .nav-logo span {
+      font-family: var(--r);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--snow);
+    }
+    .nav-back {
+      font-family: var(--m);
+      font-size: .78rem;
+      color: var(--warm);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .nav-back:hover { color: var(--dawn); }
+
+    /* =====================================================
+       PROGRESS
+    ===================================================== */
+    .progress-container {
+      width: 100%;
+      max-width: 620px;
+      padding: 0 32px;
+      margin-bottom: 12px;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .progress-label { font-family: var(--m); font-size: .74rem; color: var(--warm); }
+    .progress-pct   { font-family: var(--m); font-size: .74rem; color: var(--dawn); }
+    .progress-track {
+      width: 100%;
+      height: 3px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--dawn), var(--dawn-ll));
+      border-radius: 100px;
+      width: 0%;
+      transition: width .5s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* =====================================================
+       PREGUNTAS
+    ===================================================== */
+    .question {
+      display: none;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+      max-width: 660px;
+      padding: 24px 32px 40px;
+      animation: fadeUp .4s cubic-bezier(.4,0,.2,1);
+    }
+    .question.active { display: flex; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .q-tag {
+      font-family: var(--m);
+      font-size: .74rem;
+      color: var(--dawn);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 14px;
+    }
+    .q-title {
+      font-family: var(--r);
+      font-weight: 800;
+      font-size: clamp(1.55rem, 4vw, 2.1rem);
+      line-height: 1.15;
+      color: var(--snow);
+      margin-bottom: 8px;
+    }
+    .q-sub {
+      font-size: .92rem;
+      color: var(--warm);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    /* ---- Grid de tarjetas (single select) — 2 cols, última centrada si es impar ---- */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 11px;
+      width: 100%;
+    }
+    .options-grid .option-card:nth-child(odd):last-child {
+      grid-column: 1 / -1;
+      width: calc(50% - 5.5px);
+      margin: 0 auto;
+    }
+    .option-card {
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all .2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      user-select: none;
+    }
+    .option-card:hover {
+      background: rgba(196,96,48,0.09);
+      border-color: rgba(196,96,48,0.28);
+      transform: translateY(-2px);
+    }
+    .option-card.selected {
+      background: rgba(196,96,48,0.14);
+      border-color: var(--dawn);
+    }
+    .oc-icon  { font-size: 1.7rem; }
+    .oc-label { font-family: var(--r); font-weight: 700; font-size: .97rem; color: var(--snow); }
+    .oc-sub   { font-size: .79rem; color: var(--warm); line-height: 1.4; }
+
+    /* ---- Chips (multi select) — 2 cols simétricas, última centrada si es impar ---- */
+    .options-chips {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+      width: 100%;
+    }
+    .options-chips .option-chip:nth-child(odd):last-child {
+      grid-column: 1 / -1;
+      max-width: calc(50% - 4.5px);
+      justify-self: center;
+    }
+    .option-chip {
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 100px;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: all .2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      font-family: var(--s);
+      font-size: .88rem;
+      color: var(--snow);
+      text-align: center;
+      user-select: none;
+    }
+    .option-chip:hover {
+      background: rgba(196,96,48,0.09);
+      border-color: rgba(196,96,48,0.28);
+    }
+    .option-chip.selected {
+      background: rgba(196,96,48,0.14);
+      border-color: var(--dawn);
+      color: var(--dawn-ll);
+    }
+
+    /* ---- Acciones (regresar + siguiente) ---- */
+    .q-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+      width: 100%;
+    }
+    .q-actions.only-back { justify-content: flex-start; }
+
+    .btn-back {
+      background: transparent;
+      color: var(--warm);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 100px;
+      padding: 11px 22px;
+      font-family: var(--s);
+      font-weight: 500;
+      font-size: .86rem;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+    .btn-back:hover {
+      border-color: rgba(255,255,255,0.2);
+      color: var(--snow);
+      background: rgba(255,255,255,0.04);
+    }
+
+    /* ---- Botón siguiente ---- */
+    .btn-next {
+      background: var(--dawn);
+      color: #fff;
+      border: none;
+      border-radius: 100px;
+      padding: 13px 30px;
+      font-family: var(--r);
+      font-weight: 700;
+      font-size: .97rem;
+      cursor: pointer;
+      transition: all .2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-next:hover:not(:disabled) {
+      background: var(--dawn-l);
+      transform: translateY(-2px);
+    }
+    .btn-next:disabled { opacity: 0.38; cursor: not-allowed; }
+
+    /* =====================================================
+       RESULTADO
+    ===================================================== */
+    .result-screen {
+      display: none;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+      max-width: 660px;
+      padding: 24px 32px 48px;
+      animation: fadeUp .5s cubic-bezier(.4,0,.2,1);
+    }
+    .result-screen.active { display: flex; }
+
+    .result-tag {
+      font-family: var(--m);
+      font-size: .74rem;
+      color: var(--dawn);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 14px;
+    }
+    .result-title {
+      font-family: var(--r);
+      font-weight: 800;
+      font-size: clamp(1.65rem, 4vw, 2.2rem);
+      line-height: 1.15;
+      color: var(--snow);
+      margin-bottom: 8px;
+    }
+    .result-sub {
+      font-size: .93rem;
+      color: var(--warm);
+      line-height: 1.55;
+      margin-bottom: 32px;
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+      margin-bottom: 36px;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 22px 16px;
+      text-align: center;
+    }
+    .stat-card.hl {
+      background: rgba(196,96,48,0.12);
+      border-color: rgba(196,96,48,0.28);
+    }
+    .stat-number {
+      font-family: var(--r);
+      font-weight: 800;
+      font-size: 2rem;
+      color: var(--dawn);
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+    .stat-card.hl .stat-number { color: var(--dawn-ll); }
+    .stat-label {
+      font-family: var(--m);
+      font-size: .69rem;
+      color: var(--warm);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      line-height: 1.4;
+    }
+
+    /* Aury + burbuja */
+    .aury-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+    .aury-row img {
+      height: 96px;
+      width: auto;
+      animation: floatBob 3s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    @keyframes floatBob {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+    .aury-bubble {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 16px 16px 16px 4px;
+      padding: 14px 18px;
+      font-size: .88rem;
+      color: var(--snow);
+      line-height: 1.55;
+      max-width: 300px;
+    }
+    .aury-bubble strong { color: var(--dawn-ll); }
+
+    /* Recomendaciones */
+    .recs-title {
+      font-family: var(--r);
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--snow);
+      margin-bottom: 14px;
+    }
+    .recs-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 28px;
+    }
+    .rec-card {
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      text-decoration: none;
+      transition: all .2s ease;
+    }
+    .rec-card:hover {
+      background: rgba(196,96,48,0.08);
+      border-color: rgba(196,96,48,0.28);
+      transform: translateX(4px);
+    }
+    .rec-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .rec-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .rec-name {
+      font-family: var(--r);
+      font-weight: 700;
+      font-size: .95rem;
+      color: var(--snow);
+      margin-bottom: 2px;
+    }
+    .rec-desc {
+      font-size: .79rem;
+      color: var(--warm);
+      line-height: 1.4;
+    }
+    .rec-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .rec-badge {
+      font-family: var(--m);
+      font-size: .69rem;
+      color: var(--dawn);
+      background: rgba(196,96,48,0.14);
+      border-radius: 100px;
+      padding: 4px 11px;
+    }
+    .rec-arrow { color: var(--warm); font-size: 1rem; }
+
+    /* OR DIVIDER */
+    .or-divider {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      margin: 4px 0 18px;
+    }
+    .or-divider::before, .or-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.07);
+    }
+    .or-divider span {
+      font-family: var(--m);
+      font-size: .7rem;
+      color: var(--warm);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    /* CONSULTORÍA — paleta sky para diferenciar de cursos */
+    .consult-card {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(58,100,148,0.22);
+      border-radius: 18px;
+      padding: 22px 26px;
+      text-decoration: none;
+      transition: all .25s ease;
+      margin-bottom: 28px;
+    }
+    .consult-card:hover {
+      background: rgba(58,100,148,0.1);
+      border-color: rgba(58,100,148,0.45);
+      transform: translateY(-2px);
+    }
+    .consult-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
+    .consult-icon {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      background: rgba(58,100,148,0.12);
+      border: 1px solid rgba(58,100,148,0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .consult-text { flex: 1; min-width: 0; }
+    .consult-tag {
+      font-family: var(--m);
+      font-size: .66rem;
+      color: var(--sky-ll);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    .consult-title {
+      font-family: var(--r);
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--snow);
+      margin-bottom: 5px;
+    }
+    .consult-desc {
+      font-size: .82rem;
+      color: var(--warm);
+      line-height: 1.5;
+    }
+    .consult-right { display: flex; align-items: center; gap: 9px; flex-shrink: 0; }
+    .consult-badge {
+      font-family: var(--m);
+      font-size: .66rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      color: var(--sky-ll);
+      background: rgba(58,100,148,0.12);
+      border: 1px solid rgba(58,100,148,0.28);
+      border-radius: 100px;
+      padding: 4px 10px;
+    }
+    .consult-arrow { color: var(--sky-l); font-size: 1.1rem; }
+
+    /* Email CTA */
+    .email-cta {
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 20px;
+      padding: 28px;
+      text-align: center;
+    }
+    .email-cta-title {
+      font-family: var(--r);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--snow);
+      margin-bottom: 6px;
+    }
+    .email-cta-sub {
+      font-size: .86rem;
+      color: var(--warm);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .email-form {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .email-input {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 100px;
+      padding: 12px 20px;
+      font-family: var(--s);
+      font-size: .88rem;
+      color: var(--snow);
+      outline: none;
+      transition: border-color .2s;
+      min-width: 210px;
+    }
+    .email-input::placeholder { color: var(--warm); }
+    .email-input:focus { border-color: var(--dawn); }
+    .btn-email {
+      background: var(--dawn);
+      color: #fff;
+      border: none;
+      border-radius: 100px;
+      padding: 12px 24px;
+      font-family: var(--r);
+      font-weight: 700;
+      font-size: .93rem;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+    .btn-email:hover { background: var(--dawn-l); }
+    .email-thanks {
+      display: none;
+      font-family: var(--r);
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--dawn-ll);
+    }
+
+    /* Footer */
+    .calc-footer {
+      padding: 40px 32px 32px;
+      text-align: center;
+      font-family: var(--m);
+      font-size: .72rem;
+      color: rgba(122,110,96,0.45);
+    }
+    .calc-footer a { color: inherit; text-decoration: none; }
+    .calc-footer a:hover { color: var(--dawn); }
+
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
+    @media (max-width: 620px) {
+      .nav, .progress-container, .question, .result-screen { padding-left: 20px; padding-right: 20px; }
+      .options-grid { grid-template-columns: 1fr; }
+      .options-chips { grid-template-columns: 1fr; }
+      .options-grid .option-card:nth-child(odd):last-child,
+      .options-chips .option-chip:nth-child(odd):last-child {
+        max-width: none;
+        grid-column: auto;
+      }
+      .stats-grid { grid-template-columns: 1fr; }
+      .email-form { flex-direction: column; align-items: stretch; }
+      .email-input { min-width: unset; text-align: center; }
+      .btn-next { align-self: stretch; justify-content: center; }
+      .aury-row { flex-direction: column; align-items: flex-start; }
+      .rec-card { flex-wrap: wrap; }
+      .consult-card { flex-direction: column; align-items: flex-start; }
+      .consult-right { align-self: flex-end; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Snow -->
+  <canvas id="snow"></canvas>
+
+  <!-- Orbs -->
+  <div class="orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Cursor -->
+  <div class="cr"  id="cr"></div>
+  <div class="crr" id="crr"></div>
+
+  <!-- Wrapper principal -->
+  <div class="calc-wrapper">
+
+    <!-- Nav -->
+    <nav class="nav">
+      <a href="https://auryontech.com" class="nav-logo">
+        <img decoding="async" src="assets/img/Aury-Art-Computadora-1-2.png" alt="AuryOnTech">
+        <span>AuryOnTech</span>
+      </a>
+      <a href="index.htmlcatalogo-de-cursos/" class="nav-back">← Ver catálogo</a>
+    </nav>
+
+    <!-- Barra de progreso -->
+    <div class="progress-container">
+      <div class="progress-header">
+        <span class="progress-label" id="progressLabel">Pregunta 1 de 5</span>
+        <span class="progress-pct"   id="progressPct">0 %</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <!-- ========================= Q1 ========================= -->
+    <section class="question active" id="q1">
+      <span class="q-tag">Paso 1 de 5</span>
+      <h1 class="q-title">¿Qué tipo de negocio tienes?</h1>
+      <p class="q-sub">Elige el que mejor te describa. Así las recomendaciones serán exactas.</p>
+
+      <div class="options-grid">
+        <div class="option-card" data-value="citas" onclick="selectSingle(this,1)">
+          <span class="oc-icon">🗓️</span>
+          <span class="oc-label">Servicios con citas</span>
+          <span class="oc-sub">Salón, coach, consultor, terapeuta, médico</span>
+        </div>
+        <div class="option-card" data-value="tienda" onclick="selectSingle(this,1)">
+          <span class="oc-icon">🛍️</span>
+          <span class="oc-label">Tienda o e-commerce</span>
+          <span class="oc-sub">Productos físicos, digitales o dropshipping</span>
+        </div>
+        <div class="option-card" data-value="freelance" onclick="selectSingle(this,1)">
+          <span class="oc-icon">💼</span>
+          <span class="oc-label">Freelance o agencia</span>
+          <span class="oc-sub">Diseño, marketing, desarrollo, consultoría</span>
+        </div>
+        <div class="option-card" data-value="contenido" onclick="selectSingle(this,1)">
+          <span class="oc-icon">📱</span>
+          <span class="oc-label">Creador de contenido</span>
+          <span class="oc-sub">Redes sociales, blog, newsletter, podcast</span>
+        </div>
+        <div class="option-card" data-value="arranque" onclick="selectSingle(this,1)">
+          <span class="oc-icon">🚀</span>
+          <span class="oc-label">Negocio en arranque</span>
+          <span class="oc-sub">Idea en desarrollo o primeros clientes</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= Q2 ========================= -->
+    <section class="question" id="q2">
+      <span class="q-tag">Paso 2 de 5</span>
+      <h1 class="q-title">¿Cuáles de estas tareas haces a mano cada semana?</h1>
+      <p class="q-sub">Elige todas las que apliquen.</p>
+
+      <div class="options-chips">
+        <div class="option-chip" data-value="emails"    onclick="toggleChip(this,2)">
+          <span>📧</span> Emails y mensajes de seguimiento
+        </div>
+        <div class="option-chip" data-value="citas"     onclick="toggleChip(this,2)">
+          <span>📅</span> Confirmar o recordar citas
+        </div>
+        <div class="option-chip" data-value="registrar" onclick="toggleChip(this,2)">
+          <span>📊</span> Registrar pedidos o leads en hojas
+        </div>
+        <div class="option-chip" data-value="contenido" onclick="toggleChip(this,2)">
+          <span>✍️</span> Crear contenido para redes
+        </div>
+        <div class="option-chip" data-value="reportes"  onclick="toggleChip(this,2)">
+          <span>📈</span> Hacer reportes o resúmenes del negocio
+        </div>
+        <div class="option-chip" data-value="preguntas" onclick="toggleChip(this,2)">
+          <span>💬</span> Responder las mismas preguntas una y otra vez
+        </div>
+      </div>
+
+      <div class="q-actions">
+        <button class="btn-back" onclick="goTo(1)">← Regresar</button>
+        <button class="btn-next" id="btn2" onclick="goTo(3)" disabled>Siguiente →</button>
+      </div>
+    </section>
+
+    <!-- ========================= Q3 ========================= -->
+    <section class="question" id="q3">
+      <span class="q-tag">Paso 3 de 5</span>
+      <h1 class="q-title">¿Cuántas horas a la semana le dedicas a esas tareas?</h1>
+      <p class="q-sub">Sé honesto. Aquí empieza el cálculo.</p>
+
+      <div class="options-grid">
+        <div class="option-card" data-value="2" onclick="selectSingle(this,3)">
+          <span class="oc-icon">😌</span>
+          <span class="oc-label">Menos de 3 horas</span>
+          <span class="oc-sub">Algo de tiempo, pero no me preocupa demasiado</span>
+        </div>
+        <div class="option-card" data-value="5" onclick="selectSingle(this,3)">
+          <span class="oc-icon">😐</span>
+          <span class="oc-label">Entre 3 y 7 horas</span>
+          <span class="oc-sub">Ya empieza a molestar</span>
+        </div>
+        <div class="option-card" data-value="11" onclick="selectSingle(this,3)">
+          <span class="oc-icon">😤</span>
+          <span class="oc-label">Entre 7 y 15 horas</span>
+          <span class="oc-sub">Es bastante tiempo que no recupero</span>
+        </div>
+        <div class="option-card" data-value="20" onclick="selectSingle(this,3)">
+          <span class="oc-icon">🤯</span>
+          <span class="oc-label">Más de 15 horas</span>
+          <span class="oc-sub">Esto ya es un problema serio</span>
+        </div>
+      </div>
+
+      <div class="q-actions only-back">
+        <button class="btn-back" onclick="goTo(2)">← Regresar</button>
+      </div>
+    </section>
+
+    <!-- ========================= Q4 ========================= -->
+    <section class="question" id="q4">
+      <span class="q-tag">Paso 4 de 5</span>
+      <h1 class="q-title">¿Cuánto vale tu hora de trabajo?</h1>
+      <p class="q-sub">Lo usamos para calcular cuánto dinero estás dejando sobre la mesa cada año.</p>
+
+      <div class="options-grid">
+        <div class="option-card" data-value="12" onclick="selectSingle(this,4)">
+          <span class="oc-icon">💶</span>
+          <span class="oc-label">Menos de €15 / h</span>
+        </div>
+        <div class="option-card" data-value="22" onclick="selectSingle(this,4)">
+          <span class="oc-icon">💶</span>
+          <span class="oc-label">Entre €15 y €30 / h</span>
+        </div>
+        <div class="option-card" data-value="45" onclick="selectSingle(this,4)">
+          <span class="oc-icon">💶</span>
+          <span class="oc-label">Entre €30 y €60 / h</span>
+        </div>
+        <div class="option-card" data-value="80" onclick="selectSingle(this,4)">
+          <span class="oc-icon">💶</span>
+          <span class="oc-label">Más de €60 / h</span>
+        </div>
+      </div>
+
+      <div class="q-actions only-back">
+        <button class="btn-back" onclick="goTo(3)">← Regresar</button>
+      </div>
+    </section>
+
+    <!-- ========================= Q5 ========================= -->
+    <section class="question" id="q5">
+      <span class="q-tag">Paso 5 de 5</span>
+      <h1 class="q-title">¿Qué herramientas ya tienes?</h1>
+      <p class="q-sub">Para recomendarte cursos donde no necesites pagar nada extra.</p>
+
+      <div class="options-chips">
+        <div class="option-chip" data-value="google"    onclick="toggleChip(this,5)">
+          <span>🟦</span> Google (Gmail, Sheets, Calendar)
+        </div>
+        <div class="option-chip" data-value="whatsapp"  onclick="toggleChip(this,5)">
+          <span>💚</span> WhatsApp Business
+        </div>
+        <div class="option-chip" data-value="social"    onclick="toggleChip(this,5)">
+          <span>📸</span> Instagram o Facebook
+        </div>
+        <div class="option-chip" data-value="notion"    onclick="toggleChip(this,5)">
+          <span>📋</span> Notion, Airtable o Excel
+        </div>
+        <div class="option-chip" data-value="ninguna"   onclick="toggleChip(this,5)">
+          <span>🤷</span> Ninguna en especial
+        </div>
+      </div>
+
+      <div class="q-actions">
+        <button class="btn-back" onclick="goTo(4)">← Regresar</button>
+        <button class="btn-next" id="btn5" onclick="showCapture()">Ver mi resultado →</button>
+      </div>
+    </section>
+
+    <!-- ========================= CAPTURA ========================= -->
+    <section class="question" id="qCaptura">
+      <span class="q-tag">Casi listo</span>
+      <h1 class="q-title">Tu diagnóstico está listo</h1>
+      <p class="q-sub">Dinos dónde enviártelo y te mostramos exactamente por dónde empezar.</p>
+
+      <div style="display:flex;flex-direction:column;gap:12px;width:100%;margin-bottom:28px;">
+        <input id="captureNombre" class="email-input" type="text"  placeholder="Tu nombre" style="width:100%;">
+        <input id="captureEmail"  class="email-input" type="email" placeholder="tu@email.com" style="width:100%;">
+      </div>
+
+      <button class="btn-next" onclick="submitCapture()" style="align-self:stretch;justify-content:center;">
+        Ver mi resultado →
+      </button>
+
+      <p style="margin-top:16px;font-family:var(--m);font-size:.72rem;color:var(--warm);text-align:center;width:100%;">
+        Sin spam. Solo automatización. Puedes darte de baja cuando quieras.
+      </p>
+    </section>
+
+    <!-- ========================= RESULTADO ========================= -->
+    <section class="result-screen" id="result">
+      <span class="result-tag">Tu diagnóstico</span>
+      <h1 class="result-title" id="resultTitle">Estás perdiendo tiempo que podrías recuperar esta semana</h1>
+      <p class="result-sub" id="resultSub">Esto es lo que calculamos según tus respuestas.</p>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="statHoras">0</div>
+          <div class="stat-label">horas / semana<br>perdidas</div>
+        </div>
+        <div class="stat-card hl">
+          <div class="stat-number" id="statEuros">€0</div>
+          <div class="stat-label">euros / año<br>que valen</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statRecupera">0</div>
+          <div class="stat-label">horas recuperables<br>con automatización</div>
+        </div>
+      </div>
+
+      <!-- Aury -->
+      <div class="aury-row">
+        <img decoding="async" src="assets/img/Aury-Estudiando.png" alt="Aury">
+        <div class="aury-bubble" id="auryBubble">
+          Yo también lo hacía todo a mano&#8230; hasta que automaticé mi negocio.
+          <strong>Ahora trabajo sin que yo esté mirando.</strong>
+        </div>
+      </div>
+
+      <!-- Cursos recomendados -->
+      <p class="recs-title">Los cursos que necesitas, en este orden:</p>
+      <div class="recs-grid" id="recsGrid">
+        <!-- Generado por JS -->
+      </div>
+
+      <!-- BIFURCACIÓN -->
+      <div class="or-divider"><span>o si prefieres</span></div>
+
+      <!-- CONSULTORÍA 30 MIN -->
+      <a href="mailto:contact@auryontech.com?subject=Quiero%20mi%20auditor%C3%ADa%20gratuita&#038;body=Hola%2C%20esto%20es%20lo%20que%20est%C3%A1%20pasando%20en%20mi%20negocio%3A" target="_blank" rel="noopener" class="consult-card">
+        <div class="consult-left">
+          <div class="consult-icon">📞</div>
+          <div class="consult-text">
+            <div class="consult-tag">Consultoría gratuita · 30 min</div>
+            <div class="consult-title">Que lo hagamos por ti</div>
+            <div class="consult-desc">¿No quieres aprender a automatizarlo? Agenda una llamada y te decimos qué automatizar primero — o lo implementamos contigo.</div>
+          </div>
+        </div>
+        <div class="consult-right">
+          <span class="consult-badge">Sin coste</span>
+          <span class="consult-arrow">→</span>
+        </div>
+      </a>
+
+      
+    </section>
+
+    <div class="calc-footer">
+      AuryOnTech &middot; auryontech.com &middot;
+      <a href="mailto:contact@auryontech.com">contacto@auryontech.com</a>
+    </div>
+
+  </div><!-- /calc-wrapper -->
+
+  <script>
+    /* =====================================================
+       ESTADO
+    ===================================================== */
+    const state = {
+      q1: null,   // string: tipo negocio
+      q2: [],     // array: tareas
+      q3: null,   // number: horas/semana
+      q4: null,   // number: valor hora
+      q5: []      // array: herramientas
+    };
+
+    /* =====================================================
+       DATOS DE CURSOS
+       ⚠️ Ajusta las URLs al slug real de cada curso en WordPress
+    ===================================================== */
+    const CURSOS = {
+      citas: {
+        nombre: 'Tu Cliente Nunca más te Falla una Cita',
+        desc:   'Automatiza confirmaciones y recordatorios con Make y Google Calendar.',
+        url:    'index.htmlcurso-tu-cliente-nunca-mas-te-falla-una-cita/',
+        emoji:  '🗓️'
+      },
+      correos: {
+        nombre: 'Correos en Piloto Automático',
+        desc:   'Envía emails de seguimiento automáticos sin tocar el teclado.',
+        url:    'index.htmlcorreos-en-piloto-automatico/',
+        emoji:  '📧'
+      },
+      crm: {
+        nombre: 'Tu Mini CRM Gratis en Google Sheets',
+        desc:   'Organiza clientes y oportunidades sin pagar ningún software.',
+        url:    'index.htmlcurso-tu-mini-crm-gratis-en-google-sheets/',
+        emoji:  '📊'
+      },
+      formulario: {
+        nombre: 'De Formulario a Cliente sin Tocar Nada',
+        desc:   'Captura leads de tu web y actívalos de forma automática.',
+        url:    'index.htmllanding-page-de-formulario-a-cliente-sin-tocar-nada/',
+        emoji:  '📋'
+      },
+      primera: {
+        nombre: 'Tu Primera Automatización en 30 Minutos',
+        desc:   'El punto de partida perfecto si nunca has automatizado nada.',
+        url:    'index.htmlcurso-tu-primera-automatizacion-en-30-minutos/',
+        emoji:  '⚡'
+      },
+      cierra: {
+        nombre: 'Cierra con IA — Sin Perder tu Estilo',
+        desc:   'Usa IA para cerrar más clientes sin sonar a robot.',
+        url:    'index.htmlcierra-con-ia-sin-perder-tu-estilo/',
+        emoji:  '🤝'
+      },
+      prompts: {
+        nombre: 'Prompts que Trabajan: La Guía que Nadie te Dio',
+        desc:   'Aprende a sacarle partido real a ChatGPT, no como un buscador.',
+        url:    'index.htmlcurso-prompts-que-trabajan/',
+        emoji:  '✍️'
+      },
+      publica: {
+        nombre: 'Publica con IA. Sin que se Note.',
+        desc:   'Crea contenido para redes en minutos, con tu voz y sin perder autenticidad.',
+        url:    'index.htmlcurso-publica-con-ia-sin-que-se-note/',
+        emoji:  '📱'
+      },
+      sistema: {
+        nombre: 'El Sistema Completo Desde la Idea Hasta la Página',
+        desc:   'De cero a negocio digital funcionando, paso a paso.',
+        url:    'index.htmltu-primer-producto-digital-con-ia-el-sistema-completo-desde-la-idea-hasta-la-pagina-de-venta/',
+        emoji:  '🚀'
+      }
+    };
+
+    /* =====================================================
+       LÓGICA DE RECOMENDACIONES
+    ===================================================== */
+    const BASE_RECS = {
+      citas:     ['citas',  'correos',   'crm'],
+      tienda:    ['formulario', 'correos', 'primera'],
+      freelance: ['crm',    'cierra',     'formulario'],
+      contenido: ['prompts','publica',    'cierra'],
+      arranque:  ['primera','sistema',    'prompts']
+    };
+
+    function getRecomendaciones() {
+      let recs = [...(BASE_RECS[state.q1] || ['primera', 'prompts', 'crm'])];
+
+      const t = state.q2;
+      if (t.includes('citas')     && !recs.includes('citas'))     recs.unshift('citas');
+      if (t.includes('contenido') && !recs.includes('prompts'))   recs.unshift('prompts');
+      if (t.includes('emails')    && !recs.includes('correos'))   recs.unshift('correos');
+      if (t.includes('registrar') && !recs.includes('crm'))       recs.unshift('crm');
+
+      // Deduplica y limita a 3
+      return [...new Set(recs)].slice(0, 3);
+    }
+
+    /* =====================================================
+       NAVEGACIÓN
+    ===================================================== */
+    let currentQ = 1;
+
+    function goTo(n) {
+      const currentEl = document.getElementById('q' + currentQ);
+      if (currentEl) currentEl.classList.remove('active');
+      const nextEl = document.getElementById('q' + n);
+      if (nextEl) nextEl.classList.add('active');
+      currentQ = n;
+      setProgress(n);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setProgress(step) {
+      const pct  = Math.round(((step - 1) / 5) * 100);
+      document.getElementById('progressFill').style.width  = pct + '%';
+      document.getElementById('progressLabel').textContent = 'Pregunta ' + step + ' de 5';
+      document.getElementById('progressPct').textContent   = pct + ' %';
+    }
+
+    /* =====================================================
+       INTERACCIONES
+    ===================================================== */
+    function selectSingle(el, q) {
+      el.parentElement.querySelectorAll('.option-card')
+        .forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+
+      const val = el.dataset.value;
+      state['q' + q] = (q === 3 || q === 4) ? parseInt(val, 10) : val;
+
+      // Auto-avanza
+      setTimeout(() => { if (q < 5) goTo(q + 1); }, 320);
+    }
+
+    function toggleChip(el, q) {
+      el.classList.toggle('selected');
+      const section  = el.closest('.question');
+      const selected = section.querySelectorAll('.option-chip.selected');
+      state['q' + q] = Array.from(selected).map(c => c.dataset.value);
+
+      if (q === 2) {
+        document.getElementById('btn2').disabled = selected.length === 0;
+      }
+    }
+
+    /* =====================================================
+       MOSTRAR RESULTADO
+    ===================================================== */
+    function showResult() {
+      document.getElementById('qCaptura').classList.remove('active');
+
+      const horas    = state.q3 || 5;
+      const tarifa   = state.q4 || 22;
+      const recupera = Math.round(horas * 0.8);
+      const eurosAnio = Math.round(horas * tarifa * 52);
+
+      // Título dinámico por perfil
+      const titulos = {
+        citas:     'Tu agenda te está comiendo el tiempo',
+        tienda:    'Tu tienda trabaja más horas que tú, y eso tiene un coste',
+        freelance: 'Cobras por tu tiempo, pero lo estás regalando',
+        contenido: 'Crear contenido no debería llevarte tanto tiempo',
+        arranque:  'Empezar bien ahora marca la diferencia para siempre'
+      };
+      document.getElementById('resultTitle').textContent =
+        titulos[state.q1] || 'Estás perdiendo tiempo que podrías recuperar esta semana';
+
+      // Subtítulo con contexto
+      document.getElementById('resultSub').textContent =
+        'Basado en tus respuestas, esto es lo que está pasando en tu negocio cada semana.';
+
+      // Muestra pantalla resultado
+      document.getElementById('result').classList.add('active');
+
+      // Actualiza barra de progreso
+      document.getElementById('progressFill').style.width  = '100%';
+      document.getElementById('progressLabel').textContent = 'Tu diagnóstico';
+      document.getElementById('progressPct').textContent   = '100 %';
+
+      // Anima contadores
+      animaContador('statHoras',    horas,    '',  ' h');
+      animaContador('statEuros',    eurosAnio,'€', '');
+      animaContador('statRecupera', recupera, '',  ' h');
+
+      // Burbuja de Aury
+      const bubbles = {
+        citas:     'Confirmar citas a mano es tiempo que nadie te devuelve. <strong>Yo tardé 30 minutos en automatizarlo.</strong>',
+        tienda:    'Cada pedido registrado a mano es un error esperando ocurrir. <strong>Make lo hace por ti.</strong>',
+        freelance: 'Los mejores freelancers no son los que trabajan más horas. <strong>Son los que automatizan las que no valen.</strong>',
+        contenido: 'Publiqué sin parar durante meses. Luego aprendí a crear en lotes. <strong>Cambió todo.</strong>',
+        arranque:  'El mejor momento para automatizar es al principio. <strong>Así no arrastras malos hábitos.</strong>'
+      };
+      document.getElementById('auryBubble').innerHTML =
+        bubbles[state.q1] || 'Yo también lo hacía todo a mano... <strong>hasta que descubrí que no tenía que hacerlo.</strong>';
+
+      // Rellena cursos recomendados
+      const recs = getRecomendaciones();
+      const grid = document.getElementById('recsGrid');
+      grid.innerHTML = '';
+
+      recs.forEach(key => {
+        const c = CURSOS[key];
+        if (!c) return;
+        const div = document.createElement('div');
+        div.className = 'rec-card';
+        div.style.cssText = 'cursor:default;pointer-events:none;';
+        div.innerHTML = `
+          <div class="rec-left">
+            <span class="rec-icon">${c.emoji}</span>
+            <div>
+              <div class="rec-name">${c.nombre}</div>
+              <div class="rec-desc">${c.desc}</div>
+            </div>
+          </div>
+          <div class="rec-right">
+            <span class="rec-badge">Gratis</span>
+          </div>`;
+        grid.appendChild(div);
+      });
+
+      const primero = CURSOS[recs[0]];
+      if (primero) {
+        const btn = document.createElement('a');
+        btn.href            = primero.url;
+        btn.target          = '_blank';
+        btn.rel             = 'noopener';
+        btn.className       = 'btn-next';
+        btn.style.cssText   = 'margin-top:8px;text-decoration:none;align-self:stretch;justify-content:center;';
+        btn.textContent     = 'Empezar con mi primer curso →';
+        grid.appendChild(btn);
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* =====================================================
+       CONTADOR ANIMADO
+    ===================================================== */
+    function animaContador(id, target, prefix, suffix) {
+      const el       = document.getElementById(id);
+      const duration = 1300;
+      const start    = performance.now();
+
+      function step(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const e = 1 - Math.pow(1 - t, 3); // ease out cubic
+        const v = Math.round(e * target);
+        el.textContent = prefix + v.toLocaleString('es-ES') + suffix;
+        if (t < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    /* =====================================================
+       CAPTURA PREVIA AL RESULTADO
+    ===================================================== */
+    function showCapture() {
+      document.getElementById('q5').classList.remove('active');
+      document.getElementById('qCaptura').classList.add('active');
+      document.getElementById('progressFill').style.width  = '95%';
+      document.getElementById('progressLabel').textContent = 'Casi listo';
+      document.getElementById('progressPct').textContent   = '95 %';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function submitCapture() {
+      const nombreInput = document.getElementById('captureNombre');
+      const emailInput  = document.getElementById('captureEmail');
+      const nombre = nombreInput.value.trim();
+      const email  = emailInput.value.trim();
+
+      if (!nombre) {
+        nombreInput.style.borderColor = '#e05050';
+        nombreInput.focus();
+        return;
+      }
+      nombreInput.style.borderColor = '';
+
+      if (!email || !email.includes('@') || !email.includes('.')) {
+        emailInput.style.borderColor = '#e05050';
+        emailInput.focus();
+        return;
+      }
+      emailInput.style.borderColor = '';
+
+      var body = new FormData();
+      body.append('FIRSTNAME', nombre);
+      body.append('EMAIL', email);
+      body.append('TIPO_NEGOCIO', state.q1 || '');
+      body.append('email_address_check', '');
+      body.append('locale', 'es');
+      fetch('https://0e103c7f.sibforms.com/serve/MUIFALswFA8wlMn1nsL1L9O6lfI4DauGWzdPuX2tTjvkUfGvNUr0ng4YMAer66Psyv2xS4SNct10xbxSHRHYejcrI0x7Lp9qhpwkAggjWOwXUR8MYWIf8xF3dO2qYe6zpWFortn7PpUTss_4JmsMP2AO3YlbTdL6YnMFSvSXtwE3Tu7boPXI2MXzImyP37XmWgNzxJ3cwD2TvSVc1g==', {
+        method: 'POST',
+        body: body,
+        mode: 'no-cors'
+      }).catch(function(){});
+
+      showResult();
+    }
+
+    /* =====================================================
+       EMAIL
+    ===================================================== */
+    async function submitEmail() {
+  const input = document.getElementById('emailInput');
+  const email = input.value.trim();
+
+  if (!email || !email.includes('@') || !email.includes('.')) {
+    input.style.borderColor = '#e05050';
+    input.focus();
+    return;
+  }
+  input.style.borderColor = '';
+
+  document.getElementById('sib-EMAIL').value = email;
+  document.getElementById('sib-submit').click();
+
+  document.getElementById('emailForm').style.display   = 'none';
+  document.getElementById('emailThanks').style.display = 'block';
+}
+
+    /* =====================================================
+       NIEVE (canvas)
+    ===================================================== */
+    (function () {
+      const canvas = document.getElementById('snow');
+      const ctx    = canvas.getContext('2d');
+      let   flakes = [];
+
+      function resize() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      const CHARS = ['❄', '*', '·', '•', '❅'];
+      for (let i = 0; i < 65; i++) {
+        flakes.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          s: 7 + Math.random() * 9,
+          v: 0.25 + Math.random() * 0.5,
+          d: (Math.random() - 0.5) * 0.25,
+          c: CHARS[Math.floor(Math.random() * CHARS.length)],
+          o: 0.08 + Math.random() * 0.25
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        flakes.forEach(f => {
+          ctx.globalAlpha = f.o;
+          ctx.fillStyle   = '#EEF4F8';
+          ctx.font        = f.s + 'px serif';
+          ctx.fillText(f.c, f.x, f.y);
+          f.y += f.v;
+          f.x += f.d;
+          if (f.y > canvas.height + 20) {
+            f.y = -20;
+            f.x = Math.random() * canvas.width;
+          }
+        });
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    /* =====================================================
+       CURSOR PERSONALIZADO
+    ===================================================== */
+    (function () {
+      const cr  = document.getElementById('cr');
+      const crr = document.getElementById('crr');
+      let mx = 0, my = 0, rx = 0, ry = 0;
+
+      document.addEventListener('mousemove', e => {
+        mx = e.clientX;
+        my = e.clientY;
+        cr.style.left = mx + 'px';
+        cr.style.top  = my + 'px';
+      });
+      document.addEventListener('mousedown', () => document.body.classList.add('clicking'));
+      document.addEventListener('mouseup',   () => document.body.classList.remove('clicking'));
+
+      function loop() {
+        rx += (mx - rx) * 0.12;
+        ry += (my - ry) * 0.12;
+        crr.style.left = rx + 'px';
+        crr.style.top  = ry + 'px';
+        requestAnimationFrame(loop);
+      }
+      loop();
+    })();
+
+    /* Init */
+    setProgress(1);
+  </script>
+
+    <form id="sib-form" method="POST" action="https://0e103c7f.sibforms.com/serve/MUIFALswFA8wlMn1nsL1L9O6lfI4DauGWzdPuX2tTjvkUfGvNUr0ng4YMAer66Psyv2xS4SNct10xbxSHRHYejcrI0x7Lp9qhpwkAggjWOwXUR8MYWIf8xF3dO2qYe6zpWFortn7PpUTss_4JmsMP2AO3YlbTdL6YnMFSvSXtwE3Tu7boPXI2MXzImyP37XmWgNzxJ3cwD2TvSVc1g==" data-type="subscription">
+      <input type="text"   id="sib-FIRSTNAME"    name="FIRSTNAME"    value="">
+      <input type="text"   id="sib-EMAIL"        name="EMAIL"        value="">
+      <input type="text"   id="sib-TIPO_NEGOCIO" name="TIPO_NEGOCIO" value="">
+      <input type="text"   name="email_address_check" value="">
+      <input type="hidden" name="locale"          value="es">
+      <button id="sib-submit" type="submit">OK</button>
+    </form>
+  </div>
+  <script defer src="https://sibforms.com/forms/end-form/build/main.js"></script>
+</body>
+</html>
+
+
+
+<p></p>

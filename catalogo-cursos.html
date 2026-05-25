@@ -1,0 +1,1152 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Catálogo de cursos — AuryOnTech</title>
+<meta name="description" content="6 cursos gratuitos y de pago para automatizar tu negocio con IA, Make y Google Sheets. Sin código, sin excusas."/>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet"/>
+<style>
+/* ══════════════════════════════════════
+   TOKENS
+══════════════════════════════════════ */
+:root{
+  --ink:#000000;--ink2:#070707;--ink3:#0F0F10;--ink4:#161617;
+  --dawn:#C46030;--dawn-l:#D88050;--dawn-ll:#ECA878;--dawn-pale:#1E0A04;
+  --sky:#3A6494;--sky-l:#5A84B4;--sky-ll:#8AB4D4;--sky-pale:#071422;
+  --green:#2D9E6B;--green-l:#3DBE88;--green-pale:#071A0F;
+  --ice:#B8D4EC;--snow:#EEF4F8;--bone:#EDE4D8;--bone2:#D8CCBC;
+  --warm:#7A6E60;--warm-l:#9A8E80;
+  --border:rgba(238,244,248,.06);
+  --border-dawn:rgba(196,96,48,.22);
+  --border-sky:rgba(58,100,148,.22);
+  --border-green:rgba(45,158,107,.2);
+}
+
+/* ══════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#000000;
+  color:var(--bone);
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* Textura de grano */
+body::after{display:none;}
+
+/* Nieve */
+.snow-field{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;}
+.flake{position:absolute;top:-20px;color:rgba(184,212,236,.5);font-size:11px;animation:snowfall linear infinite;user-select:none;}
+@keyframes snowfall{
+  0%{transform:translateY(-20px) rotate(0deg);opacity:0;}
+  5%{opacity:.5;}90%{opacity:.2;}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0;}
+}
+
+/* ══════════════════════════════════════
+   CURSOR
+══════════════════════════════════════ */
+.cr{position:fixed;width:8px;height:8px;background:var(--dawn);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .15s,height .15s,background .2s;}
+.crr{position:fixed;width:28px;height:28px;border:1.5px solid rgba(196,96,48,.45);border-radius:50%;pointer-events:none;z-index:9997;transform:translate(-50%,-50%);transition:width .28s,height .28s,opacity .2s;}
+
+/* ══════════════════════════════════════
+   BARRA DE SCROLL
+══════════════════════════════════════ */
+#progress-bar{
+  position:fixed;top:0;left:0;height:2px;width:0%;
+  background:linear-gradient(90deg,var(--dawn),var(--dawn-ll));
+  z-index:10000;transition:width .05s linear;
+}
+
+/* ══════════════════════════════════════
+   NAV
+══════════════════════════════════════ */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 52px;
+  background:rgba(7,9,15,.92);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-mark{width:32px;height:32px;border-radius:9px;overflow:hidden;border:1px solid var(--border-dawn);}
+.nav-mark img{width:100%;height:100%;object-fit:cover;}
+.nav-word{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:1.05rem;color:var(--bone);letter-spacing:-.02em;}
+.nav-word span{color:var(--dawn-l);}
+.nav-back{
+  font-size:.82rem;color:var(--warm-l);text-decoration:none;
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;border:1px solid var(--border);border-radius:100px;
+  transition:all .2s;
+}
+.nav-back:hover{color:var(--bone);border-color:rgba(238,244,248,.15);}
+.nav-cta{
+  background:var(--dawn);color:var(--snow);font-weight:600;font-size:.82rem;
+  padding:8px 20px;border-radius:100px;text-decoration:none;
+  box-shadow:0 4px 18px rgba(0,0,0,.5);transition:all .2s;
+}
+.nav-cta:hover{box-shadow:0 4px 18px rgba(0,0,0,.5);transform:translateY(-1px);color:var(--snow);}
+
+/* ══════════════════════════════════════
+   HERO
+══════════════════════════════════════ */
+.hero{
+  padding:112px 52px 56px;
+  position:relative;overflow:hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(196,96,48,.22) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 80% 30%, rgba(58,100,148,.15) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 90%, rgba(58,100,148,.1) 0%, transparent 50%),
+    linear-gradient(175deg,#120A04 0%,#0A0E1C 40%,#07090F 100%);
+}
+.hero-grid-bg{
+  position:absolute;inset:0;z-index:0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse 90% 90% at 50% 50%, black 0%, transparent 80%);
+}
+.hero-inner{
+  max-width:1120px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 360px;gap:48px;align-items:center;
+  position:relative;z-index:2;
+}
+.hero-kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(196,96,48,.08);border:1px solid var(--border-dawn);
+  color:var(--dawn-ll);font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 13px;border-radius:100px;margin-bottom:20px;
+}
+.hero-dot{width:5px;height:5px;background:var(--dawn);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+.hero h1{
+  font-family:'Cabinet Grotesk',sans-serif;font-weight:800;
+  font-size:clamp(2.6rem,4.5vw,4rem);line-height:1.04;letter-spacing:-.04em;
+  color:var(--snow);margin-bottom:16px;
+}
+.hero h1 em{font-style:italic;color:var(--dawn-l);font-family:'DM Sans',sans-serif;font-weight:300;}
+.hero-sub{
+  font-size:.95rem;color:var(--warm-l);line-height:1.75;max-width:480px;
+  font-weight:300;margin-bottom:32px;
+}
+.hero-stats{display:flex;gap:28px;padding-top:24px;border-top:1px solid var(--border);}
+.hs-item{}
+.hs-num{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1.7rem;color:var(--dawn-l);letter-spacing:-.04em;line-height:1;}
+.hs-label{font-size:.68rem;color:var(--warm);margin-top:4px;font-family:'DM Mono',monospace;}
+/* Aury en el hero */
+.hero-aury{
+  position:relative;display:flex;align-items:flex-end;justify-content:center;
+}
+.hero-aury-img{
+  width:260px;
+  filter:drop-shadow(0 12px 32px rgba(0,0,0,.6));
+  animation:floatBob 4s ease-in-out infinite;
+}
+.hero-aury-ring{
+  position:absolute;width:220px;height:220px;bottom:20px;
+  border:1px solid rgba(196,96,48,.1);border-radius:50%;
+  animation:spin 30s linear infinite;
+}
+.hero-aury-ring::before{
+  content:'';position:absolute;top:-3px;left:50%;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--dawn);transform:translateX(-50%);
+}
+
+/* ══════════════════════════════════════
+   LEARNING PATH
+══════════════════════════════════════ */
+.path-wrap{
+  padding:32px 52px;
+  background:#000000;
+  border-bottom:1px solid var(--border);
+  overflow:hidden;
+}
+.path-inner{max-width:1120px;margin:0 auto;}
+.path-label{
+  font-family:'DM Mono',monospace;font-size:.66rem;font-weight:500;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--dawn);
+  margin-bottom:18px;display:flex;align-items:center;gap:8px;
+}
+.path-label::before{content:'';width:14px;height:2px;background:var(--dawn);border-radius:2px;}
+.path-track{
+  display:flex;align-items:center;gap:0;
+  overflow-x:auto;padding-bottom:2px;scrollbar-width:none;
+}
+.path-track::-webkit-scrollbar{display:none;}
+.path-node{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  flex-shrink:0;position:relative;
+}
+.path-num{
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:.7rem;font-weight:700;
+  border:1.5px solid var(--border);color:var(--warm);background:#000000;
+  transition:all .25s;cursor:default;
+}
+.path-node.ready .path-num{
+  border-color:var(--dawn);color:var(--dawn-ll);
+  background:var(--dawn-pale);
+  box-shadow:0 4px 18px rgba(0,0,0,.5);
+}
+.path-name{
+  font-size:.67rem;color:var(--warm);white-space:nowrap;
+  font-weight:500;text-align:center;max-width:80px;
+  line-height:1.3;
+}
+.path-node.ready .path-name{color:var(--bone2);}
+.path-connector{
+  flex:1;min-width:32px;height:1px;
+  background:linear-gradient(90deg, var(--border-dawn), var(--border));
+  margin-bottom:22px;flex-shrink:0;
+}
+
+/* ══════════════════════════════════════
+   FILTROS
+══════════════════════════════════════ */
+.filtros{
+  padding:20px 52px;
+  position:sticky;top:61px;z-index:100;
+  background:rgba(7,9,15,.94);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.filtros-inner{
+  max-width:1120px;margin:0 auto;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.filtro-btn{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  color:var(--warm-l);font-size:.78rem;font-weight:500;
+  padding:7px 16px;border-radius:100px;
+  cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;
+}
+.filtro-btn .dot{width:5px;height:5px;border-radius:50%;background:var(--warm);transition:background .2s;}
+.filtro-btn:hover{border-color:rgba(255,255,255,.18);color:var(--bone2);}
+.filtro-btn.on{font-weight:600;}
+.filtro-btn.on.f-todos{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.2);color:var(--snow);}
+.filtro-btn.on.f-ia{background:var(--dawn-pale);border-color:var(--border-dawn);color:var(--dawn-ll);}
+.filtro-btn.on.f-ia .dot{background:var(--dawn);}
+.filtro-btn.on.f-auto{background:var(--sky-pale);border-color:var(--border-sky);color:var(--sky-ll);}
+.filtro-btn.on.f-auto .dot{background:var(--sky-l);}
+.filtro-btn.on.f-neg{background:var(--green-pale);border-color:var(--border-green);color:var(--green-l);}
+.filtro-btn.on.f-neg .dot{background:var(--green);}
+.filtro-sep{width:1px;height:20px;background:var(--border);margin:0 4px;}
+.filtro-count{
+  margin-left:auto;font-family:'DM Mono',monospace;font-size:.7rem;
+  color:var(--warm);
+}
+
+/* ══════════════════════════════════════
+   CATALOGO — CONTENEDOR
+══════════════════════════════════════ */
+.catalogo{
+  padding:48px 52px 100px;
+  background:#000000;
+}
+.cat-inner{max-width:1120px;margin:0 auto;}
+
+/* ══════════════════════════════════════
+   BENTO GRID
+══════════════════════════════════════ */
+.bento{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  grid-auto-rows:auto;
+  gap:14px;
+  margin-bottom:16px;
+}
+
+/* Tarjeta base */
+.cc{
+  background:#000000;
+  border:1px solid var(--border);
+  border-radius:20px;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  position:relative;
+  transition:border-color .3s, transform .3s, box-shadow .3s;
+}
+.cc::after{
+  content:'';position:absolute;inset:0;border-radius:20px;
+  opacity:0;transition:opacity .3s;pointer-events:none;
+}
+.cc:hover{transform:translateY(-4px);}
+.cc.ia:hover{border-color:var(--border-dawn);box-shadow:0 4px 18px rgba(0,0,0,.5);}
+.cc.auto:hover{border-color:var(--border-sky);box-shadow:0 16px 48px rgba(58,100,148,.12);}
+.cc.neg:hover{border-color:var(--border-green);box-shadow:0 16px 48px rgba(45,158,107,.1);}
+
+/* Línea superior de color */
+.cc-stripe{height:3px;width:100%;}
+.cc.ia .cc-stripe{background:linear-gradient(90deg,var(--dawn-pale),var(--dawn),var(--dawn-pale));}
+.cc.auto .cc-stripe{background:linear-gradient(90deg,var(--sky-pale),var(--sky-l),var(--sky-pale));}
+.cc.neg .cc-stripe{background:linear-gradient(90deg,var(--green-pale),var(--green),var(--green-pale));}
+.cc.prox .cc-stripe{background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);}
+
+/* TALLAS DE BENTO */
+/* Featured: ocupa 8/12 cols */
+.cc-feat{grid-column:span 8;}
+/* Tall: ocupa 4/12 cols */
+.cc-tall{grid-column:span 4;}
+/* Normal: ocupa 4/12 cols */
+.cc-norm{grid-column:span 4;}
+/* Wide: ocupa 6/12 cols */
+.cc-wide{grid-column:span 6;}
+
+/* CUERPO DE LA TARJETA */
+.cc-body{padding:24px 26px 20px;flex:1;display:flex;flex-direction:column;gap:10px;}
+.cc-feat .cc-body{padding:32px 36px 28px;}
+
+/* Badge de categoría */
+.cc-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:'DM Mono',monospace;font-size:.6rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 9px;border-radius:100px;
+  width:fit-content;
+}
+.cc.ia .cc-badge{background:rgba(196,96,48,.1);color:var(--dawn-ll);border:1px solid rgba(196,96,48,.18);}
+.cc.auto .cc-badge{background:rgba(58,100,148,.1);color:var(--sky-ll);border:1px solid rgba(58,100,148,.18);}
+.cc.neg .cc-badge{background:rgba(45,158,107,.08);color:var(--green-l);border:1px solid rgba(45,158,107,.18);}
+.cc.prox .cc-badge{background:rgba(255,255,255,.04);color:var(--warm-l);border:1px solid var(--border);}
+
+/* Número decorativo */
+.cc-num{
+  font-family:'Cabinet Grotesk',sans-serif;font-weight:800;
+  font-size:1.8rem;
+  line-height:1;
+  color:rgba(255,255,255,.04);
+  letter-spacing:-.05em;
+}
+.cc-feat .cc-num{font-size:3.2rem;}
+
+/* Título */
+.cc-title{
+  font-family:'Cabinet Grotesk',sans-serif;font-weight:700;
+  font-size:.92rem;color:var(--snow);
+  line-height:1.25;
+}
+.cc-feat .cc-title{font-size:1.4rem;line-height:1.15;}
+
+/* Descripción */
+.cc-desc{
+  font-size:.78rem;color:var(--warm-l);line-height:1.65;font-weight:300;
+  flex:1;
+}
+.cc-feat .cc-desc{font-size:.88rem;max-width:480px;}
+
+/* Tools */
+.cc-tools{display:flex;gap:5px;flex-wrap:wrap;}
+.cc-tool{
+  font-size:.6rem;font-weight:600;padding:2px 7px;border-radius:5px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  color:var(--warm-l);font-family:'DM Mono',monospace;
+}
+
+/* Meta */
+.cc-meta{
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+}
+.cc-meta-item{font-size:.66rem;color:var(--warm);font-family:'DM Mono',monospace;}
+.cc-meta-sep{color:rgba(122,110,96,.35);font-size:.6rem;}
+
+/* Resultado */
+.cc-result{
+  font-size:.74rem;color:rgba(238,244,248,.45);line-height:1.55;
+  font-style:italic;
+  border-left:2px solid rgba(196,96,48,.2);
+  padding-left:10px;
+  display:none;
+}
+.cc-feat .cc-result{display:block;}
+
+/* Footer de tarjeta */
+.cc-foot{
+  padding:0 26px 22px;
+  display:flex;align-items:center;gap:10px;
+}
+.cc-feat .cc-foot{padding:0 36px 28px;}
+
+/* Precio */
+.cc-price{
+  font-family:'Cabinet Grotesk',sans-serif;font-weight:700;
+  font-size:.88rem;color:var(--bone2);
+  letter-spacing:-.02em;
+}
+.cc-price.gratis{color:var(--green-l);}
+.cc-price.pago{color:var(--dawn-ll);}
+
+/* CTA */
+.cc-cta{
+  margin-left:auto;
+  font-weight:600;font-size:.8rem;
+  padding:9px 20px;border-radius:100px;
+  text-decoration:none;text-align:center;
+  transition:all .2s;white-space:nowrap;
+}
+.cc.ia .cc-cta{background:var(--dawn);color:var(--snow);box-shadow:0 4px 18px rgba(0,0,0,.5);}
+.cc.ia .cc-cta:hover{background:var(--dawn-l);color:var(--snow);box-shadow:0 4px 18px rgba(0,0,0,.5);}
+.cc.auto .cc-cta{background:var(--sky);color:var(--snow);box-shadow:0 4px 12px rgba(58,100,148,.25);}
+.cc.auto .cc-cta:hover{background:var(--sky-l);color:var(--snow);}
+.cc.neg .cc-cta{background:var(--green);color:var(--snow);box-shadow:0 4px 12px rgba(45,158,107,.2);}
+.cc.neg .cc-cta:hover{background:var(--green-l);color:var(--snow);}
+.cc.prox .cc-cta{
+  background:rgba(255,255,255,.04);color:var(--warm);
+  border:1px solid var(--border);cursor:default;pointer-events:none;
+}
+
+/* Número de secuencia (badge esquina) */
+.cc-seq{
+  position:absolute;top:14px;right:14px;
+  width:22px;height:22px;border-radius:50%;
+  font-family:'DM Mono',monospace;font-size:.6rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.cc.ia .cc-seq{background:var(--dawn);color:var(--snow);}
+.cc.auto .cc-seq{background:var(--sky);color:var(--snow);}
+.cc.neg .cc-seq{background:var(--green);color:var(--snow);}
+.cc.prox .cc-seq{background:rgba(255,255,255,.07);color:var(--warm);}
+
+/* Próximamente: opacidad */
+.cc.prox{opacity:.5;pointer-events:none;}
+
+/* ══════════════════════════════════════
+   SEPARADOR DE CATEGORÍA
+══════════════════════════════════════ */
+.cat-divider{
+  display:flex;align-items:center;gap:14px;
+  margin:36px 0 16px;
+}
+.cat-divider-icon{
+  width:32px;height:32px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.72rem;font-family:'DM Mono',monospace;font-weight:700;flex-shrink:0;
+}
+.cat-divider-icon.ia{background:rgba(196,96,48,.1);color:var(--dawn-l);border:1px solid rgba(196,96,48,.18);}
+.cat-divider-icon.auto{background:rgba(58,100,148,.1);color:var(--sky-l);border:1px solid rgba(58,100,148,.18);}
+.cat-divider-icon.neg{background:rgba(45,158,107,.08);color:var(--green-l);border:1px solid rgba(45,158,107,.18);}
+.cat-divider-title{
+  font-family:'Cabinet Grotesk',sans-serif;font-weight:700;
+  font-size:1rem;color:var(--snow);
+}
+.cat-divider-sub{
+  font-family:'DM Mono',monospace;font-size:.68rem;color:var(--warm);
+  margin-left:4px;
+}
+.cat-divider-line{flex:1;height:1px;background:var(--border);}
+
+/* ══════════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════════ */
+.empty{
+  text-align:center;padding:80px 20px;display:none;
+}
+.empty.vis{display:block;}
+.empty-icon{font-size:2.8rem;margin-bottom:14px;}
+.empty h3{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:1.1rem;color:var(--snow);margin-bottom:8px;}
+.empty p{font-size:.85rem;color:var(--warm-l);}
+
+/* ══════════════════════════════════════
+   CTA FINAL
+══════════════════════════════════════ */
+.cta-final{
+  padding:80px 52px;
+  background:
+    radial-gradient(ellipse 70% 80% at 50% 100%, rgba(196,96,48,.1) 0%, transparent 60%),
+    var(--ink2);
+  border-top:1px solid var(--border);
+}
+.cta-inner{max-width:560px;margin:0 auto;text-align:center;}
+.cta-aury{
+  width:90px;margin:0 auto 20px;display:block;
+  filter:drop-shadow(0 12px 32px rgba(0,0,0,.6));
+  animation:floatBob 4s ease-in-out infinite;
+}
+.cta-final h2{
+  font-family:'Cabinet Grotesk',sans-serif;font-weight:800;
+  font-size:clamp(1.7rem,3vw,2.3rem);color:var(--snow);
+  letter-spacing:-.03em;margin-bottom:12px;line-height:1.1;
+}
+.cta-final h2 em{font-style:italic;color:var(--dawn-l);font-family:'DM Sans',sans-serif;font-weight:300;}
+.cta-final p{font-size:.9rem;color:var(--warm-l);line-height:1.7;margin-bottom:28px;font-weight:300;}
+.cta-btn{
+  display:inline-block;background:var(--dawn);color:var(--snow);
+  font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.92rem;
+  padding:14px 30px;border-radius:100px;text-decoration:none;
+  box-shadow:0 4px 18px rgba(0,0,0,.5);transition:all .2s;
+}
+.cta-btn:hover{box-shadow:0 4px 18px rgba(0,0,0,.5);transform:translateY(-2px);color:var(--snow);}
+
+/* ══════════════════════════════════════
+   FOOTER
+══════════════════════════════════════ */
+.footer{
+  background:#000000;border-top:1px solid var(--border);
+  padding:24px 52px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:.75rem;color:var(--warm);
+}
+.footer a{color:var(--warm-l);text-decoration:none;transition:color .2s;}
+.footer a:hover{color:var(--dawn-l);}
+.footer-mono{font-family:'DM Mono',monospace;font-size:.68rem;}
+
+/* ══════════════════════════════════════
+   ANIMACIONES & UTILIDADES
+══════════════════════════════════════ */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease;}
+.reveal.vis{opacity:1;transform:translateY(0);}
+
+@keyframes floatBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.2;}}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media(max-width:960px){
+  *{cursor:auto!important;}.cr,.crr{display:none;}
+  .nav{padding:12px 20px;}
+  .hero{padding:90px 20px 40px;}
+  .hero-inner{grid-template-columns:1fr;gap:0;}
+  .hero-aury{display:none;}
+  .path-wrap,.filtros,.catalogo,.cta-final{padding-left:20px;padding-right:20px;}
+  .bento{grid-template-columns:1fr;}
+  .cc-feat,.cc-tall,.cc-norm,.cc-wide{grid-column:span 1;}
+  .hero-stats{flex-wrap:wrap;gap:16px;}
+  .footer{flex-direction:column;gap:10px;text-align:center;padding:18px 20px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NIEVE -->
+<div class="snow-field" id="snowField"></div>
+
+<!-- CURSOR -->
+<div class="cr" id="cr"></div>
+<div class="crr" id="crr"></div>
+
+<!-- BARRA DE PROGRESO -->
+<div id="progress-bar"></div>
+
+<!-- ══════════════════════════════════════
+     NAV
+══════════════════════════════════════ -->
+<nav class="nav">
+  <a href="/" class="nav-logo">
+    <div class="nav-mark">
+      <img decoding="async" src="assets/img/Aury-Art-Computadora-1-2.png" alt="Aury"/>
+    </div>
+    <span class="nav-word">Aury<span>OnTech</span></span>
+  </a>
+  <a href="/" class="nav-back">&#8592; Volver al inicio</a>
+  <a href="index.htmlmaterial-tu-primera-automatizacion-en-30-minutos/" class="nav-cta">Empezar gratis</a>
+</nav>
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-kicker">
+        <span class="hero-dot"></span>
+        Catálogo completo &middot; Actualizado 2026
+      </div>
+      <h1>Todo lo que<br/>necesitas para<br/><em>automatizar.</em></h1>
+      <p class="hero-sub">
+        6 cursos gratuitos y 1 de pago para llevar tu negocio al siguiente nivel con IA y automatización. Sin saber de código, sin excusas.
+      </p>
+      <div class="hero-stats">
+        <div class="hs-item">
+          <div class="hs-num">7</div>
+          <div class="hs-label">cursos listos</div>
+        </div>
+        <div class="hs-item">
+          <div class="hs-num">50+</div>
+          <div class="hs-label">lecciones</div>
+        </div>
+        <div class="hs-item">
+          <div class="hs-num">0&euro;</div>
+          <div class="hs-label">para empezar</div>
+        </div>
+        <div class="hs-item">
+          <div class="hs-num">3</div>
+          <div class="hs-label">categorías</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-aury">
+      <div class="hero-aury-ring"></div>
+      <img decoding="async"
+        class="hero-aury-img"
+        src="assets/img/Penguin-solving-mysteries-with-lightbulb.png"
+        alt="Aury frente a la computadora"
+      />
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     RUTA DE APRENDIZAJE
+══════════════════════════════════════ -->
+<div class="path-wrap">
+  <div class="path-inner">
+    <div class="path-label">Ruta recomendada si empiezas desde cero</div>
+    <div class="path-track">
+
+      <div class="path-node ready">
+        <div class="path-num">1</div>
+        <div class="path-name">Prompts que trabajan</div>
+      </div>
+      <div class="path-connector"></div>
+
+      <div class="path-node ready">
+        <div class="path-num">2</div>
+        <div class="path-name">Mini CRM en Sheets</div>
+      </div>
+      <div class="path-connector"></div>
+
+      <div class="path-node ready">
+        <div class="path-num">3</div>
+        <div class="path-name">Publica con IA</div>
+      </div>
+      <div class="path-connector"></div>
+
+      <div class="path-node ready">
+        <div class="path-num">4</div>
+        <div class="path-name">Vende con IA</div>
+      </div>
+      <div class="path-connector"></div>
+
+      <div class="path-node ready">
+        <div class="path-num">5</div>
+        <div class="path-name">Automatiza documentos</div>
+      </div>
+      <div class="path-connector"></div>
+
+      <div class="path-node ready">
+        <div class="path-num">6</div>
+        <div class="path-name">Tu primera automatización</div>
+      </div>
+      <div class="path-connector"></div>
+
+      <div class="path-node">
+        <div class="path-num">7</div>
+        <div class="path-name">Tu primer agente IA</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTROS
+══════════════════════════════════════ -->
+<div class="filtros" id="filtros">
+  <div class="filtros-inner">
+    <button class="filtro-btn f-todos on" onclick="filtrar('todos',this)">Todos</button>
+    <div class="filtro-sep"></div>
+    <button class="filtro-btn f-ia" onclick="filtrar('ia',this)"><span class="dot"></span>IA y Contenido</button>
+    <button class="filtro-btn f-auto" onclick="filtrar('auto',this)"><span class="dot"></span>Automatización</button>
+    <button class="filtro-btn f-neg" onclick="filtrar('neg',this)"><span class="dot"></span>Negocio</button>
+    <span class="filtro-count" id="filtro-count">6 cursos disponibles</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     CATÁLOGO
+══════════════════════════════════════ -->
+<section class="catalogo" id="catalogo">
+  <div class="cat-inner">
+
+    <!-- ─── CATEGORÍA: IA Y CONTENIDO ─── -->
+    <div class="cat-divider reveal" data-cat="ia" id="div-ia">
+      <div class="cat-divider-icon ia">IA</div>
+      <div>
+        <span class="cat-divider-title">IA y Contenido</span>
+        <span class="cat-divider-sub">— 3 cursos</span>
+      </div>
+      <div class="cat-divider-line"></div>
+    </div>
+
+    <div class="bento reveal" id="grid-ia" data-cat="ia">
+
+      <!-- ★ DESTACADO: Prompts que trabajan -->
+      <div class="cc ia cc-feat" data-cat="ia">
+        <div class="cc-stripe"></div>
+        <div class="cc-seq">1</div>
+        <div class="cc-body">
+          <div class="cc-badge">IA y Contenido</div>
+          <div class="cc-num">01</div>
+          <div class="cc-title">Prompts que trabajan:<br/>la guía que nadie te dio</div>
+          <p class="cc-desc">
+            Las 6 técnicas reales de prompting para dejar de obtener respuestas genéricas y conseguir resultados profesionales desde el primer intento. Zero-shot, few-shot, chain-of-thought y más — aplicadas directamente a tu negocio.
+          </p>
+          <div class="cc-tools">
+            <span class="cc-tool">ChatGPT</span>
+            <span class="cc-tool">Claude</span>
+            <span class="cc-tool">Gemini</span>
+          </div>
+          <div class="cc-result">
+            Al terminar: dominas 6 técnicas de prompting y obtienes respuestas profesionales desde el primer intento — sin depender de prompts de terceros.
+          </div>
+        </div>
+        <div class="cc-foot">
+          <div class="cc-meta">
+            <span class="cc-meta-item">5 módulos</span>
+            <span class="cc-meta-sep">·</span>
+            <span class="cc-meta-item">19 lecciones</span>
+            <span class="cc-meta-sep">·</span>
+            <span class="cc-meta-item">Principiante</span>
+          </div>
+          <span class="cc-price gratis" style="margin-left:16px;">Gratis</span>
+          <a href="index.htmlcurso-prompts-que-trabajan/" class="cc-cta">Empezar →</a>
+        </div>
+      </div>
+
+      <!-- Publica con IA -->
+      <div class="cc ia cc-tall" data-cat="ia">
+        <div class="cc-stripe"></div>
+        <div class="cc-seq">3</div>
+        <div class="cc-body">
+          <div class="cc-badge">IA y Contenido</div>
+          <div class="cc-num">02</div>
+          <div class="cc-title">Publica con IA. Sin que se note.</div>
+          <p class="cc-desc">
+            El sistema para crear contenido que suena a ti, no a robot. Los 5 síntomas del texto generado por IA y cómo eliminarlos en segundos.
+          </p>
+          <div class="cc-tools">
+            <span class="cc-tool">ChatGPT</span>
+            <span class="cc-tool">Canva</span>
+          </div>
+        </div>
+        <div class="cc-foot">
+          <span class="cc-price gratis">Gratis</span>
+          <a href="index.htmlcurso-publica-con-ia-sin-que-se-note/" class="cc-cta">Empezar →</a>
+        </div>
+      </div>
+
+      <!-- Vende con IA -->
+      <div class="cc ia cc-norm" data-cat="ia">
+        <div class="cc-stripe"></div>
+        <div class="cc-seq">4</div>
+        <div class="cc-body">
+          <div class="cc-badge">IA y Contenido</div>
+          <div class="cc-num">03</div>
+          <div class="cc-title">Vende con IA. Sin perder tu estilo.</div>
+          <p class="cc-desc">
+            Cierra más con los leads que ya tienes. Prompts para primer contacto, seguimiento y propuesta.
+          </p>
+          <div class="cc-tools">
+            <span class="cc-tool">ChatGPT</span>
+            <span class="cc-tool">WhatsApp</span>
+            <span class="cc-tool">Sheets</span>
+          </div>
+        </div>
+        <div class="cc-foot">
+          <span class="cc-price gratis">Gratis</span>
+          <a href="index.htmlmaterial-vende-con-ia-sin-perder-tu-estilo/" class="cc-cta">Empezar →</a>
+        </div>
+      </div>
+
+      <!-- Próximamente: Deja de usar ChatGPT como un idiota -->
+      <div class="cc ia prox cc-norm" data-cat="ia">
+        <div class="cc-stripe"></div>
+        <div class="cc-seq" style="background:rgba(255,255,255,.06);color:var(--warm);">—</div>
+        <div class="cc-body">
+          <div class="cc-badge">Próximamente</div>
+          <div class="cc-num">04</div>
+          <div class="cc-title">Deja de usar ChatGPT como un idiota</div>
+          <p class="cc-desc">
+            GPTs personalizados con cuenta gratuita. Llevas 2 años con ChatGPT y sigues usándolo como buscador de Google.
+          </p>
+          <div class="cc-tools">
+            <span class="cc-tool">ChatGPT</span>
+          </div>
+        </div>
+        <div class="cc-foot">
+          <span class="cc-price gratis">Gratis</span>
+          <a href="#" class="cc-cta">Próximamente</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─── CATEGORÍA: AUTOMATIZACIÓN ─── -->
+    <div class="cat-divider reveal" data-cat="auto" id="div-auto">
+      <div class="cat-divider-icon auto">&#9881;</div>
+      <div>
+        <span class="cat-divider-title">Automatización</span>
+        <span class="cat-divider-sub">— 3 cursos</span>
+      </div>
+      <div class="cat-divider-line"></div>
+    </div>
+
+    <div class="bento reveal" id="grid-auto" data-cat="auto">
+
+      <!-- Automatiza documentos -->
+      <div class="cc auto cc-wide" data-cat="auto">
+        <div class="cc-stripe"></div>
+        <div class="cc-seq auto">5</div>
+        <div class="cc-body">
+          <div class="cc-badge">Automatización</div>
+          <div class="cc-num">04</div>
+          <div class="cc-title">Automatiza tus documentos. Sin tocar nada.</div>
+          <p class="cc-desc">
+            Genera presupuestos, propuestas y contratos desde Excel en segundos con Power Automate Desktop. Gratis, incluido en Windows.
+          </p>
+          <div class="cc-tools">
+            <span class="cc-tool">Power Automate</span>
+            <span class="cc-tool">Excel</span>
+            <span class="cc-tool">Word</span>
+          </div>
+          <div class="cc-result">
+            Al terminar: flujo activo que genera tus documentos repetitivos solos, con datos correctos, sin errores manuales.
+          </div>
+        </div>
+        <div class="cc-foot">
+          <div class="cc-meta">
+            <span class="cc-meta-item">5 módulos</span>
+            <span class="cc-meta-sep">·</span>
+            <span class="cc-meta-item">11 lecciones</span>
+            <span class="cc-meta-sep">·</span>
+            <span class="cc-meta-item">Solo Windows</span>
+          </div>
+          <span class="cc-price gratis" style="margin-left:12px;">Gratis</span>
+          <a href="index.htmlcurso-automatiza-tus-documentos-sin-tocar-nada/" class="cc-cta">Empezar →</a>
+        </div>
+      </div>
+
+      <!-- Tu primera automatización con Make -->
+      <div class="cc auto cc-wide" data-cat="auto">
+        <div class="cc-stripe"></div>
+        <div class="cc-seq auto">6</div>
+        <div class="cc-body">
+          <div class="cc-badge">Automatización</div>
+          <div class="cc-num">05</div>
+          <div class="cc-title">Tu primera automatización en 30 minutos</div>
+          <p class="cc-desc">
+            Crea tu primer flujo automático con Make y Google Sheets. El email con «factura» que guarda datos solo. Sin código, sin experiencia previa.
+          </p>
+          <div class="cc-tools">
+            <span class="cc-tool">Make</span>
+            <span class="cc-tool">Google Sheets</span>
+            <span class="cc-tool">Gmail</span>
+          </div>
+          <div class="cc-result">
+            Al terminar: flujo activo que detecta emails con «factura» y guarda los datos automáticamente en tu hoja.
+          </div>
+        </div>
+        <div class="cc-foot">
+          <div class="cc-meta">
+            <span class="cc-meta-item">3 módulos</span>
+            <span class="cc-meta-sep">·</span>
+            <span class="cc-meta-item">8 lecciones</span>
+            <span class="cc-meta-sep">·</span>
+            <span class="cc-meta-item">Principiante</span>
+          </div>
+          <span class="cc-price gratis" style="margin-left:12px;">Gratis</span>
+          <a href="index.htmlcurso-tu-primera-automatizacion-en-30-minutos/" class="cc-cta">Empezar →</a>
+        </div>
+      </div>
+
+      <!-- Correos en Piloto Automático -->
+      <div class="cc auto cc-norm" data-cat="auto">
+        <div class="cc-stripe"></div>
+        <div class="cc-seq auto">7</div>
+        <div class="cc-body">
+          <div class="cc-badge">Automatización</div>
+          <div class="cc-num">06</div>
+          <div class="cc-title">Correos en Piloto Automático</div>
+          <p class="cc-desc">
+            Convierte tu Google Sheets en el cerebro de tu comunicación. Cada fila que agregas dispara un correo personalizado automáticamente — sin tocar nada más.
+          </p>
+          <div class="cc-tools">
+            <span class="cc-tool">Make</span>
+            <span class="cc-tool">Google Sheets</span>
+            <span class="cc-tool">Gmail</span>
+          </div>
+        </div>
+        <div class="cc-foot">
+          <div class="cc-meta">
+            <span class="cc-meta-item">8 módulos</span>
+            <span class="cc-meta-sep">·</span>
+            <span class="cc-meta-item">16 lecciones</span>
+            <span class="cc-meta-sep">·</span>
+            <span class="cc-meta-item">Principiante</span>
+          </div>
+          <span class="cc-price gratis" style="margin-left:12px;">Gratis</span>
+          <a href="index.htmlcurso-correos-a-sheets/" class="cc-cta">Empezar →</a>
+        </div>
+      </div>
+
+      <!-- Próximamente: Agente IA -->
+      <div class="cc auto prox cc-norm" data-cat="auto">
+        <div class="cc-stripe"></div>
+        <div class="cc-seq" style="background:rgba(255,255,255,.06);color:var(--warm);">—</div>
+        <div class="cc-body">
+          <div class="cc-badge">Próximamente</div>
+          <div class="cc-num">06</div>
+          <div class="cc-title">Tu primer agente de IA sin programar</div>
+          <p class="cc-desc">
+            Un agente con n8n y ChatGPT que lee, entiende y responde emails de forma autónoma las 24h.
+          </p>
+          <div class="cc-tools">
+            <span class="cc-tool">n8n</span>
+            <span class="cc-tool">ChatGPT</span>
+            <span class="cc-tool">Gmail</span>
+          </div>
+        </div>
+        <div class="cc-foot">
+          <span class="cc-price gratis">Gratis</span>
+          <a href="#" class="cc-cta">Próximamente</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─── CATEGORÍA: NEGOCIO ─── -->
+    <div class="cat-divider reveal" data-cat="neg" id="div-neg">
+      <div class="cat-divider-icon neg">&#128202;</div>
+      <div>
+        <span class="cat-divider-title">Negocio</span>
+        <span class="cat-divider-sub">— 1 curso + 1 de pago</span>
+      </div>
+      <div class="cat-divider-line"></div>
+    </div>
+
+    <div class="bento reveal" id="grid-neg" data-cat="neg">
+
+      <!-- Mini CRM -->
+      <div class="cc neg cc-wide" data-cat="neg">
+        <div class="cc-stripe"></div>
+        <div class="cc-seq neg">2</div>
+        <div class="cc-body">
+          <div class="cc-badge">Negocio</div>
+          <div class="cc-num">07</div>
+          <div class="cc-title">Tu Mini CRM Gratis en Google Sheets</div>
+          <p class="cc-desc">
+            Organiza tus clientes y leads en Google Sheets con un sistema que funciona como un CRM real. Sin pagar ninguna suscripción, sin complicaciones.
+          </p>
+          <div class="cc-tools">
+            <span class="cc-tool">Google Sheets</span>
+          </div>
+          <div class="cc-result">
+            Al terminar: CRM funcionando con pipeline de ventas, estados por color y dashboard de seguimiento semanal.
+          </div>
+        </div>
+        <div class="cc-foot">
+          <div class="cc-meta">
+            <span class="cc-meta-item">5 módulos</span>
+            <span class="cc-meta-sep">·</span>
+            <span class="cc-meta-item">12 lecciones</span>
+            <span class="cc-meta-sep">·</span>
+            <span class="cc-meta-item">Principiante</span>
+          </div>
+          <span class="cc-price gratis" style="margin-left:12px;">Gratis</span>
+          <a href="index.htmlcurso-tu-mini-crm-gratis-en-google-sheets/" class="cc-cta">Empezar →</a>
+        </div>
+      </div>
+
+      <!-- Tu Tienda en Automático (PAGO) -->
+      <div class="cc neg cc-wide" data-cat="neg" style="border-color:rgba(45,158,107,.2);">
+        <div class="cc-stripe" style="background:linear-gradient(90deg,var(--green-pale),var(--green-l),var(--green-pale));"></div>
+        <!-- Badge "Más completo" -->
+        <div style="
+          position:absolute;top:14px;right:14px;
+          background:var(--green);color:var(--snow);
+          font-family:'DM Mono',monospace;font-size:.58rem;font-weight:700;
+          padding:3px 9px;border-radius:100px;letter-spacing:.06em;
+          box-shadow:0 2px 8px rgba(45,158,107,.35);
+        ">MÁS COMPLETO</div>
+        <div class="cc-body">
+          <div class="cc-badge" style="background:rgba(45,158,107,.1);color:var(--green-l);border:1px solid rgba(45,158,107,.2);">Negocio · Curso de pago</div>
+          <div class="cc-num">08</div>
+          <div class="cc-title">Tu Tienda en Automático</div>
+          <p class="cc-desc">
+            El sistema completo para automatizar tu tienda online desde cero: pedidos, respuestas a clientes, inventario y reportes — todo funcionando solo, sin que estés tú mirando.
+          </p>
+          <div class="cc-tools">
+            <span class="cc-tool">Make</span>
+            <span class="cc-tool">Google Sheets</span>
+            <span class="cc-tool">Gmail</span>
+            <span class="cc-tool">Shopify</span>
+          </div>
+          <div class="cc-result" style="display:block;border-left-color:rgba(45,158,107,.35);">
+            Al terminar: automatizaciones activas que recuperan 5+ horas semanales en tu tienda.
+          </div>
+        </div>
+        <div class="cc-foot">
+          <span class="cc-price pago" style="font-size:1.1rem;">47&euro;</span>
+          <span style="font-size:.7rem;color:var(--warm);margin-left:4px;font-family:'DM Mono',monospace;">pago único</span>
+          <a href="PLACEHOLDER_URL_TIENDA_EN_AUTOMATICO" class="cc-cta" style="background:var(--green);box-shadow:0 4px 12px rgba(45,158,107,.3);">Ver curso →</a>
+        </div>
+      </div>
+
+      <!-- Próximamente: Finanzas -->
+      <div class="cc neg prox cc-norm" data-cat="neg">
+        <div class="cc-stripe"></div>
+        <div class="cc-body">
+          <div class="cc-badge">Próximamente</div>
+          <div class="cc-num">09</div>
+          <div class="cc-title">Finanzas sin drama</div>
+          <p class="cc-desc">
+            Controla el dinero de tu negocio en 20 minutos a la semana. Dashboard de ingresos, gastos y margen.
+          </p>
+          <div class="cc-tools">
+            <span class="cc-tool">Google Sheets</span>
+          </div>
+        </div>
+        <div class="cc-foot">
+          <span class="cc-price gratis">Gratis</span>
+          <a href="#" class="cc-cta">Próximamente</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div class="empty" id="emptyState">
+      <div class="empty-icon">&#128039;</div>
+      <h3>Sin cursos en esta categoría aún</h3>
+      <p>Aury está trabajando en ello. Vuelve pronto o mira todos los cursos.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     CTA FINAL
+══════════════════════════════════════ -->
+<div class="cta-final">
+  <div class="cta-inner">
+    <img decoding="async"
+      class="cta-aury"
+      src="assets/img/Aury-Saludando.png"
+      alt="Aury saludando"
+    />
+    <h2>¿No sabes por dónde<br/><em>empezar?</em></h2>
+    <p>
+      Empieza por el curso de Prompts. Es el primero de la ruta recomendada, se completa en una tarde y lo que aprendes lo usas en todos los demás cursos.
+    </p>
+    <a href="index.htmlmaterial-prompts-que-trabajan-la-guia-que-nadie-te-dio/" class="cta-btn">
+      Empezar con Prompts que trabajan &rarr;
+    </a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer class="footer">
+  <a href="/">&#8592; Volver a AuryOnTech</a>
+  <span>&copy; 2026 AuryOnTech &middot; Automatización para humanos</span>
+  <span class="footer-mono">Hecho en Madrid &#10052;</span>
+</footer>
+
+<!-- ══════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════ -->
+<script>
+/* ─── CURSOR ─── */
+const cr = document.getElementById('cr');
+const crr = document.getElementById('crr');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cr.style.left = mx + 'px';
+  cr.style.top  = my + 'px';
+});
+(function anim() {
+  rx += (mx - rx) * .11;
+  ry += (my - ry) * .11;
+  crr.style.left = rx + 'px';
+  crr.style.top  = ry + 'px';
+  requestAnimationFrame(anim);
+})();
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cr.style.width = '14px'; cr.style.height = '14px';
+    crr.style.width = '42px'; crr.style.height = '42px';
+  });
+  el.addEventListener('mouseleave', () => {
+    cr.style.width = '8px'; cr.style.height = '8px';
+    crr.style.width = '28px'; crr.style.height = '28px';
+  });
+});
+
+/* ─── BARRA DE SCROLL ─── */
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+});
+
+/* ─── REVEAL ─── */
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: .06, rootMargin: '0px 0px -24px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
+
+/* ─── NIEVE ─── */
+const sf = document.getElementById('snowField');
+const sc = ['*', '+', '·', '❄', '✦'];
+for (let i = 0; i < 35; i++) {
+  const f = document.createElement('div');
+  f.className = 'flake';
+  f.textContent = sc[Math.floor(Math.random() * sc.length)];
+  f.style.left = Math.random() * 100 + 'vw';
+  f.style.animationDuration = (9 + Math.random() * 13) + 's';
+  f.style.animationDelay = (-Math.random() * 13) + 's';
+  f.style.fontSize = (11 + Math.random() * 11) + 'px';
+  f.style.opacity = (0.55 + Math.random() * 0.4).toString();
+  sf.appendChild(f);
+}
+
+/* ─── FILTROS ─── */
+function filtrar(cat, btn) {
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+
+  const cards     = document.querySelectorAll('.cc[data-cat]');
+  const grids     = document.querySelectorAll('.bento[data-cat], .cat-divider[data-cat]');
+  let visible     = 0;
+
+  if (cat === 'todos') {
+    cards.forEach(c => { c.style.display = 'flex'; if (!c.classList.contains('prox')) visible++; });
+    grids.forEach(g => g.style.display = '');
+  } else {
+    grids.forEach(g => {
+      const show = g.dataset.cat === cat;
+      g.style.display = show ? '' : 'none';
+    });
+    cards.forEach(c => {
+      const show = c.dataset.cat === cat;
+      c.style.display = show ? 'flex' : 'none';
+      if (show && !c.classList.contains('prox')) visible++;
+    });
+  }
+
+  const countEl = document.getElementById('filtro-count');
+  countEl.textContent = visible === 1 ? '1 curso disponible' : visible + ' cursos disponibles';
+
+  document.getElementById('emptyState').classList.toggle('vis', visible === 0);
+
+  document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+
+</body>
+</html>
