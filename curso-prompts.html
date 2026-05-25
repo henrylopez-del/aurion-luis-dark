@@ -814,6 +814,126 @@ section::after {
   color: #D88050 !important;
 }
 
+
+/* ============================================
+   DRAMATIC ICEBERG BACKGROUNDS — per section
+   Polar photography + dark overlay + dawn tint
+   Parallax via background-attachment fixed
+   ============================================ */
+
+/* HERO: iceberg sunset amber (matches our dawn palette) */
+.hero {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.7) 60%, rgba(0,0,0,.95) 100%),
+    radial-gradient(ellipse 70% 60% at 30% 40%, rgba(196,96,48,.18), transparent 60%),
+    url('assets/img/iceberg-sunset-amber.jpeg') !important;
+  background-size: cover, auto, cover !important;
+  background-position: center, center, center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed, scroll, fixed !important;
+}
+/* Override hero pseudo elements that were drawing amber lines */
+.hero::before, .hero::after { display: none !important; }
+
+/* MANIFESTO: mountains sunset pink */
+.manifesto {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.7), rgba(0,0,0,.85)),
+    url('assets/img/mountains-sunset-pink.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: fixed !important;
+}
+
+/* ABOUT: aerial iceberg dark water */
+.about, section.about {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.78), rgba(0,0,0,.92)),
+    url('assets/img/iceberg-aerial-dark.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, right center !important;
+  background-attachment: scroll !important;
+}
+
+/* SERVICES: ice texture blue */
+.services {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.92)),
+    url('assets/img/iceberg-texture-blue.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: fixed !important;
+}
+
+/* FLOW-DEMO: glacier wall */
+.flow-demo {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.95)),
+    url('assets/img/glacier-wall-blue.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+}
+
+/* VALOR: iceberg minimal */
+.valor {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.78), rgba(0,0,0,.9)),
+    url('assets/img/iceberg-minimal.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+}
+
+/* UC: aerial snow scale */
+.uc {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.8), rgba(0,0,0,.92)),
+    url('assets/img/aerial-snow-scale.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: fixed !important;
+}
+
+/* TESTI: ice columns */
+.testi {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.92)),
+    url('assets/img/iceberg-ice-columns.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+}
+
+/* CTA: twin massive icebergs */
+.cta {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.78), rgba(0,0,0,.92)),
+    url('assets/img/icebergs-twin-massive.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: fixed !important;
+}
+
+/* FOOTER: antarctic moon */
+footer, .footer {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.92), rgba(0,0,0,.98)),
+    url('assets/img/antarctic-moon.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+}
+
+/* Make sure section text stays visible over images */
+section h2, section h3, .hero-h1 {
+  text-shadow: 0 2px 24px rgba(0,0,0,.5);
+}
+section p, .hero-sub {
+  text-shadow: 0 1px 8px rgba(0,0,0,.4);
+}
+
+/* Mobile: disable fixed (perf + iOS bug) */
+@media (max-width: 900px) {
+  .hero, .services, .uc, .cta, .manifesto { background-attachment: scroll !important; }
+}
+
 </style>
 </head>
 <body>
