@@ -245,165 +245,83 @@ body::after{display:none;}
   .inst-stats{flex-wrap:wrap;gap:20px;}
 }
 
+
 /* ============================================
-   LINEAR / JELLYFISH FEEL OVERRIDE
-   Sharp corners, mono labels, hairlines no shadows.
-   Keeps: penguin, snow, icebergs, all copy.
+   LINEAR / JELLYFISH NUCLEAR REWRITE v2
    ============================================ */
+body, p, li, a, button, span, div, h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+.kicker, .chip, .chip-label, .chip-val, .chip-status, .hero-speech,
+.hm-num, .hm-label, [class*="eyebrow"], [class*="mono"], [class*="tag"],
+[class*="badge"], .nav-cta, .hero-aury-badge, .fn-num, .fn-tag, .vblk-icon,
+.dtag, .srv-tag {
+  font-family: 'JetBrains Mono', 'DM Mono', ui-monospace, monospace !important;
+}
+body { background: #000 !important; color: #E4E5E9 !important; font-size: 15px !important; line-height: 1.55 !important; -webkit-font-smoothing: antialiased !important; }
+h1, .hero-h1 { font-weight: 600 !important; letter-spacing: -0.024em !important; line-height: 1.05 !important; color: #E4E5E9 !important; }
+.hero-h1 { font-size: clamp(2rem, 3.2vw, 2.875rem) !important; max-width: 18ch; }
+h2 { font-weight: 600 !important; letter-spacing: -0.022em !important; line-height: 1.1 !important; font-size: clamp(1.625rem, 2.6vw, 2.125rem) !important; }
+h3, h4 { font-weight: 600 !important; letter-spacing: -0.015em !important; font-size: 1.125rem !important; }
+p, .hero-sub, .testi-quote { font-weight: 400 !important; color: #B0B3B8 !important; font-size: 0.9375rem !important; line-height: 1.6 !important; }
+.hero-sub { max-width: 460px !important; }
 
-/* Hero typography: contained, not display marketing */
-.hero-h1{
-  font-size:clamp(1.875rem,2.8vw,2.625rem) !important;
-  font-weight:700 !important;
-  letter-spacing:-.022em !important;
-  line-height:1.1 !important;
-}
-.hero-sub{
-  font-size:.95rem !important;
-  line-height:1.6 !important;
-  color:var(--bone3) !important;
-  max-width:480px !important;
-}
+.kicker, .nav-cta, .btn-dawn, .btn-ghost, .hero-aury-badge, .chip, .fn-tag, .fn-num, .vblk-icon, .srv-icon, .dtag, .hero-speech, .aury-bubble { border-radius: 6px !important; }
 
-/* Kicker pill → mono eyebrow */
-.kicker{
-  background:transparent !important;
-  border:none !important;
-  padding:0 !important;
-  border-radius:0 !important;
-  font-family:'DM Mono',monospace !important;
-  color:var(--dawn-l) !important;
-  font-size:.7rem !important;
-  letter-spacing:.16em !important;
-  margin-bottom:24px !important;
-}
-.kicker-dot{display:none !important;}
+.btn-dawn { background: #C46030 !important; color: #fff !important; font-size: 0.8125rem !important; font-weight: 500 !important; padding: 8px 16px !important; box-shadow: none !important; border: 0 !important; }
+.btn-dawn::after { display: none !important; }
+.btn-dawn:hover { background: #D88050 !important; box-shadow: none !important; transform: none !important; }
+.btn-ghost { background: transparent !important; color: #E4E5E9 !important; border: 1px solid rgba(228,229,233,.14) !important; font-size: 0.8125rem !important; font-weight: 500 !important; padding: 8px 16px !important; box-shadow: none !important; }
+.btn-ghost:hover { background: rgba(228,229,233,.04) !important; border-color: rgba(228,229,233,.24) !important; color: #fff !important; }
+.nav-cta { background: transparent !important; color: #C46030 !important; border: 1px solid rgba(196,96,48,.4) !important; padding: 6px 12px !important; font-size: 0.75rem !important; font-weight: 500 !important; }
+.nav-cta:hover { background: #C46030 !important; color: #000 !important; }
 
-/* Buttons: sharp Linear */
-.btn-dawn{
-  border-radius:6px !important;
-  padding:10px 20px !important;
-  font-size:.85rem !important;
-  font-weight:500 !important;
-  box-shadow:none !important;
-}
-.btn-dawn::after{display:none !important;}
-.btn-dawn:hover{
-  background:var(--dawn-l) !important;
-  box-shadow:none !important;
-  transform:none !important;
-}
-.btn-ghost{
-  border-radius:6px !important;
-  padding:10px 20px !important;
-  font-size:.85rem !important;
-  border-color:rgba(238,244,248,.15) !important;
-}
+.kicker { background: transparent !important; border: 0 !important; padding: 0 !important; color: #C46030 !important; font-size: 0.6875rem !important; letter-spacing: 0.16em !important; text-transform: uppercase !important; margin-bottom: 24px !important; }
+.kicker-dot { display: none !important; }
 
-/* Hero metrics: mono uppercase Linear */
-.hm-num{
-  font-family:'DM Mono',monospace !important;
-  font-size:1.05rem !important;
-  font-weight:500 !important;
-  color:var(--bone) !important;
-  letter-spacing:-.01em !important;
-}
-.hm-label{
-  font-family:'DM Mono',monospace !important;
-  text-transform:uppercase !important;
-  letter-spacing:.12em !important;
-  font-size:.62rem !important;
-}
-.hero-metrics{
-  gap:36px !important;
-  padding-top:24px !important;
-}
+.hm-num { font-size: 1rem !important; font-weight: 500 !important; color: #E4E5E9 !important; letter-spacing: -0.01em !important; }
+.hm-label { font-size: 0.625rem !important; text-transform: uppercase !important; letter-spacing: 0.12em !important; color: #71747A !important; }
+.hero-metrics { gap: 32px !important; padding-top: 24px !important; border-top: 1px solid rgba(228,229,233,.08) !important; }
 
-/* Aury badge: hairline */
-.hero-aury-badge{
-  border-radius:4px !important;
-  background:transparent !important;
-  padding:5px 12px !important;
-  font-size:.68rem !important;
-}
+.hero-aury-badge { background: transparent !important; border: 1px solid rgba(196,96,48,.4) !important; color: #C46030 !important; font-size: 0.65rem !important; padding: 4px 10px !important; }
 
-/* Chips floating: sharp Linear hairline */
-.chip{
-  border-radius:6px !important;
-  background:rgba(0,0,0,.82) !important;
-  border:1px solid var(--border) !important;
-  box-shadow:none !important;
-  backdrop-filter:blur(8px);
-}
-.chip-val{font-family:'DM Mono',monospace !important;}
-.chip-label{
-  font-family:'DM Mono',monospace !important;
-  text-transform:uppercase !important;
-  letter-spacing:.1em !important;
-  font-size:.58rem !important;
-}
-.chip-status{font-size:.6rem !important;}
+.chip { background: rgba(15,15,16,.85) !important; border: 1px solid rgba(228,229,233,.1) !important; box-shadow: none !important; backdrop-filter: blur(8px) !important; padding: 8px 12px !important; }
+.chip-label { font-size: 0.56rem !important; text-transform: uppercase !important; letter-spacing: 0.12em !important; color: #71747A !important; }
+.chip-val { font-size: 0.82rem !important; font-weight: 500 !important; color: #E4E5E9 !important; }
+.chip-status { font-size: 0.58rem !important; color: #C46030 !important; }
+.hero-speech { background: rgba(15,15,16,.9) !important; border: 1px solid rgba(228,229,233,.1) !important; font-size: 0.625rem !important; letter-spacing: 0.08em !important; text-transform: uppercase !important; color: #E4E5E9 !important; padding: 6px 10px !important; box-shadow: none !important; }
+.aury-bubble { background: rgba(15,15,16,.92) !important; border: 1px solid rgba(228,229,233,.1) !important; font-size: 0.75rem !important; color: #E4E5E9 !important; box-shadow: none !important; padding: 10px 14px !important; }
 
-/* Hero speech: mono uppercase */
-.hero-speech{
-  border-radius:4px !important;
-  font-family:'DM Mono',monospace !important;
-  font-size:.65rem !important;
-  letter-spacing:.08em !important;
-  text-transform:uppercase !important;
-  background:rgba(0,0,0,.85) !important;
-  padding:6px 12px !important;
-  box-shadow:none !important;
-}
+.nav { padding: 12px 40px !important; background: rgba(0,0,0,.78) !important; backdrop-filter: blur(12px) !important; border-bottom: 1px solid rgba(228,229,233,.08) !important; }
+.nav.scrolled { background: rgba(0,0,0,.92) !important; }
+.nav-word { font-weight: 600 !important; font-size: 0.95rem !important; letter-spacing: -0.01em !important; color: #E4E5E9 !important; }
+.nav-word span { color: #C46030 !important; }
+.nav-mark { border-radius: 6px !important; border: 1px solid rgba(196,96,48,.3) !important; background: transparent !important; }
+.nav-links a { font-size: 0.8125rem !important; font-weight: 500 !important; color: #B0B3B8 !important; }
+.nav-links a:hover { color: #C46030 !important; }
 
-/* Mascot bubble: mono */
-.aury-bubble{
-  border-radius:6px !important;
-  font-family:'DM Sans',sans-serif !important;
-  font-size:.75rem !important;
-  background:rgba(0,0,0,.88) !important;
-  border-color:var(--border) !important;
-  box-shadow:none !important;
-}
+.srv, .vblk, .testi-card, .fn, .av, .about-card, .uc-card, .pillar, [class*="card"], .stack-card { background: rgba(228,229,233,.02) !important; border: 1px solid rgba(228,229,233,.08) !important; border-radius: 8px !important; box-shadow: none !important; transition: border-color 150ms ease, transform 150ms ease !important; }
+.srv:hover, .vblk:hover, .testi-card:hover, [class*="card"]:hover { border-color: rgba(196,96,48,.35) !important; background: rgba(228,229,233,.04) !important; box-shadow: none !important; transform: translateY(-1px) !important; }
+.vblk-icon, .srv-icon, .fn-num { background: transparent !important; border: 1px solid rgba(196,96,48,.4) !important; color: #C46030 !important; border-radius: 4px !important; font-size: 0.7rem !important; }
 
-/* Nav: sharper */
-.nav-cta{
-  border-radius:6px !important;
-  padding:6px 14px !important;
-  font-size:.78rem !important;
-}
-.nav-mark{
-  border-radius:6px !important;
-}
-.nav-links a{font-size:.84rem !important;}
+.manifesto { padding: 80px 40px !important; border-top: 1px solid rgba(228,229,233,.08) !important; border-bottom: 1px solid rgba(228,229,233,.08) !important; background: transparent !important; }
+.manifesto-line, .manifesto p, .manifesto h2 { font-size: clamp(1.25rem, 1.8vw, 1.625rem) !important; font-weight: 400 !important; letter-spacing: -0.012em !important; line-height: 1.4 !important; color: #E4E5E9 !important; max-width: 720px !important; margin: 0 auto !important; text-align: center !important; }
 
-/* Section titles: more contained */
-.section-h2,.about h2,.services h2,.about-title,.svc-section h2,h2{
-  font-weight:700 !important;
-  letter-spacing:-.022em !important;
-}
+section, .hero, .about, .services, .testi, .uc, .valor, .flow-demo, .cta { padding: 100px 40px !important; max-width: 1200px !important; margin: 0 auto !important; background: #000 !important; }
+.hero { padding: 120px 40px 80px !important; min-height: 88vh !important; }
+.hero-inner { max-width: 1100px !important; gap: 64px !important; margin: 0 auto !important; }
+.hero-aury-img { width: 360px !important; max-width: 90% !important; filter: drop-shadow(0 16px 40px rgba(0,0,0,.6)) !important; }
 
-/* Section eyebrows */
-.section-eyebrow,.svc-eyebrow,.about-eyebrow{
-  font-family:'DM Mono',monospace !important;
-  text-transform:uppercase !important;
-  letter-spacing:.16em !important;
-  font-size:.7rem !important;
-  color:var(--dawn-l) !important;
-}
+.footer, footer { background: #000 !important; border-top: 1px solid rgba(228,229,233,.08) !important; padding: 48px 40px 32px !important; }
 
-/* Cards: sharper, hairline no shadows */
-.srv,.fn,.vblk,.testi-card,.uc-card,.av,.about-card{
-  border-radius:8px !important;
-  box-shadow:none !important;
-}
-.srv:hover,.vblk:hover{
-  box-shadow:none !important;
-  border-color:var(--border-dawn) !important;
-}
+[class*="eyebrow"] { font-family: 'JetBrains Mono', 'DM Mono', monospace !important; text-transform: uppercase !important; letter-spacing: 0.16em !important; font-size: 0.6875rem !important; color: #C46030 !important; font-weight: 500 !important; margin-bottom: 16px !important; }
 
-/* Footer hairlines */
-.footer{border-top:1px solid var(--border) !important;}
+input, textarea, select { border-radius: 6px !important; background: rgba(228,229,233,.04) !important; border: 1px solid rgba(228,229,233,.1) !important; color: #E4E5E9 !important; }
+
+.filter, .chip-filter, [class*="filter"] { border-radius: 6px !important; background: transparent !important; border: 1px solid rgba(228,229,233,.1) !important; font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; letter-spacing: 0.1em !important; font-size: 0.7rem !important; padding: 6px 12px !important; }
+.filter:hover, .filter.active { border-color: #C46030 !important; color: #C46030 !important; }
+
+.fp-fill { background: #C46030 !important; }
 
 </style>
 </head>
