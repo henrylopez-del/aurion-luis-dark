@@ -1058,6 +1058,240 @@ section p, .hero-sub {
   .hero, .services, .uc, .cta, .manifesto { background-attachment: scroll !important; }
 }
 
+
+/* ============================================
+   POLISH PASS — penguin back + darker icebergs + tight palette
+   ============================================ */
+
+/* === COLOR THEORY: lock the palette discipline =========== */
+:root {
+  /* Primary palette */
+  --bg-0: #000000;        /* page bg */
+  --bg-1: #0a0a0a;        /* elevated sections */
+  --ink:  #EDE4D8;        /* primary text — warm bone, never white */
+  --ink-2: rgba(237,228,216,.68); /* secondary text */
+  --ink-3: #7A6E60;       /* muted warm taupe */
+  --hair: rgba(237,228,216,.08);  /* hairlines warm */
+  --hair-2: rgba(237,228,216,.16);
+
+  /* Accents (70/20/10 rule) */
+  --dawn: #C46030;        /* 70% — brand */
+  --dawn-soft: #D88050;   /* 20% — hover */
+  --ice: #B8D4EC;         /* 10% — secondary accent only */
+}
+
+/* Force palette everywhere */
+body { background: var(--bg-0) !important; color: var(--ink) !important; }
+* { color: inherit; }
+
+/* === ICEBERGS: WAY darker, barely visible landscape =========== */
+.hero {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,.96) 100%),
+    url('assets/img/iceberg-sunset-amber.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: scroll, fixed !important;
+  background-repeat: no-repeat, no-repeat !important;
+}
+.manifesto {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.94), rgba(0,0,0,.97)),
+    url('assets/img/mountains-sunset-pink.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: fixed !important;
+}
+.about, section.about {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.94), rgba(0,0,0,.97)),
+    url('assets/img/iceberg-aerial-dark.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: right center !important;
+}
+.services {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.95), rgba(0,0,0,.97)),
+    url('assets/img/iceberg-texture-blue.jpeg') !important;
+  background-size: cover, cover !important;
+  background-attachment: fixed !important;
+}
+.flow-demo {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.95), rgba(0,0,0,.97)),
+    url('assets/img/glacier-wall-blue.jpeg') !important;
+  background-size: cover, cover !important;
+}
+.valor {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.94), rgba(0,0,0,.97)),
+    url('assets/img/iceberg-minimal.jpeg') !important;
+  background-size: cover, cover !important;
+}
+.uc {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.95), rgba(0,0,0,.97)),
+    url('assets/img/aerial-snow-scale.jpeg') !important;
+  background-size: cover, cover !important;
+  background-attachment: fixed !important;
+}
+.testi {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.94), rgba(0,0,0,.97)),
+    url('assets/img/iceberg-ice-columns.jpeg') !important;
+  background-size: cover, cover !important;
+}
+.cta {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.92), rgba(0,0,0,.96)),
+    url('assets/img/icebergs-twin-massive.jpeg') !important;
+  background-size: cover, cover !important;
+  background-attachment: fixed !important;
+}
+footer, .footer {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.96), rgba(0,0,0,.99)),
+    url('assets/img/antarctic-moon.jpeg') !important;
+  background-size: cover, cover !important;
+}
+
+/* === BRING PENGUIN BACK to hero, right side, contained =========== */
+.hero-inner {
+  display: grid !important;
+  grid-template-columns: 1.2fr 1fr !important;
+  gap: 64px !important;
+  align-items: center !important;
+  text-align: left !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+}
+.hero-content, .hero-left {
+  text-align: left !important;
+  display: block !important;
+}
+.hero-visual, .hero-right, .hero-aury-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+}
+.hero-aury-img {
+  display: block !important;
+  width: 100% !important;
+  max-width: 360px !important;
+  filter: drop-shadow(0 24px 60px rgba(0,0,0,.7)) !important;
+  margin: 0 auto !important;
+}
+
+/* Hero text alignment left now that penguin is right */
+.hero-h1 {
+  text-align: left !important;
+  margin: 0 0 24px 0 !important;
+  font-size: clamp(2.5rem, 6vw, 5rem) !important;
+}
+.hero-sub {
+  text-align: left !important;
+  margin: 0 0 32px 0 !important;
+  max-width: 540px !important;
+  font-size: 1.0625rem !important;
+}
+.kicker {
+  display: inline-block !important;
+  text-align: left !important;
+}
+.hero-ctas {
+  justify-content: flex-start !important;
+}
+
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr !important; text-align: center !important; }
+  .hero-content, .hero-left { text-align: center !important; }
+  .hero-h1, .hero-sub { text-align: center !important; margin-left: auto !important; margin-right: auto !important; }
+  .hero-ctas { justify-content: center !important; }
+  .hero-aury-img { max-width: 260px !important; }
+}
+
+/* === COLOR THEORY APPLIED ============================= */
+/* Manifesto pill outlines — only dawn, no ice mixing */
+.manifesto strong, .manifesto em {
+  border-color: var(--dawn) !important;
+  color: var(--ink) !important;
+}
+
+/* Cards: bone cream + dawn alternating only (drop ice cards — too many colors) */
+.srv, .vblk, .testi-card, .av, .about-card, .uc-card, [class*="card"]:not(.chip-card) {
+  background: var(--ink) !important;
+  color: var(--bg-0) !important;
+  border: 0 !important;
+}
+.srv h3, .vblk h3, [class*="card"] h3 { color: var(--bg-0) !important; }
+.srv p, [class*="card"] p { color: var(--ink-3) !important; }
+.srv:nth-child(3n), .vblk:nth-child(3n) {
+  background: var(--dawn) !important;
+  color: var(--ink) !important;
+}
+.srv:nth-child(3n) h3, .vblk:nth-child(3n) h3 { color: var(--ink) !important; }
+.srv:nth-child(3n) p, .vblk:nth-child(3n) p { color: rgba(237,228,216,.85) !important; }
+/* Remove ice cards (overload) */
+.srv:nth-child(2n):not(:nth-child(3n)),
+.vblk:nth-child(2n):not(:nth-child(3n)) {
+  background: var(--ink) !important;
+  color: var(--bg-0) !important;
+}
+
+/* Card hover — only dawn (drop ice hover, less noise) */
+.srv:hover, [class*="card"]:hover {
+  background: var(--dawn) !important;
+  color: var(--ink) !important;
+  transform: translateY(-2px) !important;
+}
+.srv:hover h3, [class*="card"]:hover h3 { color: var(--ink) !important; }
+.srv:hover p, [class*="card"]:hover p { color: rgba(237,228,216,.85) !important; }
+
+/* Logo period back to dawn (no ice, paleta más estricta) */
+.nav-word::after {
+  background: var(--dawn) !important;
+}
+
+/* Kicker: solid dawn pill outline (no ice) */
+.kicker {
+  color: var(--dawn) !important;
+  border: 1px solid rgba(196,96,48,.4) !important;
+  background: rgba(196,96,48,.06) !important;
+  padding: 6px 14px !important;
+  border-radius: 100px !important;
+  font-size: 0.7rem !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  font-weight: 500 !important;
+}
+
+/* Tagline at end of section: dawn-soft */
+section::after {
+  color: var(--dawn-soft) !important;
+}
+
+/* Eyebrows: dawn */
+[class*="eyebrow"] {
+  color: var(--dawn) !important;
+}
+
+/* === SUBTLE LANDSCAPE DETECTION ============================= */
+/* Add tiny vignette so the iceberg suggestion is felt at edges */
+.hero::before, .about::before, .services::before, .cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at center, transparent 30%, rgba(0,0,0,.5) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+.hero > *, .about > *, .services > *, .cta > * {
+  position: relative;
+  z-index: 2;
+}
+
 </style>
 </head>
 <body>
