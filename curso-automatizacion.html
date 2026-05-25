@@ -202,11 +202,11 @@ body::after{display:none;}
   --jf-amber-light: #D88050;
   --jf-bg: #000000;
   --jf-bg-2: #0a0a0a;
-  --jf-text: #ffffff;
-  --jf-text-2: #b9bbbf;
-  --jf-text-3: #71747a;
-  --jf-hairline: rgba(255,255,255,.1);
-  --jf-card-light: #f6f5f7;
+  --jf-text: #EDE4D8;
+  --jf-text-2: #D8CCBC;
+  --jf-text-3: #7A6E60;
+  --jf-hairline: rgba(237,228,216,.1);
+  --jf-card-light: #EEF4F8;
 }
 
 /* === BODY ============================================ */
@@ -440,7 +440,7 @@ body {
 .btn-ghost {
   background: transparent !important;
   color: var(--jf-text) !important;
-  border: 1px solid rgba(255,255,255,.3) !important;
+  border: 1px solid rgba(237,228,216,.3) !important;
   font-family: 'Inter', sans-serif !important;
   font-size: 1rem !important;
   font-weight: 600 !important;
@@ -448,8 +448,8 @@ body {
   border-radius: 100px !important;
 }
 .btn-ghost:hover {
-  background: rgba(255,255,255,.06) !important;
-  border-color: var(--jf-text) !important;
+  background: rgba(237,228,216,.06) !important;
+  border-color: #EDE4D8 !important;
 }
 
 /* Scroll down indicator (centered bottom) */
@@ -534,14 +534,14 @@ section p {
 .srv, .vblk, .testi-card, .av, .about-card, .uc-card, .stack-card,
 [class*="card"]:not(.chip-card) {
   background: var(--jf-card-light) !important;
-  color: #1c1816 !important;
+  color: #07090F !important;
   border: 0 !important;
   border-radius: 16px !important;
   padding: 32px !important;
   box-shadow: none !important;
 }
-.srv h3, .vblk h3, .av h3, [class*="card"] h3 { color: #1c1816 !important; }
-.srv p, .vblk p, [class*="card"] p { color: #4a4a4a !important; }
+.srv h3, .vblk h3, .av h3, [class*="card"] h3 { color: #07090F !important; }
+.srv p, .vblk p, [class*="card"] p { color: #7A6E60 !important; }
 
 /* Some cards AMBER yellow */
 .srv:nth-child(2n), .vblk:nth-child(2n) {
@@ -644,7 +644,7 @@ footer, .footer {
 
 /* === Inputs Jellyfish ============================================ */
 input, textarea, select {
-  background: rgba(255,255,255,.04) !important;
+  background: rgba(237,228,216,.04) !important;
   border: 1px solid var(--jf-hairline) !important;
   border-radius: 8px !important;
   color: var(--jf-text) !important;
@@ -662,7 +662,7 @@ input:focus, textarea:focus {
 .filter, .chip-filter, [class*="filter"] {
   border-radius: 100px !important;
   background: transparent !important;
-  border: 1px solid rgba(255,255,255,.2) !important;
+  border: 1px solid rgba(237,228,216,.2) !important;
   font-family: 'Inter', sans-serif !important;
   text-transform: none !important;
   letter-spacing: 0 !important;
