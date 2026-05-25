@@ -265,6 +265,162 @@ input, textarea, select { border-radius: 6px !important; background: rgba(228,22
 
 .fp-fill { background: #C46030 !important; }
 
+
+/* ============================================
+   LINEAR LAYOUT REWRITE — single column centered hero
+   Kill chips. Tiny penguin. Bottom-centered.
+   ============================================ */
+
+/* HIDE all the noise that screams Luis */
+.chip, .chip-1, .chip-2, .chip-3,
+.hero-speech,
+.ant-element,
+.bg-flow,
+.hero-grid {
+  display: none !important;
+}
+
+/* But KEEP the mascot bottom-right + snow + hero penguin */
+.aury-mascot, .snow-field, .hero-aury-wrap {
+  display: flex !important;
+}
+
+/* HERO: single column centered Linear style */
+.hero {
+  padding: 140px 24px 80px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 100vh !important;
+}
+.hero-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+  max-width: 760px !important;
+  gap: 32px !important;
+  margin: 0 auto !important;
+}
+.hero-content, .hero-left {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+  width: 100% !important;
+}
+.hero-visual, .hero-right {
+  order: 99 !important;
+  margin-top: 48px !important;
+}
+
+/* Hero H1: HUGE Linear-style centered display */
+.hero-h1 {
+  font-size: clamp(2.5rem, 5.5vw, 4.5rem) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.03em !important;
+  line-height: 1.02 !important;
+  text-align: center !important;
+  max-width: 22ch !important;
+  margin: 0 auto 0 !important;
+}
+
+/* Hero sub: contained */
+.hero-sub {
+  font-size: 1.0625rem !important;
+  line-height: 1.55 !important;
+  text-align: center !important;
+  max-width: 540px !important;
+  color: #8A8F98 !important;
+  margin: 0 auto 8px !important;
+}
+
+/* CTAs centered row */
+.hero-ctas {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  margin: 16px auto 0 !important;
+}
+
+/* Penguin: small, centered, BELOW the CTA */
+.hero-aury-wrap {
+  margin: 64px auto 0 !important;
+  align-items: center !important;
+}
+.hero-aury-img {
+  width: 220px !important;
+  filter: drop-shadow(0 16px 48px rgba(0,0,0,.6)) !important;
+}
+
+/* Kill the metrics row in hero (move to nowhere) */
+.hero-metrics {
+  display: none !important;
+}
+
+/* Manifesto more Linear */
+.manifesto {
+  padding: 120px 24px !important;
+  text-align: center !important;
+  background: #000 !important;
+  border-top: 1px solid rgba(228,229,233,.06) !important;
+  border-bottom: 1px solid rgba(228,229,233,.06) !important;
+}
+.manifesto p, .manifesto h2 {
+  font-size: clamp(1.5rem, 2.4vw, 2rem) !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.3 !important;
+  max-width: 640px !important;
+  margin: 0 auto !important;
+  color: #E4E5E9 !important;
+}
+
+/* About: linear contained grid */
+.about, .about-grid {
+  padding: 120px 40px !important;
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+}
+.about-text, .about-content { max-width: 640px !important; margin: 0 auto !important; }
+
+/* Services: 2-3 col Linear grid */
+.services { padding: 120px 40px !important; max-width: 1200px !important; margin: 0 auto !important; }
+.srv-grid, .services-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 24px !important;
+  margin-top: 48px !important;
+}
+@media (max-width: 900px) {
+  .srv-grid, .services-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Footer Linear */
+footer, .footer {
+  background: #000 !important;
+  border-top: 1px solid rgba(228,229,233,.06) !important;
+  padding: 64px 40px 32px !important;
+  text-align: center !important;
+}
+
+/* Mascot stays bottom-right but smaller */
+.aury-mascot {
+  bottom: 24px !important;
+  right: 24px !important;
+}
+.aury-img {
+  width: 64px !important;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,.5)) !important;
+}
+.aury-bubble {
+  font-size: 0.72rem !important;
+  max-width: 200px !important;
+}
+
+/* Scroll progress bar single dawn */
+#sp { background: #C46030 !important; }
+
 </style>
 </head>
 <body>
