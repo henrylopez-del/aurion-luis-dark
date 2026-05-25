@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /assets/img/Screenshot-*
+
+Sitemap: https://henrylopez-del.github.io/aurion-luis-dark/sitemap.xml

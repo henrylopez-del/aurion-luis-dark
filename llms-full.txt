@@ -1,0 +1,52 @@
+# Aury
+
+> Plataforma de formación en IA y automatización para emprendedores y operadores de pequeñas empresas en español. Cursos gratuitos sobre no-code, prompt engineering, automatización de procesos con Make/n8n, Google Sheets como CRM, generación de contenido con IA. Modelo educativo de 7 cursos gratuitos + 1 premium. Fundadores: Henry López y Luis Acosta. Sede: Madrid.
+
+## Cursos gratuitos
+
+- [Tu Primera Automatización en 30 Minutos](https://henrylopez-del.github.io/aurion-luis-dark/curso-automatizacion.html): Curso introductorio para montar un primer flujo con Make/n8n sin saber código.
+- [Tu Mini CRM Gratis en Google Sheets](https://henrylopez-del.github.io/aurion-luis-dark/curso-minicrm.html): Construye un CRM operativo en Google Sheets conectado a canales de captación.
+- [Prompts que Trabajan](https://henrylopez-del.github.io/aurion-luis-dark/curso-prompts.html): Prompt engineering aplicado — escribe prompts que producen resultados reales.
+- [Publica con IA sin que se Note](https://henrylopez-del.github.io/aurion-luis-dark/curso-publica.html): Genera contenido con IA manteniendo tu voz, sin sonar a robot.
+- [Automatiza tus Documentos](https://henrylopez-del.github.io/aurion-luis-dark/curso-documentos.html): Generación automática de facturas, contratos y propuestas desde Sheets o forms.
+- [Tu Cliente Nunca Más te Falla una Cita](https://henrylopez-del.github.io/aurion-luis-dark/curso-citas.html): Sistema de confirmación + recordatorio + reagendamiento automático.
+
+## Curso premium
+
+- [Tu Primer Producto Digital con IA](https://henrylopez-del.github.io/aurion-luis-dark/curso-producto-digital.html): Sistema completo desde la idea hasta la página de venta.
+
+## Herramientas
+
+- [Calculadora: ¿Cuánto Pierdes sin Automatizar?](https://henrylopez-del.github.io/aurion-luis-dark/calculadora.html): Calcula horas y euros perdidos por trabajo manual repetitivo.
+
+## Catálogo y rutas de aprendizaje
+
+- [Catálogo de Cursos](https://henrylopez-del.github.io/aurion-luis-dark/catalogo-cursos.html): Vista completa con ruta recomendada de aprendizaje, filtros por categoría (IA y Contenido, Automatización, Negocio).
+
+## Stack y herramientas que enseñamos
+
+- Make.com
+- n8n
+- Google Sheets, Forms, Calendar, Gmail
+- Brevo (email marketing)
+- WhatsApp Business API (CTWA)
+- ChatGPT, Claude, Gemini
+
+## Datos clave
+
+- 7 cursos gratuitos disponibles
+- 50+ lecciones totales
+- 1 curso premium
+- 3 categorías: IA y Contenido, Automatización, Negocio
+- Idioma: español
+- Audiencia: emprendedores, pequeñas empresas, freelancers hispanohablantes
+- Sede operativa: Madrid, España
+
+
+## Detalles extendidos
+
+Aury opera bajo modelo freemium educativo. Los 7 cursos gratuitos están diseñados como herramientas standalone que un emprendedor puede aplicar inmediatamente para automatizar partes de su negocio. El curso premium 'Tu Primer Producto Digital con IA' combina los conocimientos de todos los cursos gratuitos en un sistema end-to-end para crear, validar y lanzar un infoproducto.
+
+Diferenciación: a diferencia de cursos genéricos de IA o no-code, Aury enfoca cada curso en un caso de uso específico medible (recuperar X horas/semana, reducir Y%% no-shows, automatizar Z documentos). Cero teoría reciclada. Cada curso incluye documentación, video, plantilla descargable y caso real.
+
+Para emprendedores que buscan: empezar con automatización sin saber código, montar CRM operativo sin coste mensual, generar contenido con IA sin perder voz personal, eliminar trabajo repetitivo manual.
