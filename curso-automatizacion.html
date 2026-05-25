@@ -206,7 +206,7 @@ body::after{display:none;}
   --jf-text-2: #D8CCBC;
   --jf-text-3: #7A6E60;
   --jf-hairline: rgba(237,228,216,.1);
-  --jf-card-light: #EEF4F8;
+  --jf-card-light: #EDE4D8;
 }
 
 /* === BODY ============================================ */
@@ -682,6 +682,113 @@ input:focus, textarea:focus {
 
 /* Snow subtle */
 .flake { opacity: .3 !important; }
+
+
+/* ============================================
+   LUIS PALETTE — full integration of warm + ice + sky + green
+   ============================================ */
+
+:root {
+  --bone: #EDE4D8;
+  --bone2: #D8CCBC;
+  --warm: #7A6E60;
+  --ice: #B8D4EC;
+  --ice-l: #D0E8F8;
+  --sky: #3A6494;
+  --sky-l: #5A84B4;
+  --green: #2D9E6B;
+  --green-l: #3DBE88;
+  --dawn-pale: #2A1008;
+}
+
+/* Logo: dawn + bone period accent for warmth */
+.nav-word { color: #C46030 !important; }
+.nav-word::after {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--ice);
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* Top bar warm bone color */
+.nav::before {
+  color: var(--bone) !important;
+  background: #000 !important;
+  border-color: rgba(237,228,216,.08) !important;
+}
+
+/* Section bg: subtle warm tint instead of pure black */
+section, .about, .services, .testi, .uc, .valor, .flow-demo, .cta {
+  background: #000 !important;
+}
+
+/* Cards LIGHT cream Luis bone palette */
+.srv, .vblk, .testi-card, .av, .about-card, .uc-card, .stack-card,
+[class*="card"]:not(.chip-card) {
+  background: var(--bone) !important;
+  color: #07090F !important;
+}
+.srv h3, .vblk h3, [class*="card"] h3 { color: #07090F !important; }
+.srv p, [class*="card"] p { color: var(--warm) !important; }
+
+/* Some cards in ICE BLUE Luis accent */
+.srv:nth-child(3n), .vblk:nth-child(3n) {
+  background: var(--ice) !important;
+  color: #07090F !important;
+}
+.srv:nth-child(3n) h3, .vblk:nth-child(3n) h3 { color: #07090F !important; }
+.srv:nth-child(3n) p, .vblk:nth-child(3n) p { color: var(--sky) !important; }
+
+/* Some cards in dawn pale (deep dawn warm) accent */
+.srv:nth-child(2n), .vblk:nth-child(2n) {
+  background: #C46030 !important;
+  color: var(--bone) !important;
+}
+.srv:nth-child(2n) h3, .vblk:nth-child(2n) h3 { color: var(--bone) !important; }
+.srv:nth-child(2n) p, .vblk:nth-child(2n) p { color: rgba(237,228,216,.85) !important; }
+
+/* Card hover ice */
+.srv:hover, [class*="card"]:hover {
+  background: var(--ice) !important;
+  color: #07090F !important;
+}
+
+/* Status / success chips green */
+[class*="status"], [class*="success"], .ok, .badge-ok {
+  color: var(--green-l) !important;
+}
+
+/* Sky link accent for secondary links */
+.nav-links a:not(:hover) { color: var(--bone) !important; }
+
+/* Eyebrows softer using dawn-ll instead of dawn solid */
+[class*="eyebrow"], .section-eyebrow {
+  color: #ECA878 !important;
+}
+
+/* Chips, kickers with ice border accent */
+.kicker {
+  display: inline-block !important;
+  color: var(--ice) !important;
+}
+
+/* Body text bone warm */
+body { color: var(--bone) !important; }
+section p, .hero-sub { color: rgba(237,228,216,.7) !important; }
+
+/* Manifesto pill outline: dawn */
+.manifesto strong, .manifesto em {
+  border-color: #C46030 !important;
+  color: var(--bone) !important;
+}
+
+/* Section tagline color: dawn but lighter (dawn-l) */
+section::after {
+  color: #D88050 !important;
+}
 
 </style>
 </head>
