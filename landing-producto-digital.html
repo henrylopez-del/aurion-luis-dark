@@ -1,0 +1,736 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tus primeros 500€ con IA. Sin seguidores, sin inversión. — AuryOnTech</title>
+<meta name="description" content="No necesitas audiencia, ni dinero, ni experiencia técnica. Solo lo que ya sabes hacer — y la IA para convertirlo en algo que la gente paga. Curso gratuito."/>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#000000;--ink2:#070707;--ink3:#0F0F10;--ink4:#161617;
+  --dawn:#C46030;--dawn-l:#D88050;--dawn-ll:#ECA878;--dawn-pale:#2A1008;
+  --sky:#3A6494;--sky-l:#5A84B4;
+  --ice:#B8D4EC;--ice-l:#D0E8F8;
+  --snow:#EEF4F8;--bone:#EDE4D8;--bone2:#D8CCBC;--bone3:#B4A898;
+  --warm:#7A6E60;--warm-l:#9A8E80;
+  --green:#2D9E6B;--green-l:#3DBE88;--green-pale:rgba(45,158,107,.08);
+  --border:rgba(238,244,248,.07);--border-dawn:rgba(196,96,48,.22);--border-green:rgba(45,158,107,.2);
+  --shadow:0 8px 32px rgba(0,0,0,.4);--shadow-lg:0 24px 80px rgba(0,0,0,.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:#000000;color:var(--bone);overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;opacity:.35;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.045'/%3E%3C/svg%3E");}
+.snow-field{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;}
+.flake{position:absolute;top:-20px;color:var(--ice-l);font-size:12px;animation:snowfall linear infinite;opacity:0;user-select:none;}
+@keyframes snowfall{0%{transform:translateY(-20px) rotate(0deg);opacity:0;}5%{opacity:.6;}95%{opacity:.3;}100%{transform:translateY(110vh) rotate(360deg);opacity:0;}}
+.cr{position:fixed;width:9px;height:9px;background:var(--dawn);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s;}
+.crr{position:fixed;width:30px;height:30px;border:1.5px solid var(--dawn-l);border-radius:50%;pointer-events:none;z-index:9997;transform:translate(-50%,-50%);opacity:.3;transition:width .3s,height .3s;}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:16px 60px;transition:background .4s,border-color .4s;border-bottom:1px solid transparent;}
+.nav.scrolled{background:rgba(7,9,15,.94);backdrop-filter:blur(20px);border-color:var(--border);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-mark{width:34px;height:34px;border-radius:10px;overflow:hidden;border:1px solid var(--border-dawn);background:var(--ink3);}
+.nav-mark img{width:100%;height:100%;object-fit:cover;}
+.nav-word{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:1.1rem;color:var(--bone);letter-spacing:-.02em;}
+.nav-word span{color:var(--dawn-l);}
+.nav-back{font-size:.85rem;color:var(--warm-l);text-decoration:none;transition:color .2s;}
+.nav-back:hover{color:var(--bone);}
+.nav-cta-pill{background:var(--dawn);color:var(--snow);font-weight:600;font-size:.84rem;padding:8px 20px;border-radius:100px;text-decoration:none;box-shadow:0 4px 14px rgba(196,96,48,.3);transition:box-shadow .2s,transform .15s;}
+.nav-cta-pill:hover{box-shadow:0 6px 22px rgba(196,96,48,.45);transform:translateY(-1px);color:var(--snow);}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding:120px 60px 80px;position:relative;overflow:hidden;background:radial-gradient(ellipse 80% 60% at 10% 20%,rgba(45,158,107,.15) 0%,transparent 50%),radial-gradient(ellipse 60% 50% at 85% 25%,rgba(196,96,48,.12) 0%,transparent 55%),linear-gradient(175deg,#060E0A 0%,#0A0E1C 40%,#07090F 100%);}
+.hero-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(ellipse 70% 70% at 40% 50%,black 10%,transparent 100%);}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;animation:orbF linear infinite;}
+.orb1{width:420px;height:420px;background:rgba(45,158,107,.1);top:-60px;left:5%;animation-duration:24s;}
+.orb2{width:280px;height:280px;background:rgba(196,96,48,.09);bottom:10%;right:10%;animation-duration:30s;animation-delay:-12s;}
+@keyframes orbF{0%{transform:translateY(0) scale(1);}33%{transform:translateY(-24px) scale(1.04);}66%{transform:translateY(12px) scale(.97);}100%{transform:translateY(0) scale(1);}}
+.hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;position:relative;z-index:2;max-width:1100px;margin:0 auto;width:100%;}
+.course-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(45,158,107,.1);border:1px solid rgba(45,158,107,.25);color:var(--green-l);font-size:.73rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:24px;animation:fadeUp .5s ease both;}
+.badge-dot{width:6px;height:6px;background:var(--green-l);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+.hero-h1{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:clamp(2.4rem,4vw,3.8rem);line-height:1.06;letter-spacing:-.03em;color:var(--snow);margin-bottom:16px;animation:fadeUp .6s ease .1s both;}
+.hero-h1 .euro{color:var(--green-l);}
+.hero-h1 .accent{color:var(--dawn-l);font-style:italic;font-family:'DM Sans',sans-serif;font-weight:300;}
+.hero-tagline{font-size:1.05rem;color:var(--bone2);line-height:1.7;max-width:460px;margin-bottom:32px;font-weight:300;animation:fadeUp .6s ease .2s both;}
+.hero-tagline strong{color:var(--snow);font-weight:500;}
+.hero-includes{display:flex;flex-direction:column;gap:10px;margin-bottom:36px;animation:fadeUp .6s ease .25s both;}
+.hi{display:flex;align-items:center;gap:10px;font-size:.88rem;color:var(--warm-l);}
+.hi-check{width:18px;height:18px;border-radius:50%;background:rgba(45,158,107,.2);border:1px solid rgba(45,158,107,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--green-l);font-size:.7rem;font-weight:700;}
+.price-block{display:flex;align-items:center;gap:16px;margin-bottom:28px;animation:fadeUp .6s ease .3s both;}
+.price-num{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:3rem;color:var(--snow);letter-spacing:-.04em;line-height:1;}
+.price-desc{font-size:.82rem;color:var(--warm);line-height:1.5;}
+.btn-buy{background:var(--green);color:var(--snow);font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:1rem;padding:16px 36px;border-radius:100px;text-decoration:none;display:inline-block;box-shadow:0 4px 20px rgba(45,158,107,.4);transition:box-shadow .2s,transform .15s;position:relative;overflow:hidden;animation:fadeUp .6s ease .35s both;}
+.btn-buy::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);transform:translateX(-100%);transition:transform .5s;}
+.btn-buy:hover::after{transform:translateX(100%);}
+.btn-buy:hover{box-shadow:0 6px 30px rgba(45,158,107,.55);transform:translateY(-2px);color:var(--snow);}
+.guarantee{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--warm);margin-top:14px;animation:fadeUp .6s ease .4s both;}
+
+/* HERO VISUAL — CALCULADORA DE 500€ */
+.hero-visual{position:relative;display:flex;justify-content:center;align-items:center;animation:fadeUp .8s ease .2s both;}
+.calc-card{background:var(--ink2);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 0 0 1px var(--border-green),var(--shadow-lg);position:relative;width:100%;max-width:400px;}
+.calc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--green-l),transparent);}
+.calc-topbar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--ink3);}
+.calc-dots{display:flex;gap:5px;}
+.calc-dot{width:9px;height:9px;border-radius:50%;}
+.calc-dot-r{background:#E06060;opacity:.7;}
+.calc-dot-y{background:#E0B060;opacity:.7;}
+.calc-dot-g{background:#60C060;opacity:.7;}
+.calc-title{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--warm);margin-left:6px;letter-spacing:.06em;}
+.calc-body{padding:20px;}
+.calc-meta{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--warm);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;}
+.calc-producto{display:flex;gap:12px;align-items:center;padding:12px;background:rgba(45,158,107,.06);border:1px solid rgba(45,158,107,.2);border-radius:10px;margin-bottom:14px;}
+.cp-icon{width:32px;height:32px;border-radius:8px;background:rgba(45,158,107,.15);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
+.cp-name{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--snow);font-weight:500;}
+.cp-type{font-size:.65rem;color:var(--green-l);margin-top:2px;}
+.cp-price{margin-left:auto;font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1.1rem;color:var(--green-l);}
+.calc-math{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.cm-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:7px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);}
+.cm-label{font-size:.76rem;color:var(--warm-l);}
+.cm-val{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--bone2);font-weight:500;}
+.cm-val.green{color:var(--green-l);}
+.calc-total{display:flex;justify-content:space-between;align-items:center;padding:14px 12px;background:linear-gradient(135deg,rgba(45,158,107,.12),rgba(45,158,107,.05));border:1px solid rgba(45,158,107,.25);border-radius:10px;}
+.ct-label{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--green-l);text-transform:uppercase;letter-spacing:.08em;}
+.ct-num{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1.8rem;color:#86efac;letter-spacing:-.03em;}
+.calc-chip{position:absolute;background:var(--ink2);border:1px solid var(--border-green);border-radius:12px;padding:10px 14px;box-shadow:var(--shadow);font-size:.75rem;}
+.cc-1{top:-14px;right:-28px;animation:floatBob 4.2s ease-in-out infinite;}
+.cc-2{bottom:8px;left:-28px;animation:floatBob 4.8s ease-in-out infinite -2s;}
+.cc-lbl{color:var(--warm);font-size:.62rem;margin-bottom:3px;}
+.cc-val{color:var(--bone);font-weight:700;}
+.cc-sub{color:var(--green-l);font-size:.64rem;margin-top:2px;font-family:'DM Mono',monospace;}
+
+/* COMUNES */
+.sk{display:block;font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--dawn-l);margin-bottom:14px;}
+.h2{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:clamp(1.9rem,3vw,2.6rem);line-height:1.1;letter-spacing:-.03em;color:var(--snow);}
+.h2 em{font-style:italic;color:var(--dawn-l);font-family:'DM Sans',sans-serif;font-weight:300;}
+.h2 .green-em{color:var(--green-l);}
+.sub{color:var(--warm-l);font-size:.94rem;line-height:1.78;max-width:480px;font-weight:300;margin-top:14px;}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.vis{opacity:1;transform:translateY(0);}
+
+/* DATOS */
+.datos{padding:80px 60px;background:var(--ink2);border-bottom:1px solid var(--border);}
+.datos .inner{max-width:900px;margin:0 auto;}
+.datos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:16px;overflow:hidden;margin-top:40px;}
+.dato-item{background:var(--ink3);padding:28px 24px;text-align:center;}
+.dato-num{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:2.2rem;line-height:1;margin-bottom:8px;letter-spacing:-.04em;}
+.dato-num.green{color:var(--green-l);}
+.dato-num.dawn{color:var(--dawn-l);}
+.dato-label{font-size:.8rem;color:var(--warm-l);line-height:1.5;}
+
+/* PRODUCTOS */
+.productos{padding:100px 60px;background:var(--ink3);}
+.productos .inner{max-width:960px;margin:0 auto;}
+.productos-head{text-align:center;margin-bottom:48px;}
+.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+.prod-card{background:var(--ink2);border:1px solid var(--border);border-radius:14px;padding:22px;transition:border-color .3s,transform .3s;}
+.prod-card:hover{border-color:var(--border-green);transform:translateY(-4px);}
+.prod-card.highlight{border-color:var(--border-green);background:var(--green-pale);}
+.prod-tipo{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--green-l);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
+.prod-nombre{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.95rem;color:var(--snow);margin-bottom:8px;}
+.prod-desc{font-size:.8rem;color:var(--warm-l);line-height:1.6;font-weight:300;}
+.prod-precio{margin-top:12px;display:flex;justify-content:space-between;align-items:center;}
+.prod-precio-val{font-family:'DM Mono',monospace;font-size:.82rem;color:var(--green-l);font-weight:600;}
+.prod-ventas{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--warm);background:rgba(255,255,255,.04);padding:3px 8px;border-radius:6px;}
+.prod-note{text-align:center;font-size:.82rem;color:var(--warm-l);padding:12px;background:rgba(45,158,107,.06);border:1px solid rgba(45,158,107,.12);border-radius:8px;}
+.prod-note strong{color:var(--green-l);}
+
+/* DIFERENCIADOR */
+.diferencia{padding:100px 60px;background:var(--ink2);}
+.diferencia .inner{max-width:900px;margin:0 auto;}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:40px;}
+.compare-col{border-radius:14px;padding:24px 26px;}
+.compare-col.bad{background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.12);}
+.compare-col.good{background:var(--green-pale);border:1px solid var(--border-green);}
+.compare-col-head{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:18px;}
+.compare-col.bad .compare-col-head{color:#ef4444;}
+.compare-col.good .compare-col-head{color:var(--green-l);}
+.compare-col ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
+.compare-col ul li{font-size:.85rem;line-height:1.5;padding-left:16px;position:relative;}
+.compare-col.bad ul li{color:#fca5a5;}
+.compare-col.bad ul li::before{content:'✕';position:absolute;left:0;font-size:.7rem;top:3px;color:#ef4444;}
+.compare-col.good ul li{color:#86efac;}
+.compare-col.good ul li::before{content:'✓';position:absolute;left:0;font-size:.7rem;top:3px;color:var(--green-l);}
+
+/* PARA QUIÉN */
+.forw{padding:100px 60px;background:var(--ink3);}
+.forw .inner{max-width:760px;margin:0 auto;}
+.forw-list{display:flex;flex-direction:column;gap:16px;margin-top:32px;}
+.fw-item{display:flex;align-items:flex-start;gap:14px;background:var(--ink2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;transition:border-color .2s;}
+.fw-item:hover{border-color:var(--border-green);}
+.fw-icon{width:36px;height:36px;border-radius:10px;background:var(--green-pale);border:1px solid var(--border-green);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Mono',monospace;font-size:.72rem;font-weight:700;color:var(--green-l);}
+.fw-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.9rem;color:var(--snow);margin-bottom:4px;}
+.fw-desc{font-size:.8rem;color:var(--warm-l);line-height:1.5;}
+.forw-nolist{margin-top:32px;display:flex;flex-direction:column;gap:12px;}
+.no-item{display:flex;align-items:center;gap:10px;font-size:.86rem;color:var(--warm-l);}
+.no-x{width:18px;height:18px;border-radius:50%;background:rgba(220,50,50,.1);border:1px solid rgba(220,50,50,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#E06060;font-size:.65rem;font-weight:700;}
+
+/* MÓDULOS */
+.learn{padding:100px 60px;background:var(--ink2);}
+.learn .inner{max-width:1000px;margin:0 auto;}
+.learn-head{text-align:center;margin-bottom:56px;}
+.learn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.lc{background:var(--ink3);border:1px solid var(--border);border-radius:16px;padding:26px;transition:border-color .3s,transform .3s;position:relative;overflow:hidden;}
+.lc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green-l),transparent);opacity:0;transition:opacity .3s;}
+.lc:hover::before{opacity:1;}
+.lc:hover{border-color:var(--border-green);transform:translateY(-4px);}
+.lc-num{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:2.4rem;color:rgba(45,158,107,.1);line-height:1;margin-bottom:12px;}
+.lc h3{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.92rem;color:var(--snow);margin-bottom:8px;}
+.lc p{font-size:.82rem;color:var(--warm-l);line-height:1.65;font-weight:300;}
+.lc-tag{display:inline-block;margin-top:12px;font-size:.68rem;font-weight:600;padding:4px 10px;border-radius:100px;background:rgba(45,158,107,.09);color:var(--green-l);}
+
+/* ENTREGABLES */
+.entregables{padding:100px 60px;background:var(--ink3);}
+.entregables .inner{max-width:860px;margin:0 auto;}
+.entregables-head{text-align:center;margin-bottom:48px;}
+.entregables-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.entregable{display:flex;align-items:flex-start;gap:14px;background:var(--ink2);border:1px solid var(--border);border-radius:12px;padding:18px 20px;transition:border-color .2s;}
+.entregable:hover{border-color:var(--border-green);}
+.ent-num{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1.6rem;color:rgba(45,158,107,.15);line-height:1;flex-shrink:0;min-width:28px;}
+.ent-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.88rem;color:var(--snow);margin-bottom:3px;}
+.ent-desc{font-size:.78rem;color:var(--warm-l);line-height:1.5;}
+
+/* INSTRUCTOR */
+.instructor{padding:100px 60px;background:var(--ink2);}
+.instructor .inner{max-width:800px;margin:0 auto;display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;}
+.inst-img{width:200px;filter:drop-shadow(0 12px 32px rgba(45,158,107,.15));animation:floatBob 5s ease-in-out infinite;}
+.inst-badge{display:inline-flex;align-items:center;gap:8px;background:var(--green-pale);border:1px solid var(--border-green);color:var(--green-l);font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:100px;margin-bottom:16px;}
+.inst-name{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1.8rem;color:var(--snow);margin-bottom:12px;}
+.inst-bio{font-size:.9rem;color:var(--warm-l);line-height:1.75;font-weight:300;margin-bottom:20px;}
+.inst-stats{display:flex;gap:28px;}
+.is-num{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1.4rem;color:var(--green-l);}
+.is-label{font-size:.72rem;color:var(--warm);margin-top:2px;}
+
+/* FAQ */
+.faq{padding:100px 60px;background:var(--ink3);}
+.faq .inner{max-width:700px;margin:0 auto;}
+.faq-head{text-align:center;margin-bottom:48px;}
+.faq-item{border-bottom:1px solid var(--border);}
+.faq-q{width:100%;background:none;border:none;text-align:left;padding:20px 0;font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.95rem;color:var(--snow);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;transition:color .2s;}
+.faq-q:hover{color:var(--green-l);}
+.faq-arrow{font-size:.8rem;color:var(--green-l);transition:transform .3s;flex-shrink:0;}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s;}
+.faq-a.open{max-height:280px;padding-bottom:20px;}
+.faq-a p{font-size:.88rem;color:var(--warm-l);line-height:1.7;font-weight:300;}
+
+/* CTA */
+.cta-final{padding:120px 60px;background:radial-gradient(ellipse 80% 60% at 20% 40%,rgba(45,158,107,.12) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 60%,rgba(196,96,48,.08) 0%,transparent 55%),var(--ink2);position:relative;overflow:hidden;}
+.cta-final .inner{max-width:640px;margin:0 auto;text-align:center;position:relative;z-index:2;}
+.cta-aury{width:110px;margin:0 auto 24px;filter:drop-shadow(0 8px 24px rgba(45,158,107,.25));animation:floatBob 4.5s ease-in-out infinite;display:block;}
+.cta-final .h2{font-size:clamp(2rem,3.2vw,2.8rem);}
+.cta-final .sub{margin:14px auto 32px;text-align:center;}
+.price-final{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:2.5rem;color:var(--snow);letter-spacing:-.04em;margin-bottom:24px;}
+.price-final span{color:var(--green-l);}
+.cta-note{font-size:.78rem;color:var(--warm);margin-top:14px;}
+.cta-meta{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--green-l);margin-bottom:20px;background:var(--green-pale);border:1px solid var(--border-green);padding:6px 14px;border-radius:100px;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+@keyframes floatBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+@media(max-width:960px){
+  body{cursor:auto;}.cr,.crr{display:none;}
+  .nav{padding:14px 24px;}
+  .hero{padding:100px 24px 60px;}
+  .hero-inner{grid-template-columns:1fr;gap:48px;}
+  .hero-visual{order:-1;}
+  .cc-1,.cc-2{display:none;}
+  .datos,.diferencia,.forw,.productos,.learn,.entregables,.instructor,.faq,.cta-final{padding:70px 24px;}
+  .datos-grid{grid-template-columns:repeat(2,1fr);}
+  .compare-grid,.prod-grid{grid-template-columns:1fr;}
+  .learn-grid{grid-template-columns:1fr;}
+  .entregables-grid{grid-template-columns:1fr;}
+  .instructor .inner{grid-template-columns:1fr;}
+  .inst-img{width:160px;margin:0 auto;}
+  .inst-stats{flex-wrap:wrap;gap:20px;}
+}
+
+
+/* === MINIMAL ESSENTIAL OVERRIDES (auto-applied) === */
+body, .hero, .about, .services, .testi, .uc, .valor, .flow-demo, .cta, .manifesto, footer {
+  background-color: #000 !important;
+}
+.hero {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/iceberg-sunset-amber.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: scroll, fixed !important;
+}
+.eyebrow, .kicker, .nav-cta { color: #ECA878 !important; }
+.flake { opacity: .55 !important; font-size: 13px !important; }
+
+/* === ICEBERGS on sections === */
+.manifesto { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/mountains-sunset-pink.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.about, section.about { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-aerial-dark.jpeg') !important; background-size: cover, cover !important; background-position: right center !important; }
+.services { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-texture-blue.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.flow-demo { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/glacier-wall-blue.jpeg') !important; background-size: cover, cover !important; }
+.valor { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-minimal.jpeg') !important; background-size: cover, cover !important; }
+.uc { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/aerial-snow-scale.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.testi { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-ice-columns.jpeg') !important; background-size: cover, cover !important; }
+.cta { background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/icebergs-twin-massive.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+footer, .footer { background-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.98)), url('assets/img/antarctic-moon.jpeg') !important; background-size: cover, cover !important; }
+@media (max-width: 900px) { .hero, .services, .uc, .cta, .manifesto { background-attachment: scroll !important; } }
+
+</style>
+</head>
+<body>
+
+<div class="snow-field" id="snowField"></div>
+<div class="cr" id="cr"></div>
+<div class="crr" id="crr"></div>
+
+<nav class="nav" id="nav">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-mark"><img decoding="async" src="assets/img/Aury-Art-Computadora-1-2.png" alt="Aury"/></div>
+    <span class="nav-word">Aury<span>OnTech</span></span>
+  </a>
+  <a href="index.html" class="nav-back">← Volver al inicio</a>
+  <a href="#empezar" class="nav-cta-pill">Quiero mis primeros 500€</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="course-badge"><span class="badge-dot"></span>Curso gratuito · 5 Módulos · Monetización con IA</div>
+      <h1 class="hero-h1">Tus primeros <span class="euro">500€</span><br/>con IA.<br/><span class="accent">Sin seguidores, sin inversión.</span></h1>
+      <p class="hero-tagline"><strong>No necesitas audiencia, ni dinero, ni experiencia técnica.</strong> Solo lo que ya sabes hacer — y la IA para convertirlo en algo que la gente paga.</p>
+
+      <div class="hero-includes">
+        <div class="hi"><div class="hi-check">✓</div>Identifica qué puedes vender ya mismo con lo que ya sabes</div>
+        <div class="hi"><div class="hi-check">✓</div>Crea tu primer producto digital en una tarde con IA y Canva</div>
+        <div class="hi"><div class="hi-check">✓</div>Publícalo en Gumroad con página de ventas en 30 minutos</div>
+        <div class="hi"><div class="hi-check">✓</div>Consigue tus primeros compradores sin pagar un solo euro en anuncios</div>
+        <div class="hi"><div class="hi-check">✓</div>ChatGPT gratuito + Canva gratuito + Gumroad gratuito — inversión total: 0€</div>
+      </div>
+
+      <div class="price-block">
+        <div class="price-num">Gratis</div>
+        <div class="price-desc">Para siempre<br/>Sin suscripción</div>
+      </div>
+
+      <a href="#" class="btn-buy" id="empezar">Quiero mis primeros 500€ →</a>
+      <div class="guarantee">💰 ChatGPT gratis · Canva gratis · Gumroad gratis · Inversión: 0€</div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="calc-chip cc-1">
+        <div class="cc-lbl">Tiempo hasta primera venta</div>
+        <div class="cc-val">1 tarde</div>
+        <div class="cc-sub">de creación + lanzamiento</div>
+      </div>
+      <div class="calc-chip cc-2">
+        <div class="cc-lbl">Inversión inicial</div>
+        <div class="cc-val">0€</div>
+        <div class="cc-sub">todo gratuito</div>
+      </div>
+      <div class="calc-card">
+        <div class="calc-topbar">
+          <div class="calc-dots">
+            <div class="calc-dot calc-dot-r"></div>
+            <div class="calc-dot calc-dot-y"></div>
+            <div class="calc-dot calc-dot-g"></div>
+          </div>
+          <span class="calc-title">calculadora_500_euros.ai</span>
+        </div>
+        <div class="calc-body">
+          <div class="calc-meta">Tu primer producto</div>
+          <div class="calc-producto">
+            <div class="cp-icon">📄</div>
+            <div>
+              <div class="cp-name">Guía: Cómo organizar&#8230;</div>
+              <div class="cp-type">PDF · Creado con IA en 2h</div>
+            </div>
+            <div class="cp-price">47€</div>
+          </div>
+          <div class="calc-math">
+            <div class="cm-row">
+              <span class="cm-label">Precio de venta</span>
+              <span class="cm-val">47€</span>
+            </div>
+            <div class="cm-row">
+              <span class="cm-label">Comisión Gumroad (10%)</span>
+              <span class="cm-val">−4,70€</span>
+            </div>
+            <div class="cm-row">
+              <span class="cm-label">Ventas necesarias para 500€</span>
+              <span class="cm-val green">≈ 12 ventas</span>
+            </div>
+            <div class="cm-row">
+              <span class="cm-label">Inversión en publicidad</span>
+              <span class="cm-val green">0€</span>
+            </div>
+          </div>
+          <div class="calc-total">
+            <div>
+              <div class="ct-label">Meta del curso</div>
+            </div>
+            <div class="ct-num">500€</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DATOS -->
+<section class="datos">
+  <div class="inner">
+    <div class="reveal" style="text-align:center;">
+      <span class="sk">Por qué funciona</span>
+      <h2 class="h2">El mercado de productos digitales<br/><em>nunca fue tan accesible.</em></h2>
+    </div>
+    <div class="datos-grid reveal">
+      <div class="dato-item">
+        <div class="dato-num green">18 días</div>
+        <div class="dato-label">media hasta el primer ingreso para principiantes que dedican 15-20h semanales — encuesta a 230 freelancers IA en España, Q1 2026</div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-num dawn">0€</div>
+        <div class="dato-label">inversión necesaria para crear y publicar tu primer producto digital — ChatGPT, Canva y Gumroad son gratuitos</div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-num green">12.000+</div>
+        <div class="dato-label">ofertas activas en Fiverr para contenido en español en 2026 — la demanda de productos digitales con IA está en máximos</div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-num dawn">8h</div>
+        <div class="dato-label">semanales que ahorran los freelancers que usan IA, permitiéndoles crear más productos y atender más clientes</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTOS -->
+<section class="productos">
+  <div class="inner">
+    <div class="productos-head reveal">
+      <span class="sk">Qué vas a vender</span>
+      <h2 class="h2">5 tipos de productos que se venden<br/><em class="green-em">sin seguidores ni inversión.</em></h2>
+      <p class="sub" style="margin:14px auto 0;text-align:center;">El curso te ayuda a elegir el que encaja con lo que ya sabes y a crearlo en una tarde con IA.</p>
+    </div>
+    <div class="prod-grid reveal">
+      <div class="prod-card">
+        <div class="prod-tipo">Más fácil de crear</div>
+        <div class="prod-nombre">Plantilla</div>
+        <div class="prod-desc">Documento, hoja de cálculo o diseño que el comprador rellena con sus datos. Ejemplos: plantilla de presupuesto, tracker de gastos, calendario de contenidos.</div>
+        <div class="prod-precio"><span class="prod-precio-val">9€ &#8211; 29€</span><span class="prod-ventas">17-55 ventas</span></div>
+      </div>
+      <div class="prod-card highlight">
+        <div class="prod-tipo">⭐ Recomendado para empezar</div>
+        <div class="prod-nombre">Guía o ebook</div>
+        <div class="prod-desc">PDF de 10-30 páginas que explica cómo hacer algo paso a paso. No tiene que ser un libro — solo resolver una duda concreta de forma completa.</div>
+        <div class="prod-precio"><span class="prod-precio-val">17€ &#8211; 47€</span><span class="prod-ventas">10-30 ventas</span></div>
+      </div>
+      <div class="prod-card">
+        <div class="prod-tipo">Alta conversión</div>
+        <div class="prod-nombre">Pack de prompts</div>
+        <div class="prod-desc">Colección de prompts listos para usar en un área específica. Ejemplos: 50 prompts para Instagram, 30 prompts para emails de ventas.</div>
+        <div class="prod-precio"><span class="prod-precio-val">9€ &#8211; 25€</span><span class="prod-ventas">20-55 ventas</span></div>
+      </div>
+      <div class="prod-card">
+        <div class="prod-tipo">Ticket más alto</div>
+        <div class="prod-nombre">Mini-curso</div>
+        <div class="prod-desc">3-5 lecciones en vídeo o texto que enseñan una habilidad específica. No tiene que durar horas — tiene que llevar de A a B de forma clara.</div>
+        <div class="prod-precio"><span class="prod-precio-val">37€ &#8211; 97€</span><span class="prod-ventas">5-14 ventas</span></div>
+      </div>
+      <div class="prod-card">
+        <div class="prod-tipo">Ingresos inmediatos</div>
+        <div class="prod-nombre">Servicio con IA</div>
+        <div class="prod-desc">Haces algo usando IA y cobras por el resultado: auditoría de redes, estrategia de contenido, copy para una semana. El cliente paga por el resultado.</div>
+        <div class="prod-precio"><span class="prod-precio-val">50€ &#8211; 300€</span><span class="prod-ventas">2-10 clientes</span></div>
+      </div>
+    </div>
+    <div class="prod-note reveal"><strong>La cuenta que más convierte:</strong> 10 ventas de una guía a 50€ = 500€. Eso son 10 personas — no 10.000 seguidores.</div>
+  </div>
+</section>
+
+<!-- DIFERENCIADOR -->
+<section class="diferencia">
+  <div class="inner">
+    <div class="reveal">
+      <span class="sk">Por qué este curso es distinto</span>
+      <h2 class="h2">No es un curso de «hazte rico<br/><em>con IA».</em></h2>
+      <p class="sub">Es el sistema paso a paso para crear algo real, publicarlo hoy y conseguir los primeros compradores esta semana. Sin promesas vacías.</p>
+    </div>
+    <div class="compare-grid reveal">
+      <div class="compare-col bad">
+        <div class="compare-col-head">✕ Lo que prometen otros</div>
+        <ul>
+          <li>Ingresos pasivos de miles de euros al mes desde el primer día</li>
+          <li>No hace falta saber nada — la IA lo hace todo</li>
+          <li>Sin trabajo, sin esfuerzo, sin tiempo</li>
+          <li>Resultados garantizados</li>
+          <li>Necesitas comprar su curso de 997€ para empezar</li>
+        </ul>
+      </div>
+      <div class="compare-col good">
+        <div class="compare-col-head">✓ Lo que este curso te da</div>
+        <ul>
+          <li>Un sistema real para los primeros 500€ — sin exagerar</li>
+          <li>IA como herramienta para acelerar — no como magia</li>
+          <li>Una tarde para crear, un día para lanzar</li>
+          <li>Resultado concreto: producto publicado y primer mensaje enviado</li>
+          <li>0€ de inversión — herramientas 100% gratuitas</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARA QUIÉN -->
+<section class="forw">
+  <div class="inner">
+    <div class="reveal">
+      <span class="sk">Para quién es</span>
+      <h2 class="h2">Si sabes hacer algo que<br/><em>otros quieren aprender,</em></h2>
+      <p class="sub">este curso te enseña a cobrar por ello.</p>
+    </div>
+    <div class="forw-list reveal">
+      <div class="fw-item">
+        <div class="fw-icon">A</div>
+        <div>
+          <div class="fw-title">Tienes un conocimiento o habilidad pero no sabes cómo monetizarlo</div>
+          <div class="fw-desc">Sabes de diseño, de marketing, de contabilidad, de idiomas, de cocina, de productividad. Hay personas que pagarían por aprender lo que tú sabes. El módulo 1 te ayuda a identificarlo en 20 minutos.</div>
+        </div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-icon">B</div>
+        <div>
+          <div class="fw-title">Tienes poco tiempo y cero presupuesto para publicidad</div>
+          <div class="fw-desc">El sistema completo de este curso — crear, publicar y lanzar — cabe en un fin de semana. Y la distribución inicial no requiere gastar nada en anuncios.</div>
+        </div>
+      </div>
+      <div class="fw-item">
+        <div class="fw-icon">C</div>
+        <div>
+          <div class="fw-title">Quieres probar si puedes generar ingresos online sin comprometerte a nada grande</div>
+          <div class="fw-desc">Los primeros 500€ son la prueba. No el objetivo final. Si funciona, tienes un sistema que puedes escalar. Si no funciona como esperabas, aprendes lo que necesitas ajustar — sin haber perdido dinero.</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:48px;">
+      <div class="reveal"><span class="sk" style="color:var(--warm-l);">Para quién NO es</span></div>
+      <div class="forw-nolist reveal">
+        <div class="no-item"><div class="no-x">✕</div>Si buscas hacerte millonario rápido sin trabajar — eso no existe</div>
+        <div class="no-item"><div class="no-x">✕</div>Si no tienes ningún conocimiento o habilidad que alguien más quiera aprender</div>
+        <div class="no-item"><div class="no-x">✕</div>Si no puedes dedicar una tarde a crear tu producto y un día a lanzarlo</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MÓDULOS -->
+<section class="learn">
+  <div class="inner">
+    <div class="learn-head reveal">
+      <span class="sk">Lo que vas a aprender</span>
+      <h2 class="h2">Cinco módulos. Un resultado:<br/><em>tu primer producto vendido.</em></h2>
+    </div>
+    <div class="learn-grid reveal">
+      <div class="lc">
+        <div class="lc-num">01</div>
+        <h3>Qué puedes vender ya mismo</h3>
+        <p>El error de buscar la idea perfecta, los 5 tipos de productos que se venden sin seguidores y cómo validar tu idea en 20 minutos con IA.</p>
+        <span class="lc-tag">3 lecciones · validación</span>
+      </div>
+      <div class="lc">
+        <div class="lc-num">02</div>
+        <h3>Crea tu producto en una tarde</h3>
+        <p>De idea a PDF profesional con IA y Canva. Estructura, contenido, diseño y el precio exacto para no quedarte corto ni espantarlos.</p>
+        <span class="lc-tag">3 lecciones · creación</span>
+      </div>
+      <div class="lc">
+        <div class="lc-num">03</div>
+        <h3>Publícalo hoy</h3>
+        <p>Gumroad de cero a publicado en 30 minutos. El copy que vende: cómo describir tu producto para que la gente lo quiera comprar.</p>
+        <span class="lc-tag">2 lecciones · publicación</span>
+      </div>
+      <div class="lc">
+        <div class="lc-num">04</div>
+        <h3>Tus primeros compradores sin anuncios</h3>
+        <p>Los 3 canales que funcionan desde el día 1 sin inversión. El mensaje de lanzamiento que no suena a vendedor desesperado.</p>
+        <span class="lc-tag">2 lecciones · lanzamiento</span>
+      </div>
+      <div class="lc">
+        <div class="lc-num">05</div>
+        <h3>De 500€ a ingresos recurrentes</h3>
+        <p>El sistema que entrega y cobra solo. Cómo pasar de un producto a un catálogo que crece con cada lanzamiento.</p>
+        <span class="lc-tag">1 lección · sistema</span>
+      </div>
+      <div class="lc" style="background:rgba(45,158,107,.04);border-color:var(--border-green);">
+        <div class="lc-num" style="color:rgba(45,158,107,.25);">🐧</div>
+        <h3 style="color:var(--green-l);">Certificado de finalización</h3>
+        <p>Descarga tu certificado personalizado en PDF al completar el curso.</p>
+        <span class="lc-tag">Descargable</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ENTREGABLES -->
+<section class="entregables">
+  <div class="inner">
+    <div class="entregables-head reveal">
+      <span class="sk">Los 6 entregables</span>
+      <h2 class="h2">Al terminar no tienes conocimiento.<br/><em>Tienes un negocio funcionando.</em></h2>
+    </div>
+    <div class="entregables-grid reveal">
+      <div class="entregable">
+        <div class="ent-num">01</div>
+        <div><div class="ent-title">Tu idea de producto validada</div><div class="ent-desc">Con el prompt de validación y las señales reales de que hay demanda.</div></div>
+      </div>
+      <div class="entregable">
+        <div class="ent-num">02</div>
+        <div><div class="ent-title">Producto digital terminado</div><div class="ent-desc">Guía, plantilla, pack de prompts o mini-curso — creado con IA y maquetado en Canva.</div></div>
+      </div>
+      <div class="entregable">
+        <div class="ent-num">03</div>
+        <div><div class="ent-title">Página de ventas en Gumroad</div><div class="ent-desc">Publicada y lista para recibir pagos desde cualquier parte del mundo.</div></div>
+      </div>
+      <div class="entregable">
+        <div class="ent-num">04</div>
+        <div><div class="ent-title">Copy de venta escrito con IA</div><div class="ent-desc">La descripción que convierte visitantes en compradores — específica para tu producto.</div></div>
+      </div>
+      <div class="entregable">
+        <div class="ent-num">05</div>
+        <div><div class="ent-title">Mensajes de lanzamiento listos</div><div class="ent-desc">Para contactos directos, grupos y redes sociales — sin sonar a vendedor desesperado.</div></div>
+      </div>
+      <div class="entregable" style="grid-column:1/-1;border-color:var(--border-green);background:var(--green-pale);">
+        <div class="ent-num" style="color:rgba(45,158,107,.3);">06</div>
+        <div><div class="ent-title" style="color:var(--green-l);">Sistema de entrega automática activo</div><div class="ent-desc">El producto llega solo cuando alguien compra, el cobro se procesa solo y tú no tienes que hacer nada. El primer negocio que trabaja sin ti.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTRUCTORA -->
+<section class="instructor">
+  <div class="inner reveal">
+    <img decoding="async" class="inst-img" src="assets/img/Aury-Estudiando.png" alt="Aury"/>
+    <div>
+      <div class="inst-badge">Tu instructora</div>
+      <div class="inst-name">Aury</div>
+      <p class="inst-bio">Empezó vendiendo pescado en la Antártida gestionando todo a mano. Cuando descubrió que podía convertir su conocimiento en productos digitales con IA, su primer producto lo vendió en 3 días sin un solo seguidor en redes.</p>
+      <p class="inst-bio">Este curso nació de construir el sistema real primero — con los errores ya pagados, los atajos descubiertos y la ruta más corta documentada paso a paso.</p>
+      <div class="inst-stats">
+        <div><div class="is-num">10</div><div class="is-label">lecciones prácticas</div></div>
+        <div><div class="is-num">6</div><div class="is-label">entregables reales</div></div>
+        <div><div class="is-num">0€</div><div class="is-label">de inversión</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <div class="inner">
+    <div class="faq-head reveal">
+      <span class="sk">Preguntas frecuentes</span>
+      <h2 class="h2">Lo que más preguntan<br/><em>antes de empezar.</em></h2>
+    </div>
+    <div class="reveal">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">¿Realmente puedo conseguir 500€ sin seguidores? <span class="faq-arrow">↓</span></button>
+        <div class="faq-a"><p>Sí, pero con matiz importante: 500€ no son el resultado garantizado, son el objetivo del sistema. La meta del curso es que tengas el producto publicado, el copy listo y los mensajes enviados. Las ventas dependen de la calidad de tu producto y de cuántas personas tengan el problema que resuelves. El curso te da el sistema — tú pones la ejecución.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">¿Qué pasa si no se me ocurre qué vender? <span class="faq-arrow">↓</span></button>
+        <div class="faq-a"><p>El módulo 1 está diseñado exactamente para eso. Con el prompt de validación y el marco de los 5 tipos de productos, cualquier persona que sepa hacer algo — aunque sea organizar, cocinar, gestionar, diseñar o enseñar — encuentra una idea viable. Si después de la lección 1.2 todavía no tienes idea, el módulo incluye un prompt específico para generarlas.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">¿Cuánto tiempo necesito dedicarle? <span class="faq-arrow">↓</span></button>
+        <div class="faq-a"><p>El sistema completo — ver el curso, crear el producto, publicarlo y lanzarlo — cabe en un fin de semana largo. El curso en sí son unas 2-3 horas. La creación del producto con IA son otras 2-3 horas. La publicación en Gumroad es 30 minutos. Si tienes un sábado libre, puedes terminar con el producto publicado antes del domingo por la noche.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">¿Necesito saber usar ChatGPT? <span class="faq-arrow">↓</span></button>
+        <div class="faq-a"><p>No necesitas experiencia previa. Si ya hiciste el curso de Prompts de AuryOnTech, tendrás ventaja. Si no, los prompts del curso están completamente rellenables — solo sustituyes los campos en color naranja con tu información. No hay técnica de prompting que aprender para usar este curso.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">¿Gumroad funciona para vender en España? <span class="faq-arrow">↓</span></button>
+        <div class="faq-a"><p>Sí. Gumroad acepta pagos con tarjeta de crédito y PayPal a nivel mundial, incluyendo España. Para recibir el dinero necesitas una cuenta bancaria o PayPal. La comisión es del 10% por transacción en el plan gratuito — sin coste fijo mensual. Para los primeros 500€ es la opción más rápida y sin fricciones.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">¿Por qué es gratis? <span class="faq-arrow">↓</span></button>
+        <div class="faq-a"><p>En AuryOnTech hay cursos y programas de pago. Este es gratuito porque queremos que veas el valor antes de invertir. Si el sistema funciona para ti, ya verás si quieres ir más lejos. Sin correos de presión ni urgencias artificiales.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <div class="inner">
+    <div class="reveal">
+      <img decoding="async" class="cta-aury" src="assets/img/Aury-Saludando.png" alt="Aury"/>
+      <div class="cta-meta">💰 Inversión total: 0€ · Herramientas: gratuitas</div>
+      <h2 class="h2">Lo que sabes hacer<br/><em>vale dinero.</em></h2>
+      <p class="sub">El sistema para convertirlo en tu primer producto digital — creado, publicado y lanzado esta semana.</p>
+      <div class="price-final"><span>Gratis</span> · Para siempre</div>
+      <a href="#" class="btn-buy">Empezar el curso ahora →</a>
+      <div class="cta-note">Sin tarjeta · Sin suscripción · ChatGPT + Canva + Gumroad gratuitos</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* CURSOR */
+const cr=document.getElementById('cr'),crr=document.getElementById('crr');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cr.style.left=mx+'px';cr.style.top=my+'px';});
+(function anim(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;crr.style.left=rx+'px';crr.style.top=ry+'px';requestAnimationFrame(anim);})();
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cr.style.width='16px';cr.style.height='16px';crr.style.width='44px';crr.style.height='44px';});
+  el.addEventListener('mouseleave',()=>{cr.style.width='9px';cr.style.height='9px';crr.style.width='30px';crr.style.height='30px';});
+});
+
+/* NAV */
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',window.scrollY>40));
+
+/* REVEAL */
+const obs=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis');});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+/* SNOW */
+const sf=document.getElementById('snowField');
+const sc=['*','+','·','❄','✦'];
+for(let i=0;i<20;i++){const f=document.createElement('div');f.className='flake';f.textContent=sc[Math.floor(Math.random()*sc.length)];f.style.left=Math.random()*100+'vw';f.style.animationDuration=(8+Math.random()*14)+'s';f.style.animationDelay=(-Math.random()*14)+'s';f.style.fontSize=(8+Math.random()*8)+'px';f.style.opacity=Math.random()*.4;sf.appendChild(f);}
+
+/* FAQ */
+function toggleFaq(btn){
+  const a=btn.nextElementSibling;
+  const arrow=btn.querySelector('.faq-arrow');
+  const isOpen=a.classList.contains('open');
+  document.querySelectorAll('.faq-a.open').forEach(el=>{el.classList.remove('open');el.previousElementSibling.querySelector('.faq-arrow').style.transform='rotate(0deg)';});
+  if(!isOpen){a.classList.add('open');arrow.style.transform='rotate(180deg)';}
+}
+
+/* POPUP */
+function interceptarBotones(){
+  document.querySelectorAll('a,button').forEach(el=>{
+    const texto=el.textContent.trim().toLowerCase();
+    const href=el.getAttribute('href')||'';
+    if(texto.includes('empezar')||texto.includes('quiero')||texto.includes('500')||texto.includes('comenzar')||href==='#'||href==='#empezar'){
+      el.addEventListener('click',function(e){
+        e.preventDefault();
+        document.getElementById('auryPopup')&&document.getElementById('auryPopup').classList.add('active');
+      });
+    }
+  });
+}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',interceptarBotones);}else{interceptarBotones();}
+</script>
+</body>
+</html>
+
+
+
+<p></p>

@@ -1,0 +1,1222 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>De Formulario a Cliente sin Tocar Nada — AuryOnTech</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&#038;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #07090F;
+  --ink-2: #0f1219;
+  --ink-3: #161b26;
+  --dawn: #C46030;
+  --dawn-l: #D88050;
+  --dawn-ll: #ECA878;
+  --sky: #3A6494;
+  --ice: #B8D4EC;
+  --snow: #EEF4F8;
+  --bone: #EDE4D8;
+  --warm: #7A6E60;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: var(--ink); color: var(--snow); font-family: 'DM Sans', sans-serif; min-height: 100vh; cursor: none; }
+a, button, .nav-lesson, .nav-module-header, .quiz-option, .challenge-yes, .challenge-no, .copy-btn, .hamburger, .cert-skip, .cert-generate-btn, input, label { cursor: none; }
+
+#progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--dawn), var(--dawn-l)); width: 0%; z-index: 9999; transition: width 0.3s ease; }
+
+/* ── CURSOR CUSTOM ── */
+.cursor-dot { position: fixed; width: 8px; height: 8px; background: var(--dawn); border-radius: 50%; pointer-events: none; z-index: 99999; transform: translate(-50%, -50%); transition: width 0.15s, height 0.15s; }
+.cursor-dot.clicking { width: 14px; height: 14px; }
+.cursor-ring { position: fixed; width: 32px; height: 32px; border: 1.5px solid rgba(196, 96, 48, 0.5); border-radius: 50%; pointer-events: none; z-index: 99998; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, border-color 0.2s; }
+.cursor-ring.clicking { width: 24px; height: 24px; border-color: var(--dawn); }
+
+/* ── APP LAYOUT ── */
+.app { display: flex; min-height: 100vh; }
+.sidebar { width: 320px; background: var(--ink-2); border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar-header { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.logo-text { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 17px; color: var(--snow); letter-spacing: -0.3px; }
+.course-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 15px; color: var(--dawn-ll); margin-bottom: 16px; line-height: 1.3; }
+.progress-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.progress-label { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--warm); }
+.progress-pill { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn-ll); background: rgba(196,96,48,0.12); padding: 3px 10px; border-radius: 100px; }
+.progress-track { height: 4px; background: rgba(255,255,255,0.05); border-radius: 100px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--dawn), var(--dawn-l)); transition: width 0.4s ease; }
+.sidebar-nav { flex: 1; padding: 16px 12px; }
+.nav-module { margin-bottom: 4px; }
+.nav-module-header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13px; color: var(--snow); border-radius: 8px; transition: background 0.15s; }
+.nav-module-header:hover { background: rgba(255,255,255,0.03); }
+.nav-module-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--warm); background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; margin-right: 6px; }
+.nav-lessons { overflow: hidden; transition: max-height 0.3s ease; padding-left: 8px; }
+.nav-lesson { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-size: 12.5px; color: rgba(238,244,248,0.6); border-radius: 6px; margin: 1px 0; transition: all 0.15s; }
+.nav-lesson:hover { background: rgba(255,255,255,0.03); color: var(--snow); }
+.nav-lesson.active { background: rgba(196,96,48,0.12); color: var(--dawn-ll); }
+.nav-lesson.completed { color: rgba(134,239,172,0.7); }
+.nav-lesson.completed .lesson-dot { background: #4ade80; }
+.lesson-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); flex-shrink: 0; }
+.nav-lesson.active .lesson-dot { background: var(--dawn); }
+
+/* ── MAIN ── */
+.main { flex: 1; overflow-y: auto; height: 100vh; }
+.content { max-width: 760px; margin: 0 auto; padding: 48px 56px 80px; }
+
+/* ── LESSON ── */
+.lesson { display: none; }
+.lesson.active { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.lesson-breadcrumb { display: flex; align-items: center; gap: 8px; font-family: 'DM Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--warm); margin-bottom: 16px; }
+.breadcrumb-sep { color: rgba(255,255,255,0.2); }
+.lesson-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 38px; line-height: 1.1; letter-spacing: -1px; color: var(--snow); margin-bottom: 14px; }
+.lesson-objective { font-size: 15px; color: rgba(238,244,248,0.7); line-height: 1.5; padding: 14px 16px; background: rgba(58,100,148,0.08); border-left: 3px solid var(--sky); border-radius: 0 6px 6px 0; margin-bottom: 32px; }
+.lesson-body { font-size: 15px; line-height: 1.7; color: rgba(238,244,248,0.85); }
+.lesson-body p { margin-bottom: 16px; }
+.lesson-body h3 { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 22px; color: var(--snow); margin: 32px 0 14px; letter-spacing: -0.3px; }
+.lesson-body ul, .lesson-body ol { margin: 14px 0 18px 22px; }
+.lesson-body li { margin-bottom: 8px; }
+.lesson-body strong { color: var(--snow); font-weight: 600; }
+
+.module-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.module-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn-ll); background: rgba(196,96,48,0.12); padding: 4px 10px; border-radius: 4px; }
+.module-name { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--warm); text-transform: uppercase; letter-spacing: 1.5px; }
+
+.lesson-hero { width: 100%; height: 200px; border-radius: 12px; overflow: hidden; margin-bottom: 28px; background: var(--ink-3); }
+.lesson-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lesson-hero.broken { display: none; }
+
+.inline-code { font-family: 'DM Mono', monospace; font-size: 12.5px; background: rgba(196,96,48,0.12); color: var(--dawn-ll); padding: 2px 7px; border-radius: 4px; }
+
+.code-block { background: #0d1117; border-radius: 10px; margin: 20px 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+.code-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); }
+.code-lang { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--warm); text-transform: uppercase; letter-spacing: 1.5px; }
+.copy-btn { background: rgba(196,96,48,0.15); border: 1px solid rgba(196,96,48,0.3); color: var(--dawn-ll); padding: 4px 12px; border-radius: 5px; font-family: 'DM Sans', sans-serif; font-size: 11px; transition: all 0.15s; }
+.copy-btn:hover { background: rgba(196,96,48,0.25); }
+.copy-btn.copied { background: rgba(74,222,128,0.15); border-color: rgba(74,222,128,0.3); color: #86efac; }
+.code-block pre { padding: 16px; font-family: 'DM Mono', monospace; font-size: 12.5px; color: #e6edf3; overflow-x: auto; line-height: 1.55; white-space: pre; }
+
+.callout { padding: 16px 18px; border-radius: 10px; margin: 18px 0; border-left: 3px solid; font-size: 14px; line-height: 1.55; }
+.callout strong { display: block; margin-bottom: 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'DM Mono', monospace; font-weight: 500; }
+.callout-tip { background: rgba(58,100,148,0.08); border-color: var(--sky); }
+.callout-tip strong { color: var(--ice); }
+.callout-warning { background: rgba(245,158,11,0.07); border-color: #f59e0b; }
+.callout-warning strong { color: #fbbf24; }
+.callout-error { background: rgba(239,68,68,0.07); border-color: #ef4444; }
+.callout-error strong { color: #fca5a5; }
+.callout-success { background: rgba(74,222,128,0.07); border-color: #4ade80; }
+.callout-success strong { color: #86efac; }
+
+.step-list { margin: 20px 0; }
+.step-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.step-item:last-child { border-bottom: none; }
+.step-number-big { flex-shrink: 0; width: 32px; height: 32px; background: var(--dawn); color: var(--ink); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-weight: 600; font-size: 13px; }
+.step-content { flex: 1; padding-top: 4px; }
+.step-content strong { display: block; color: var(--snow); margin-bottom: 4px; font-size: 14px; }
+.step-content p { font-size: 13.5px; color: rgba(238,244,248,0.7); margin: 0; }
+
+.checklist-block { background: var(--ink-2); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 22px; margin: 24px 0; }
+.checklist-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn-ll); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px; }
+.checklist-item { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; }
+.checklist-item input[type="checkbox"] { margin-top: 4px; accent-color: var(--dawn); width: 16px; height: 16px; flex-shrink: 0; }
+.checklist-item label { font-size: 14px; line-height: 1.5; color: rgba(238,244,248,0.85); }
+
+.action-block { background: linear-gradient(135deg, rgba(196,96,48,0.08), rgba(58,100,148,0.05)); border: 1px solid rgba(196,96,48,0.15); border-radius: 12px; padding: 22px; margin: 24px 0; }
+.action-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn-ll); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+.action-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: var(--snow); margin-bottom: 14px; }
+.action-steps { list-style: none; margin: 0; padding: 0; }
+.action-steps li { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; font-size: 14px; color: rgba(238,244,248,0.85); }
+.step-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn-ll); background: rgba(196,96,48,0.15); padding: 2px 7px; border-radius: 4px; flex-shrink: 0; margin-top: 1px; }
+
+.screenshot-frame { background: var(--ink-2); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden; margin: 22px 0; }
+.screenshot-bar { display: flex; gap: 6px; padding: 10px 14px; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.04); }
+.screenshot-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+.screenshot-placeholder { padding: 60px 30px; text-align: center; background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px); border: 2px dashed rgba(255,255,255,0.08); margin: 12px; border-radius: 8px; }
+.screenshot-img { width: 100%; display: block; }
+.ph-icon { font-size: 32px; margin-bottom: 10px; opacity: 0.5; }
+.ph-title { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--warm); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+.ph-sub { font-size: 12px; color: rgba(238,244,248,0.4); }
+.screenshot-caption { padding: 10px 14px; font-size: 12px; color: var(--warm); text-align: center; font-style: italic; border-top: 1px solid rgba(255,255,255,0.04); }
+
+.quiz-block { background: var(--ink-2); border: 1px solid rgba(196,96,48,0.15); border-radius: 12px; padding: 22px; margin: 28px 0; }
+.quiz-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn-ll); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+.quiz-question { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 17px; color: var(--snow); margin-bottom: 16px; line-height: 1.4; }
+.quiz-options { display: flex; flex-direction: column; gap: 8px; }
+.quiz-option { text-align: left; background: var(--ink-3); border: 1px solid rgba(255,255,255,0.06); color: rgba(238,244,248,0.85); padding: 12px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; transition: all 0.15s; }
+.quiz-option:hover:not(:disabled) { background: rgba(196,96,48,0.08); border-color: rgba(196,96,48,0.3); }
+.quiz-option.quiz-correct { background: rgba(74,222,128,0.15); border-color: rgba(74,222,128,0.5); color: #86efac; }
+.quiz-option.quiz-incorrect { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.5); color: #fca5a5; }
+.quiz-feedback { margin-top: 12px; padding: 12px 14px; border-radius: 8px; font-size: 13.5px; line-height: 1.5; display: none; }
+.quiz-feedback.fb-correct { display: block; background: rgba(74,222,128,0.08); border-left: 3px solid #4ade80; color: rgba(238,244,248,0.85); }
+.quiz-feedback.fb-incorrect { display: block; background: rgba(239,68,68,0.08); border-left: 3px solid #ef4444; color: rgba(238,244,248,0.85); }
+
+.challenge-block { background: linear-gradient(135deg, rgba(196,96,48,0.08), rgba(58,100,148,0.05)); border: 1px solid rgba(196,96,48,0.15); border-radius: 12px; padding: 22px; margin: 24px 0; }
+.challenge-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn-ll); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+.challenge-question { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 16px; color: var(--snow); margin-bottom: 14px; line-height: 1.4; }
+.challenge-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.challenge-yes, .challenge-no { padding: 10px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; border: 1px solid; transition: all 0.15s; }
+.challenge-yes { background: rgba(74,222,128,0.12); border-color: rgba(74,222,128,0.4); color: #86efac; }
+.challenge-yes:hover:not(:disabled) { background: rgba(74,222,128,0.2); }
+.challenge-no { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #fca5a5; }
+.challenge-no:hover:not(:disabled) { background: rgba(239,68,68,0.2); }
+.challenge-response { margin-top: 14px; padding: 12px 14px; border-radius: 8px; font-size: 13.5px; line-height: 1.55; display: none; }
+.challenge-response.success { display: block; background: rgba(74,222,128,0.08); border-left: 3px solid #4ade80; color: rgba(238,244,248,0.85); }
+.challenge-response.error { display: block; background: rgba(239,68,68,0.08); border-left: 3px solid #ef4444; color: rgba(238,244,248,0.85); }
+
+.next-course { background: linear-gradient(135deg, rgba(196,96,48,0.12), rgba(58,100,148,0.08)); border: 1px solid rgba(196,96,48,0.2); border-radius: 14px; padding: 26px; margin: 32px 0; }
+.next-course-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn-ll); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+.next-course-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 24px; color: var(--snow); margin-bottom: 10px; letter-spacing: -0.3px; }
+.next-course-desc { font-size: 14px; color: rgba(238,244,248,0.75); line-height: 1.55; margin-bottom: 16px; }
+.next-course-btn { display: inline-block; padding: 10px 20px; background: var(--dawn); color: var(--ink); border-radius: 8px; font-weight: 600; font-size: 14px; text-decoration: none; }
+
+.lesson-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+.nav-btn { padding: 12px 22px; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; border: 1px solid; transition: all 0.15s; }
+.nav-btn-prev { background: transparent; border-color: rgba(255,255,255,0.1); color: rgba(238,244,248,0.7); }
+.nav-btn-prev:hover:not(:disabled) { background: rgba(255,255,255,0.04); color: var(--snow); }
+.nav-btn-prev:disabled { opacity: 0.3; }
+.nav-btn-next { background: var(--dawn); border-color: var(--dawn); color: var(--ink); font-weight: 600; }
+.nav-btn-next:hover { background: var(--dawn-l); border-color: var(--dawn-l); }
+
+/* ── CERT MODAL & PROGRESS MODAL ── */
+.cert-overlay { position: fixed; inset: 0; background: rgba(7,9,15,0.85); backdrop-filter: blur(8px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; }
+.cert-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
+.cert-modal { background: var(--ink-2); border: 1px solid rgba(196,96,48,0.2); border-radius: 16px; padding: 32px; max-width: 420px; width: 100%; text-align: center; }
+.cert-modal-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 24px; color: var(--snow); margin-bottom: 8px; letter-spacing: -0.3px; }
+.cert-modal-sub { font-size: 14px; color: rgba(238,244,248,0.7); line-height: 1.5; margin-bottom: 20px; }
+.cert-name-input { width: 100%; padding: 12px 14px; background: var(--ink-3); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: var(--snow); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; transition: border-color 0.15s; }
+.cert-name-input:focus { border-color: var(--dawn); }
+.cert-generate-btn { width: 100%; margin-top: 14px; padding: 12px 20px; background: var(--dawn); color: var(--ink); border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 14px; transition: background 0.15s; }
+.cert-generate-btn:hover { background: var(--dawn-l); }
+.cert-skip { margin-top: 12px; font-size: 13px; color: var(--warm); text-decoration: underline; }
+.cert-skip:hover { color: var(--snow); }
+
+/* ── CERTIFICATE (print) ── */
+.certificate { display: none; }
+@media print { .certificate { display: block; } body > *:not(.certificate) { display: none !important; } }
+
+/* ── LIGHTBOX ── */
+.lightbox-overlay { position: fixed; inset: 0; background: rgba(7,9,15,0.95); backdrop-filter: blur(10px); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 40px; }
+.lightbox-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
+.lightbox-overlay img { max-width: 100%; max-height: 90vh; border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+.lightbox-close { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; background: rgba(255,255,255,0.1); border: none; color: var(--snow); border-radius: 50%; font-size: 20px; }
+.lightbox-hint { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1.5px; }
+
+/* ── HAMBURGER ── */
+.hamburger { display: none; position: fixed; top: 16px; right: 16px; z-index: 100; width: 44px; height: 44px; background: var(--ink-2); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; flex-direction: column; gap: 4px; align-items: center; justify-content: center; }
+.hamburger span { width: 18px; height: 2px; background: var(--snow); border-radius: 2px; }
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 50; }
+.overlay.active { display: block; }
+
+@media (max-width: 768px) {
+  html, body { cursor: auto; }
+  a, button, .nav-lesson { cursor: pointer; }
+  .cursor-dot, .cursor-ring { display: none; }
+  .sidebar { position: fixed; top: 0; left: -100%; height: 100vh; z-index: 60; transition: left 0.3s ease; width: 280px; }
+  .sidebar.open { left: 0; }
+  .hamburger { display: flex; }
+  .content { padding: 70px 22px 60px; }
+  .lesson-title { font-size: 28px; }
+}
+
+/* ── COMPARE TABLE ── */
+.compare-table { width: 100%; border-collapse: collapse; margin: 24px 0; background: var(--ink-2); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); display: block; overflow-x: auto; }
+.compare-table thead, .compare-table tbody { display: table; width: 100%; }
+.compare-table th { background: rgba(196,96,48,0.12); color: var(--dawn-ll); font-family: 'DM Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; padding: 12px 16px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.compare-table td { padding: 12px 16px; font-size: 13px; color: rgba(238,244,248,0.8); border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table .yes { color: #86efac; font-weight: 600; }
+.compare-table .no { color: #fca5a5; font-weight: 600; }
+
+/* ── JSON VIZ ── */
+.json-viz { background: #0d1117; border-radius: 10px; padding: 20px; margin: 20px 0; font-family: 'DM Mono', monospace; font-size: 12px; line-height: 1.7; color: #e6edf3; overflow-x: auto; }
+.json-viz .key { color: #79c0ff; }
+.json-viz .str { color: #a5d6ff; }
+.json-viz .punct { color: #8b949e; }
+.json-viz .highlight { background: rgba(196,96,48,0.25); padding: 2px 4px; border-radius: 3px; color: #ECA878; }
+
+
+/* === MINIMAL ESSENTIAL OVERRIDES (auto-applied) === */
+body, .hero, .about, .services, .testi, .uc, .valor, .flow-demo, .cta, .manifesto, footer {
+  background-color: #000 !important;
+}
+.hero {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/iceberg-sunset-amber.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: scroll, fixed !important;
+}
+.eyebrow, .kicker, .nav-cta { color: #ECA878 !important; }
+.flake { opacity: .55 !important; font-size: 13px !important; }
+
+/* === ICEBERGS on sections === */
+.manifesto { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/mountains-sunset-pink.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.about, section.about { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-aerial-dark.jpeg') !important; background-size: cover, cover !important; background-position: right center !important; }
+.services { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-texture-blue.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.flow-demo { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/glacier-wall-blue.jpeg') !important; background-size: cover, cover !important; }
+.valor { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-minimal.jpeg') !important; background-size: cover, cover !important; }
+.uc { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/aerial-snow-scale.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.testi { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-ice-columns.jpeg') !important; background-size: cover, cover !important; }
+.cta { background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/icebergs-twin-massive.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+footer, .footer { background-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.98)), url('assets/img/antarctic-moon.jpeg') !important; background-size: cover, cover !important; }
+@media (max-width: 900px) { .hero, .services, .uc, .cta, .manifesto { background-attachment: scroll !important; } }
+
+</style>
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img decoding="async" id="lightbox-img" src="" alt="">
+  <div class="lightbox-hint">Haz clic en cualquier parte para cerrar</div>
+</div>
+
+<div class="cert-overlay" id="progress-modal">
+  <div class="cert-modal">
+    <img decoding="async" src="assets/img/Aury-Estudiando.png" style="width:80px;margin:0 auto 12px;display:block;" alt="Aury">
+    <div class="cert-modal-title">¿Guardamos tu progreso?</div>
+    <div class="cert-modal-sub">Déjame tu email y te aviso cuando publique nuevos cursos. Sin spam, solo lo útil.</div>
+    <input class="cert-name-input" id="progress-email" type="email" placeholder="tu@correo.com">
+    <button class="cert-generate-btn" onclick="saveProgress()">Guardar →</button>
+    <div class="cert-skip" onclick="dismissProgress()">Ahora no</div>
+  </div>
+</div>
+<div class="cert-overlay" id="cert-overlay">
+  <div class="cert-modal">
+    <img decoding="async" src="assets/img/Aury-Saludando.png" style="width:90px;margin:0 auto 12px;display:block;" alt="Aury">
+    <div class="cert-modal-title">¡Lo lograste!</div>
+    <div class="cert-modal-sub">Terminaste el curso. Escribe tu nombre y correo para generar tu certificado.</div>
+    <input class="cert-name-input" id="cert-name" type="text" placeholder="Tu nombre completo">
+    <input class="cert-name-input" id="cert-email" type="email" placeholder="tu@correo.com" style="margin-top:8px;">
+    <button class="cert-generate-btn" onclick="generateCert()">Descargar certificado →</button>
+    <div class="cert-skip" onclick="closeCertModal()">Omitir por ahora</div>
+  </div>
+</div>
+
+<div class="certificate" id="certificate">
+  <div class="cert-inner">
+    <div class="cert-logo">🐧 AuryOnTech</div>
+    <div class="cert-presents">Certifica que</div>
+    <div class="cert-student-name" id="cert-name-display">Nombre Apellido</div>
+    <div class="cert-completed">ha completado satisfactoriamente el curso</div>
+    <div class="cert-course-name">De Formulario a Cliente sin Tocar Nada</div>
+    <div class="cert-divider"></div>
+    <div class="cert-date" id="cert-date"></div>
+    <div class="cert-signature">Cristian Lopez Garcia</div>
+    <div class="cert-signature-sub">Automation &#038; Growth Partner · AuryOnTech</div>
+  </div>
+</div>
+
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div style="background:none;padding:0;"><img decoding="async" src="assets/img/Aury-Art-Computadora-1-2.png" style="width:40px;height:40px;object-fit:contain;display:block;"></div>
+        <span class="logo-text">AuryOnTech</span>
+      </div>
+      <div class="course-title">De Formulario a Cliente sin Tocar Nada</div>
+      <div class="progress-info">
+        <span class="progress-label">Tu progreso</span>
+        <span class="progress-pill" id="progress-text">0 / 17</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+  </nav>
+  <main class="main" id="main-content">
+    <div class="content"><div id="content-area"></div></div>
+  </main>
+</div>
+<button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+<script>
+const curso=[
+  {modulo:"01",titulo:"Qué vas a construir",lecciones:[
+    {id:"1-1",titulo:"El flujo completo en 3 pasos",objetivo:"Entender la arquitectura del sistema antes de empezar a construir, para que cada paso del curso tenga sentido.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 01</div><div class="module-name">Qué vas a construir</div></div>
+      <div class="lesson-hero"><img decoding="async" src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Lead capture form" onerror="this.parentElement.classList.add('broken');this.remove()"></div>
+      <p>Imagina esto: tienes un formulario de contacto en tu sitio web. Cada vez que alguien lo llena, pasan tres cosas al instante, sin que tú toques nada:</p>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big">1</div><div class="step-content"><strong>Google Forms recibe la respuesta del lead</strong><p>El lead llena el form y le da enviar. Sus datos quedan capturados en Google.</p></div></div>
+        <div class="step-item"><div class="step-number-big">2</div><div class="step-content"><strong>Make detecta la respuesta y la escribe en tu CRM curado</strong><p>Make vigila el form cada 15 minutos. Cuando ve una respuesta nueva, la escribe limpia en una hoja de Google Sheets que tú gestionas como CRM.</p></div></div>
+        <div class="step-item"><div class="step-number-big">3</div><div class="step-content"><strong>Make manda un email de bienvenida automático al lead</strong><p>El lead recibe en menos de 1 minuto un correo personalizado con su nombre y los datos de su solicitud. Para él parece escrito por una persona real.</p></div></div>
+      </div>
+      <div class="callout callout-tip"><strong>El resultado en tu negocio</strong>Cada lead que llega a tu form queda registrado en tu CRM Y recibe atención instantánea. Tú te enteras a la mañana siguiente abriendo tu hoja, no peleando con tu inbox.</div>
+      <p>Lo que hace especial este flujo es que ataca el problema real de la captura de leads: no es perder el lead, es que llega y nadie lo atiende a tiempo. Cuando Make manda ese email automático en 60 segundos, el lead siente que estás encima. Cuando le respondes tres horas después, el lead ya se fue con la competencia.</p>
+      <p>Las 3 piezas que vas a construir:</p>
+      <ul>
+        <li>Un Google Form con 5 campos diseñados para capturar leads de calidad sin fricción</li>
+        <li>Un CRM curado en Google Sheets donde tú gestionas los leads como humano (con campos de Estado, Notas, etc)</li>
+        <li>Un escenario en Make con 3 módulos: Watch Responses → Add a Row → Send an Email</li>
+      </ul>
+      <p>Al terminar este curso tendrás un sistema que corre solo cada 15 minutos, captura cada lead que llega, lo registra en tu CRM, y le manda email de bienvenida. Para siempre. Sin que toques nada.</p>
+    `},
+    {id:"1-2",titulo:"Por qué este patrón es la columna vertebral del CRM moderno",objetivo:"Reconocer en qué tipo de negocios funciona este flujo y cuándo NO usarlo.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 01</div><div class="module-name">Qué vas a construir</div></div>
+      <p>Este patrón — fuente de captura → CRM curado → acción inmediata — es probablemente el flujo de automatización más replicado del mundo. Lo usan startups, agencias, consultorios, infoproductores, ecommerce y freelancers. Lo único que cambia entre todos ellos es de dónde viene el lead y qué acción se dispara.</p>
+      <h3>El mismo patrón en 4 negocios distintos</h3>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big" style="background:var(--sky);">A</div><div class="step-content"><strong>Agencia de marketing</strong><p>Form de Typeform → Notion como CRM → Slack al equipo de ventas.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="background:var(--sky);">B</div><div class="step-content"><strong>Consultorio dental</strong><p>Form de WordPress → Google Sheets → SMS de confirmación al paciente.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="background:var(--sky);">C</div><div class="step-content"><strong>Infoproducto</strong><p>Form de descarga de lead magnet → Mailchimp → Email con el PDF + secuencia de nurturing.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="background:var(--sky);">D</div><div class="step-content"><strong>Inmobiliaria</strong><p>Form de visita → Airtable → WhatsApp Business al asesor asignado.</p></div></div>
+      </div>
+      <p>Todos siguen el mismo principio: el lead llega, queda registrado donde tú trabajas, y dispara una acción inmediata. En este curso aprendes la versión más usada con las herramientas más accesibles (Google Forms + Sheets + Gmail), pero el patrón es transferible a cualquier stack.</p>
+      <h3>Cuándo NO usar este flujo</h3>
+      <div class="callout callout-warning"><strong>Newsletter masivo</strong>Si tu intención es mandar el mismo correo a 10,000 personas a la vez, usa Mailchimp o Brevo. Make + Gmail tiene límites de envío diarios y Gmail puede marcar tu cuenta como spam si abusas.</div>
+      <div class="callout callout-warning"><strong>Encuesta sin acción inmediata</strong>Si el form es solo para recoger feedback que vas a analizar el viernes en una reunión, no necesitas Make. La hoja auto-generada de Google Forms es suficiente.</div>
+      <div class="callout callout-warning"><strong>Volúmenes muy altos</strong>Si recibes 500+ leads al día, el plan free de Make no te alcanza (1,000 operaciones al mes). Vas a necesitar plan de pago o una solución más robusta.</div>
+      <div class="callout callout-success"><strong>SÍ usa este flujo si...</strong>Recibes entre 1 y 30 leads al día y necesitas que cada uno quede registrado en tu CRM y reciba atención inmediata sin que tú estés pendiente. Ese es el sweet spot.</div>
+    `},
+    {id:"1-3",titulo:"Lo que necesitas",objetivo:"Tener todas las herramientas listas antes de empezar a construir.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 01</div><div class="module-name">Qué vas a construir</div></div>
+      <div class="checklist-block">
+        <div class="checklist-label">✓ Lo que necesitas</div>
+        <div class="checklist-item"><input type="checkbox" id="ck-1-3-a"><label for="ck-1-3-a">Cuenta en <strong>Make.com</strong> — plan Free, sin tarjeta de crédito.</label></div>
+        <div class="checklist-item"><input type="checkbox" id="ck-1-3-b"><label for="ck-1-3-b">Cuenta de <strong>Google</strong> con Google Forms, Sheets y Gmail activos.</label></div>
+        <div class="checklist-item"><input type="checkbox" id="ck-1-3-c"><label for="ck-1-3-c">Un <strong>navegador moderno</strong> (Chrome, Firefox, Safari).</label></div>
+        <div class="checklist-item"><input type="checkbox" id="ck-1-3-d"><label for="ck-1-3-d">~45 minutos sin interrupciones para construir el flujo de cero a producción.</label></div>
+      </div>
+      <div class="callout callout-tip"><strong>Una cuenta de Google para todo</strong>La cuenta de Google que conectes a Make tiene que ser la misma en la que crees el form, la hoja CRM y desde la que se mandarán los emails. Si usas cuentas distintas, los módulos no se ven entre sí.</div>
+      <div class="action-block">
+        <div class="action-label">Antes de continuar</div>
+        <div class="action-title">Asegúrate de tener todo listo</div>
+        <ul class="action-steps">
+          <li><span class="step-num">01</span>Crea tu cuenta de Make si no la tienes (gratis, 2 minutos)</li>
+          <li><span class="step-num">02</span>Confirma que estás logueado con la cuenta de Google que vas a usar</li>
+          <li><span class="step-num">03</span>Cierra apps y notificaciones que te puedan interrumpir</li>
+        </ul>
+      </div>
+    `}
+  ]},
+  {modulo:"02",titulo:"Crea tu Google Form",lecciones:[
+    {id:"2-1",titulo:"Estructura del form: 5 campos que cubren el 90% de los casos",objetivo:"Tener el formulario creado con los campos correctos para capturar leads de calidad sin fricción.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 02</div><div class="module-name">Crea tu Google Form</div></div>
+      <p>Vamos a construir un formulario que cubre el 90% de los negocios: consultoría, agencias, freelance, infoproductos, servicios profesionales. Los 5 campos están diseñados para darte información suficiente para calificar al lead sin que el form sea tan largo que la gente abandone.</p>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big">1</div><div class="step-content"><strong>Ve a forms.google.com</strong><p>Asegúrate de estar con la cuenta de Google que vas a usar para todo el flujo.</p></div></div>
+        <div class="step-item"><div class="step-number-big">2</div><div class="step-content"><strong>Haz clic en "Formulario en blanco"</strong><p>Es el botón con el ícono +.</p></div></div>
+        <div class="step-item"><div class="step-number-big">3</div><div class="step-content"><strong>Cambia el título y agrega descripción</strong><p>Título: <span class="inline-code">Solicitud de información - Servicios</span>. Descripción: <span class="inline-code">Cuéntanos sobre tu proyecto y te contactamos en menos de 24h.</span></p></div></div>
+      </div>
+      <div class="code-block"><div class="code-header"><span class="code-lang">Estructura del formulario</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div><pre>1. Nombre Completo       → Respuesta corta · Obligatorio: SÍ
+2. Email                 → Respuesta corta + validación · Obligatorio: SÍ
+3. Empresa o Proyecto    → Respuesta corta · Obligatorio: NO
+4. ¿Qué Servicio te      → Desplegable · Obligatorio: SÍ
+   Interesa?               Opciones: Consultoría / Diseño /
+                                     Automatización / Otro
+5. Cuéntanos Sobre tu    → Párrafo · Obligatorio: NO
+   Proyecto</pre></div>
+      <div class="screenshot-frame"><div class="screenshot-bar"><div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div></div><div class="screenshot-placeholder"><div class="ph-icon">📸</div><div class="ph-title">Captura pendiente</div><div class="ph-sub">Form completo con las 5 preguntas configuradas</div></div><div class="screenshot-caption">Así debe verse tu form al terminar la lección</div></div>
+      <div class="callout callout-tip"><strong>Por qué Empresa y Mensaje son opcionales</strong>La fricción mata conversión. Si haces obligatorios todos los campos, mucha gente abandona. Lo que sí obligas es Nombre, Email y Servicio porque sin esos tres no puedes ni contactar ni calificar al lead.</div>
+      <h3>Tipos de campo: cuál usar y por qué</h3>
+      <ul>
+        <li><strong>Respuesta corta:</strong> nombre, email, empresa, teléfono. Cualquier dato de una línea.</li>
+        <li><strong>Párrafo:</strong> mensaje libre, descripción del proyecto. Cuando esperas más de 100 caracteres.</li>
+        <li><strong>Desplegable:</strong> opciones cerradas mutuamente excluyentes. Mejor que "Varias opciones" cuando hay 4+ opciones.</li>
+        <li><strong>Casillas:</strong> opciones donde el usuario puede elegir varias.</li>
+        <li><strong>Escala lineal:</strong> calificaciones del 1 al 10. Para encuestas de satisfacción.</li>
+      </ul>
+      <div class="quiz-block" id="quiz-2-1">
+        <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+        <div class="quiz-question">Quieres capturar el motivo de contacto del lead con respuestas largas y libres (varias frases). ¿Qué tipo de campo usas?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="handleQuiz(this,false,'quiz-2-1')" data-incorrect="No. Respuesta corta limita visualmente al usuario a una sola línea — la gente escribe menos y peor cuando ve un campo pequeño. Para texto libre y largo necesitas Párrafo.">Respuesta corta</button>
+          <button class="quiz-option" onclick="handleQuiz(this,true,'quiz-2-1')" data-correct="Correcto. Párrafo es el tipo de campo diseñado para texto libre y extenso. El campo se ve más grande y le comunica al usuario que puede explayarse.">Párrafo</button>
+          <button class="quiz-option" onclick="handleQuiz(this,false,'quiz-2-1')" data-incorrect="No. Desplegable es para opciones cerradas y mutuamente excluyentes. No sirve para texto libre.">Desplegable</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-2-1-fb"></div>
+      </div>
+    `},
+    {id:"2-2",titulo:"Validación de email: el truco que filtra leads basura",objetivo:"Configurar el formulario para que rechace emails inválidos antes de que se envíen.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 02</div><div class="module-name">Crea tu Google Form</div></div>
+      <p>Sin validación, alguien puede escribir <span class="inline-code">aaaaa</span> en el campo Email y Google Forms lo acepta. El lead queda inservible. La validación obliga al usuario a escribir un email con formato correcto antes de poder enviar.</p>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big">1</div><div class="step-content"><strong>Haz clic en la pregunta de Email</strong><p>Para seleccionarla.</p></div></div>
+        <div class="step-item"><div class="step-number-big">2</div><div class="step-content"><strong>Clic en los tres puntos ⋮ (esquina inferior derecha de la pregunta)</strong><p>Junto al toggle de Obligatorio.</p></div></div>
+        <div class="step-item"><div class="step-number-big">3</div><div class="step-content"><strong>Selecciona "Validación de respuesta"</strong><p>Aparece una nueva fila debajo del campo con dos dropdowns y un campo de texto.</p></div></div>
+        <div class="step-item"><div class="step-number-big">4</div><div class="step-content"><strong>Configura los dropdowns</strong><p>Primer dropdown: <span class="inline-code">Texto</span>. Segundo dropdown: <span class="inline-code">Correo</span>. Texto de error personalizado: déjalo vacío.</p></div></div>
+      </div>
+      <div class="screenshot-frame"><div class="screenshot-bar"><div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div></div><div class="screenshot-placeholder"><div class="ph-icon">📸</div><div class="ph-title">Captura pendiente</div><div class="ph-sub">Validación configurada en Texto · Correo</div></div><div class="screenshot-caption">Pregunta de Email con validación activada</div></div>
+      <div class="callout callout-warning"><strong>Por qué la opción se llama "Correo" y no "Email"</strong>La UI de Google Forms en español usa "Correo" en lugar de "Email" en el dropdown de validación. Si buscas "Email" en las opciones no la vas a encontrar — es Correo.</div>
+      <div class="callout callout-tip"><strong>Esto NO valida que el email exista</strong>La validación solo verifica el formato (que tenga @ y dominio). No comprueba si el email realmente existe. Para el 95% de los casos, validar el formato es suficiente.</div>
+    `},
+    {id:"2-3",titulo:"Publicar y obtener el link público",objetivo:"Tener el formulario publicado y el link público listo para compartir y configurar Make.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 02</div><div class="module-name">Crea tu Google Form</div></div>
+      <p>En 2026, Google Forms cambió la lógica de publicación. Ya no es solo "Enviar" — ahora hay un paso explícito de "Publicar" que controla quién puede responder y cuándo. Este paso es obligatorio antes de poder vincular el form a Make.</p>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big">1</div><div class="step-content"><strong>Haz clic en el botón "Publicar"</strong><p>Esquina superior derecha, botón morado.</p></div></div>
+        <div class="step-item"><div class="step-number-big">2</div><div class="step-content"><strong>Verifica las opciones publicadas</strong><p>"Se aceptan respuestas" activado (toggle morado) · "Encuestados" en "Cualquier persona con el enlace".</p></div></div>
+        <div class="step-item"><div class="step-number-big">3</div><div class="step-content"><strong>Haz clic en "Copiar enlace de encuestado/a"</strong><p>Te copia el link público al portapapeles. Pégalo en una nota — lo necesitarás para la prueba.</p></div></div>
+        <div class="step-item"><div class="step-number-big">4</div><div class="step-content"><strong>Haz clic en "Guardar"</strong><p>El botón "Publicar" ahora dice "Publicado" — el form está vivo.</p></div></div>
+      </div>
+      <div class="callout callout-warning"><strong>Privacidad de Forms 2026: el email del usuario logueado YA NO se comparte</strong>Si abres tu form mientras estás logueado en Google, verás un mensaje "No compartido" sobre tu correo. Es un cambio de privacidad de Google. Por eso necesitamos el campo Email manual — no podemos confiar en que Google nos dé el email del lead automáticamente.</div>
+    `}
+  ]},
+  {modulo:"03",titulo:"Crea tu CRM curado",lecciones:[
+    {id:"3-1",titulo:"¿Para qué Sheets si Forms guarda solo? La pregunta correcta",objetivo:"Entender la diferencia entre la hoja auto-generada por Forms y un CRM curado, y por qué necesitas el segundo.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 03</div><div class="module-name">Crea tu CRM curado</div></div>
+      <p>Esta es probablemente la pregunta más importante del curso. Si la entiendes ahora, todo lo demás tiene sentido.</p>
+      <p>La pregunta es: Si Google Forms ya tiene un botón mágico que crea automáticamente una hoja de Sheets con todas las respuestas, ¿para qué quiero crear OTRA hoja a mano y pedirle a Make que escriba ahí?</p>
+      <p><strong>La respuesta corta: porque la hoja auto-generada de Forms es basura técnica que no puedes usar como CRM.</strong></p>
+      <table class="compare-table">
+        <thead><tr><th>Capacidad</th><th>Hoja auto-generada</th><th>CRM curado</th></tr></thead>
+        <tbody>
+          <tr><td>Captura respuestas</td><td class="yes">Sí</td><td class="yes">Sí</td></tr>
+          <tr><td>Agregar columna "Estado del lead"</td><td class="no">No</td><td class="yes">Sí</td></tr>
+          <tr><td>Agregar columna "Notas internas"</td><td class="no">No</td><td class="yes">Sí</td></tr>
+          <tr><td>Cambiar nombres de columnas</td><td class="no">No</td><td class="yes">Sí</td></tr>
+          <tr><td>Reordenar columnas</td><td class="no">No</td><td class="yes">Sí</td></tr>
+          <tr><td>Filtrar por estado del lead</td><td class="no">No</td><td class="yes">Sí</td></tr>
+          <tr><td>Conectar con otros flujos</td><td class="no">Limitado</td><td class="yes">Sí</td></tr>
+          <tr><td>Formato de fecha legible</td><td class="no">ISO crudo</td><td class="yes">Como tú quieras</td></tr>
+        </tbody>
+      </table>
+      <p>El punto clave: en la hoja auto-generada NO puedes agregar campos que no estén en el form. Si agregas una columna "Estado" a mano, la primera respuesta nueva que llegue te la sobreescribe o te la corre. Forms es dueño de esa hoja, no tú.</p>
+      <div class="callout callout-tip"><strong>Fuente vs Destino (patrón ETL)</strong>Forms es la fuente — donde llega el dato del lead. La hoja CRM es el destino — donde tú trabajas como humano. Make es el puente que copia datos limpios de la fuente al destino y agrega valor en el camino. Este patrón se llama "ETL": Extract, Transform, Load. Es la base de cualquier sistema serio.</div>
+      <div class="quiz-block" id="quiz-3-1">
+        <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+        <div class="quiz-question">¿Cuál es la razón principal por la que escribimos los leads en una hoja CRM curada en lugar de usar la hoja auto-generada por Google Forms?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="handleQuiz(this,false,'quiz-3-1')" data-incorrect="No. La hoja auto-generada también guarda los leads correctamente. La diferencia no está en la captura, sino en qué puedes hacer DESPUÉS con ese dato.">Porque Forms no guarda bien los leads</button>
+          <button class="quiz-option" onclick="handleQuiz(this,false,'quiz-3-1')" data-incorrect="Parcialmente cierto pero no es la razón principal. La razón es estructural: necesitamos campos que Forms no nos deja agregar.">Porque la hoja auto-generada es difícil de encontrar en Drive</button>
+          <button class="quiz-option" onclick="handleQuiz(this,true,'quiz-3-1')" data-correct="Correcto. La hoja auto-generada está controlada por Forms — no te deja agregar columnas como 'Estado del lead' o 'Notas internas' que necesitas para gestionar al lead como humano. El CRM curado te da control total sobre la estructura.">Porque necesitamos controlar la estructura (columnas como Estado, Notas) que Forms no permite</button>
+          <button class="quiz-option" onclick="handleQuiz(this,false,'quiz-3-1')" data-incorrect="No. Make puede leer y escribir tanto en la hoja auto-generada como en una hoja curada. El problema no es de compatibilidad técnica.">Porque Make no puede leer la hoja auto-generada</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-3-1-fb"></div>
+      </div>
+    `},
+    {id:"3-2",titulo:"Estructura de la hoja CRM (8 columnas)",objetivo:"Tener la hoja CRM creada con la estructura exacta para gestionar leads como humano.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 03</div><div class="module-name">Crea tu CRM curado</div></div>
+      <p>Vamos a crear una hoja con 8 columnas. Las primeras 6 son los datos que vienen del form (con nombres más limpios). Las últimas 2 son tuyas — Make las deja vacías y tú las llenas a mano cuando procesas el lead.</p>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big">1</div><div class="step-content"><strong>Ve a sheets.google.com</strong><p>Misma cuenta que el form.</p></div></div>
+        <div class="step-item"><div class="step-number-big">2</div><div class="step-content"><strong>Crea una hoja nueva</strong><p>Puede ser un archivo independiente, o también puedes agregar una pestaña nueva al archivo que Forms ya generó. Las dos opciones funcionan igual.</p></div></div>
+        <div class="step-item"><div class="step-number-big">3</div><div class="step-content"><strong>Nombra la pestaña "CRM - LEADS"</strong><p>Doble clic en la pestaña inferior y cambia el nombre.</p></div></div>
+        <div class="step-item"><div class="step-number-big">4</div><div class="step-content"><strong>Escribe los 8 encabezados en la fila 1 en MAYÚSCULAS</strong><p>Make va a leer esos encabezados para mapear cada dato a su columna.</p></div></div>
+      </div>
+      <div class="code-block"><div class="code-header"><span class="code-lang">Encabezados · Fila 1 de tu CRM</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div><pre>A1: FECHA DE CAPTURA
+B1: NOMBRE
+C1: EMAIL
+D1: EMPRESA
+E1: SERVICIO
+F1: MENSAJE
+G1: ESTADO
+H1: NOTAS</pre></div>
+      <div class="screenshot-frame"><div class="screenshot-bar"><div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div></div><div class="screenshot-placeholder"><div class="ph-icon">📸</div><div class="ph-title">Captura pendiente</div><div class="ph-sub">Hoja CRM - LEADS con los 8 encabezados en fila 1</div></div><div class="screenshot-caption">La hoja debe verse así antes de conectarla a Make</div></div>
+      <ul>
+        <li><strong>FECHA DE CAPTURA:</strong> cuándo llegó el lead. Make la pone automática y formateada (DD/MM/YYYY).</li>
+        <li><strong>NOMBRE, EMAIL, EMPRESA, SERVICIO, MENSAJE:</strong> los 5 datos del form, limpios.</li>
+        <li><strong>ESTADO:</strong> tu campo. Lo llenas a mano: Nuevo / Contactado / Cerrado / Perdido. Make lo deja en blanco.</li>
+        <li><strong>NOTAS:</strong> tus observaciones internas. Lo que aprendiste de la llamada, próximos pasos, contexto.</li>
+      </ul>
+      <div class="callout callout-tip"><strong>Aplica formato visual a la fila 1</strong>Selecciona la fila 1 entera y dale color de fondo. Así visualmente distingues los encabezados de los datos cuando la hoja crezca.</div>
+      <div class="callout callout-warning"><strong>Las columnas vacías al final también las ve Make</strong>Make detecta automáticamente columnas extra (I, J...) vacías. Es normal — ignóralas cuando hagas el mapeo. No agregues encabezados extra que no necesites.</div>
+    `}
+  ]},
+  {modulo:"04",titulo:"Conecta Forms con Make",lecciones:[
+    {id:"4-1",titulo:"Watch Responses + el truco del Form ID manual",objetivo:"Tener el módulo Watch Responses configurado y vinculado a tu formulario.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 04</div><div class="module-name">Conecta Forms con Make</div></div>
+      <p>Aquí empieza la magia. Vas a crear el escenario en Make y configurar el módulo que detecta cada nueva respuesta del formulario.</p>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big">1</div><div class="step-content"><strong>Ve a Make.com → Scenarios → "+ Create scenario"</strong><p>Botón morado en la esquina superior derecha.</p></div></div>
+        <div class="step-item"><div class="step-number-big">2</div><div class="step-content"><strong>Haz clic en el círculo morado grande con "+"</strong><p>Es el placeholder del primer módulo (el trigger).</p></div></div>
+        <div class="step-item"><div class="step-number-big">3</div><div class="step-content"><strong>Busca "Google Forms" y selecciónalo</strong><p>Aparece con el ícono morado.</p></div></div>
+        <div class="step-item"><div class="step-number-big">4</div><div class="step-content"><strong>Selecciona "Watch Responses"</strong><p>Está en la sección "Response" del listado de módulos. Es el trigger que vigila respuestas nuevas.</p></div></div>
+        <div class="step-item"><div class="step-number-big">5</div><div class="step-content"><strong>Connection → "Create a Connection" si no tienes una</strong><p>Te abre el flow de OAuth de Google. Acepta los permisos para que Make pueda leer respuestas.</p></div></div>
+      </div>
+      <div class="callout callout-error"><strong>⚠️ El truco del Form ID manual</strong>En Make 2026, el campo "Form ID" NO ofrece dropdown automático con tus formularios. El botón "Search" tampoco abre selector de archivos. Tienes que copiar y pegar manualmente el Form ID. El form DEBE estar publicado primero.</div>
+      <h3>Cómo obtener el Form ID</h3>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big" style="font-size:11px;">A</div><div class="step-content"><strong>Abre tu formulario publicado en otra pestaña</strong><p>Desde forms.google.com.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="font-size:11px;">B</div><div class="step-content"><strong>Mira la URL en la barra del navegador</strong><p>Verás algo como: <span class="inline-code">https://docs.google.com/forms/d/1vssostz9.../edit</span></p></div></div>
+        <div class="step-item"><div class="step-number-big" style="font-size:11px;">C</div><div class="step-content"><strong>Copia el ID (la parte entre /d/ y /edit)</strong><p>Es una cadena larga de letras y números.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="font-size:11px;">D</div><div class="step-content"><strong>Pégalo en el campo Form ID de Make</strong></div></div>
+      </div>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big">6</div><div class="step-content"><strong>Limit → cambia a 1</strong><p>Por defecto está en 2. Bájalo a 1 para procesar una respuesta a la vez — más predecible para pruebas.</p></div></div>
+        <div class="step-item"><div class="step-number-big">7</div><div class="step-content"><strong>Save</strong><p>Aparece el popup "Choose where to start" — ese va en la siguiente lección.</p></div></div>
+      </div>
+    `},
+    {id:"4-2",titulo:"Choose where to start: las 4 opciones explicadas",objetivo:"Entender desde qué punto Make empieza a procesar respuestas y elegir la opción correcta.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 04</div><div class="module-name">Conecta Forms con Make</div></div>
+      <p>Cuando guardas el módulo, Make te muestra un popup llamado "Choose where to start". Esta decisión define desde cuándo Make va a empezar a procesar respuestas. Las 4 opciones tienen consecuencias muy distintas.</p>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big" style="background:var(--sky);font-size:10px;">CM</div><div class="step-content"><strong>Choose manually</strong><p>Tú eliges respuesta por respuesta cuáles procesar. Útil si tienes respuestas viejas y solo quieres procesar algunas específicas. Raro de usar.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="background:var(--sky);font-size:10px;">SD</div><div class="step-content"><strong>Since specific date</strong><p>Procesa todas las respuestas a partir de una fecha que tú elijas. Útil si migraste de otra herramienta.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="font-size:10px;">All</div><div class="step-content"><strong>All</strong><p>Procesa todas las respuestas que existen en el form, viejas y nuevas. ⚠️ Peligroso si tu form ya tiene respuestas: vas a mandar emails de bienvenida a leads de hace meses.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="background:#4ade80;color:#07090F;font-size:10px;">FN</div><div class="step-content"><strong>From now on — selecciona esta</strong><p>Procesa solo respuestas nuevas a partir de este momento. Lo que hubiera antes se ignora. Es la opción segura por defecto.</p></div></div>
+      </div>
+      <div class="callout callout-success"><strong>Selecciona "From now on" y haz clic en Save</strong>Es la única opción que tiene sentido aquí: tu form puede tener respuestas viejas de pruebas, y no quieres que el flujo las procese todas y mande emails inesperados.</div>
+      <div class="quiz-block" id="quiz-4-2">
+        <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+        <div class="quiz-question">Acabas de configurar Watch Responses y tu form ya tiene 50 respuestas viejas de cuando lo estabas probando. Quieres que Make procese SOLO respuestas nuevas a partir de ahora. ¿Qué opción seleccionas?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="handleQuiz(this,false,'quiz-4-2')" data-incorrect="No. 'All' procesaría las 50 respuestas viejas Y las nuevas. Si tu flujo manda email automático, los 50 leads viejos recibirían un email de bienvenida meses tarde — desastre.">All</button>
+          <button class="quiz-option" onclick="handleQuiz(this,false,'quiz-4-2')" data-incorrect="No. 'Since specific date' funcionaría si pones la fecha de hoy, pero es más complicado de lo necesario. 'From now on' es exactamente lo que pide la pregunta.">Since specific date (con fecha de hoy)</button>
+          <button class="quiz-option" onclick="handleQuiz(this,true,'quiz-4-2')" data-correct="Correcto. 'From now on' procesa solo respuestas que lleguen DESPUÉS de este momento. Las 50 respuestas viejas quedan intactas. Es la opción segura por defecto cuando arrancas un escenario en producción.">From now on</button>
+          <button class="quiz-option" onclick="handleQuiz(this,false,'quiz-4-2')" data-incorrect="No. 'Choose manually' te obligaría a seleccionar una por una qué respuestas procesar. No resuelve el problema de las respuestas FUTURAS.">Choose manually</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-4-2-fb"></div>
+      </div>
+    `}
+  ]},
+  {modulo:"05",titulo:"Escribe en tu CRM con datos limpios",lecciones:[
+    {id:"5-1",titulo:"Add a Row + el bug del JSON crudo",objetivo:"Configurar el módulo de Sheets y entender el bug más común al mapear variables de Forms.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 05</div><div class="module-name">Escribe en tu CRM con datos limpios</div></div>
+      <p>Vamos a agregar el segundo módulo: Google Sheets - Add a Row. Este módulo escribe una fila nueva en tu CRM cada vez que llega una respuesta del form. Pero aquí está el bug más común que te va a hacer perder tiempo si no lo conoces.</p>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big">1</div><div class="step-content"><strong>Haz clic en el "+" a la derecha del módulo Watch Responses</strong></div></div>
+        <div class="step-item"><div class="step-number-big">2</div><div class="step-content"><strong>Busca "Google Sheets" y selecciónalo</strong></div></div>
+        <div class="step-item"><div class="step-number-big">3</div><div class="step-content"><strong>Elige "Add a Row"</strong></div></div>
+      </div>
+      <div class="code-block"><div class="code-header"><span class="code-lang">Configuración Add a Row</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div><pre>Connection                → My Google connection
+Search Method             → Search by path
+Drive                     → My Drive
+Spreadsheet Name          → selecciona tu archivo
+Sheet Name                → CRM - LEADS
+Table contains headers    → Yes
+Use column headers as IDs → No</pre></div>
+      <p>Después de configurar esos campos, abajo aparece la sección "Values in columns" con un campo por cada columna de tu hoja. Aquí es donde mapeas qué dato del form va en qué columna del CRM. Y aquí está el bug.</p>
+      <div class="callout callout-error"><strong>🐛 Lo que llega a tu hoja si mapeas mal</strong>Si arrastras la pastilla "Nombre Completo" directamente al campo NOMBRE (B), la celda no recibe "Aury" — recibe el objeto JSON completo de Google Forms:<br><br><span class="inline-code">{"questionId":"32349e6a","textAnswers":{"answers":[{"value":"Aury"}]}}</span><br><br>En vez de un nombre, tu CRM tiene texto basura.</div>
+      <div class="callout callout-tip"><strong>Por qué es importante entender esto</strong>Este bug es el #1 reporte de "Make no me funciona" en foros de Google Forms. La gente lo configura, ve basura en la hoja, y abandona pensando que la integración está rota. No está rota — está esperando que navegues hasta el valor correcto. La siguiente lección te enseña cómo.</div>
+    `},
+    {id:"5-2",titulo:"Variables dinámicas: navegando estructuras anidadas",objetivo:"Entender qué son las variables dinámicas y cómo navegar la estructura de Google Forms para extraer el valor limpio.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 05</div><div class="module-name">Escribe en tu CRM con datos limpios</div></div>
+      <p>Las pastillas moradas que arrastras en Make se llaman <strong>variables dinámicas</strong>. No son texto fijo — son referencias a datos que Make va a sustituir en tiempo de ejecución. La variable es la dirección, no el contenido.</p>
+      <div class="callout callout-tip"><strong>Por qué se usan</strong>Sin variables dinámicas, tendrías que crear un escenario nuevo por cada lead. Con variables dinámicas, un escenario procesa infinitos leads. Es la diferencia entre escribir un email a mano y crear una plantilla que se rellena sola.</div>
+      <h3>Anatomía del JSON de Google Forms</h3>
+      <p>Cuando expandes la variable "Nombre Completo" en Make haciendo clic en el triángulo ▶, descubres esta estructura:</p>
+      <div class="json-viz">
+        <span class="key">Answers</span><br>
+        <span class="punct">└─ </span><span class="key">Nombre Completo</span><br>
+ <span class="punct">   ├─ </span><span class="key">Question ID</span>     <span class="str">"32349e6a"</span><br>
+        <span class="punct">   ├─ </span><span class="key">Grade</span>           <span class="str">null</span><br>
+        <span class="punct">   └─ </span><span class="key">textAnswers</span><br>
+        <span class="punct">      └─ </span><span class="key">answers[]</span><br>
+        <span class="punct">         └─ </span><span class="highlight">value</span>          <span class="str">"Aury"</span>  ← esta es la que necesitas
+      </div>
+      <p>El valor "Aury" está enterrado <strong>3 niveles dentro del objeto</strong>. Para llegar a él tienes que:</p>
+      <ol>
+        <li>Expandir <strong>Answers</strong></li>
+        <li>Expandir <strong>Nombre Completo</strong></li>
+        <li>Expandir <strong>textAnswers</strong></li>
+        <li>Expandir <strong>answers[]</strong></li>
+        <li>Arrastrar <strong>value</strong> (no la pastilla del nombre de pregunta — la pastilla "value" específicamente)</li>
+      </ol>
+      <h3>Mapea las 6 columnas correctamente</h3>
+      <p>Repite el proceso para cada campo. Ten paciencia, los primeros tres se sienten lentos pero después es mecánico:</p>
+      <div class="code-block"><div class="code-header"><span class="code-lang">Mapeo correcto</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div><pre>FECHA DE CAPTURA (A)  → Create Time (esta sí va directa)
+NOMBRE (B)            → Answers > Nombre Completo > textAnswers > answers[] > value
+EMAIL (C)             → Answers > Email > textAnswers > answers[] > value
+EMPRESA (D)           → Answers > Empresa o Proyecto > textAnswers > answers[] > value
+SERVICIO (E)          → Answers > ¿Qué Servicio te Interesa? > textAnswers > answers[] > value
+MENSAJE (F)           → Answers > Cuéntanos Sobre tu Proyecto > textAnswers > answers[] > value
+ESTADO (G)            → DEJAR VACÍO (tú lo llenas a mano)
+NOTAS (H)             → DEJAR VACÍO (tú lo llenas a mano)</pre></div>
+      <div class="callout callout-warning"><strong>Si te aparecen columnas (I), (J), etc</strong>Make detecta columnas vacías al final de tu hoja. Ignóralas — déjalas vacías. No agregues encabezados que no existen en tu CRM.</div>
+      <div class="quiz-block" id="quiz-5-2">
+        <div class="quiz-label">🧠 Quiz técnico · Variables dinámicas</div>
+        <div class="quiz-question">Cuando arrastras la pastilla "Nombre Completo" directamente al campo NOMBRE de Sheets (sin expandir nada), ¿qué se escribe realmente en la celda?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="handleQuiz(this,false,'quiz-5-2')" data-incorrect="No. Si fuera el valor de texto limpio, no tendríamos un bug. La pastilla 'Nombre Completo' representa el objeto JSON completo de esa pregunta — Make escribe TODO el objeto serializado en la celda, no solo el valor.">El nombre del lead, en texto limpio (ej: "Aury")</button>
+          <button class="quiz-option" onclick="handleQuiz(this,true,'quiz-5-2')" data-correct="Correcto. La pastilla del nombre de pregunta apunta al objeto completo, no al valor. Make serializa ese objeto a JSON y lo escribe entero en la celda. Para obtener solo el valor 'Aury' hay que navegar 3 niveles dentro del objeto y arrastrar la pastilla 'value' específicamente.">El objeto JSON completo de la respuesta, serializado como texto</button>
+          <button class="quiz-option" onclick="handleQuiz(this,false,'quiz-5-2')" data-incorrect="No. Make sí ejecuta el módulo, simplemente entrega el dato en formato distinto al esperado. La celda recibe contenido — el problema es que es JSON crudo, no texto limpio.">Nada — Make da error porque no sabe qué hacer</button>
+          <button class="quiz-option" onclick="handleQuiz(this,false,'quiz-5-2')" data-incorrect="No. Make no agrega comillas extra ni envuelve el contenido. El bug es estructural: la pastilla apunta al objeto entero, no al valor de texto.">El nombre del lead pero envuelto en comillas</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-5-2-fb"></div>
+      </div>
+    `},
+{id:"5-3",titulo:"Formato de fecha legible con formatDate()",objetivo:"Saber transformar la fecha ISO cruda de Google Forms en un formato legible (DD/MM/YYYY) usando una expresión de Make.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 05</div><div class="module-name">Escribe en tu CRM con datos limpios</div></div>
+      <p>Si arrastras la pastilla <span class="inline-code">Create Time</span> al campo FECHA DE CAPTURA y haces una prueba, vas a ver que la celda recibe algo así:</p>
+      <div class="code-block"><div class="code-header"><span class="code-lang">Lo que llega por defecto</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div><pre>2026-05-01T09:28:55.145Z</pre></div>
+      <p>Eso es <strong>formato ISO 8601 UTC</strong> — el formato estándar técnico para fechas en APIs. Es funcional, pero feo de leer y peor de filtrar en Sheets. Lo que tú quieres ver es: <span class="inline-code">01/05/2026</span>.</p>
+      <h3>La solución: la función formatDate() de Make</h3>
+      <p>Make tiene un sistema de funciones que puedes aplicar a las variables. Una de ellas es <span class="inline-code">formatDate()</span>, que recibe una fecha y un patrón de formato, y devuelve la fecha formateada.</p>
+      <div class="code-block"><div class="code-header"><span class="code-lang">Sintaxis</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div><pre>formatDate(fecha; "patron-de-formato")</pre></div>
+      <h3>Aplica formatDate al campo FECHA DE CAPTURA</h3>
+      <p>La forma más confiable, evitando bugs de UI, es <strong>pegar la expresión completa</strong>:</p>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big">1</div><div class="step-content"><strong>Borra completamente el campo FECHA DE CAPTURA</strong><p>Si tenías la pastilla Create Time, quítala. El campo debe quedar 100% vacío.</p></div></div>
+        <div class="step-item"><div class="step-number-big">2</div><div class="step-content"><strong>Pega esto exactamente como está</strong><p>Las dobles llaves <span class="inline-code">{{ }}</span> son las que le dicen a Make: "esto es una expresión, ejecútala — no la guardes como texto".</p></div></div>
+      </div>
+      <div class="code-block"><div class="code-header"><span class="code-lang">Listo para pegar</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div><pre>{{formatDate(1.createTime; "DD/MM/YYYY")}}</pre></div>
+      <div class="callout callout-error"><strong>⚠️ Bug común: formatDate como texto literal</strong>Si escribes <span class="inline-code">formatDate(...)</span> sin las dobles llaves, Make lo guarda como texto plano y tu celda recibe literalmente <span class="inline-code">formatDate(2026-05-01...; "DD/MM/YYYY")</span> en vez del resultado. Las dobles llaves son obligatorias para que se evalúe como expresión.</div>
+      <h3>Patrones de formato que puedes usar</h3>
+      <ul>
+        <li><span class="inline-code">"DD/MM/YYYY"</span> → 01/05/2026</li>
+        <li><span class="inline-code">"DD/MM/YYYY HH:mm"</span> → 01/05/2026 09:28</li>
+        <li><span class="inline-code">"YYYY-MM-DD"</span> → 2026-05-01 (útil para ordenar)</li>
+        <li><span class="inline-code">"D [de] MMMM [de] YYYY"</span> → 1 de mayo de 2026</li>
+      </ul>
+      <div class="callout callout-tip"><strong>Tip pro: zona horaria</strong>Por defecto formatDate usa la zona horaria de tu cuenta de Make (UTC normalmente). Si quieres convertir a tu zona local, agrega un tercer parámetro: <span class="inline-code">{{formatDate(1.createTime; "DD/MM/YYYY HH:mm"; "America/Mexico_City")}}</span>.</div>
+      <p>Save el módulo. Vas a probar el flujo completo después de configurar el email.</p>
+    `}
+  ]},
+  {modulo:"06",titulo:"Email automático de bienvenida",lecciones:[
+    {id:"6-1",titulo:"¿Para qué Make si Sheets ya guarda el lead?",objetivo:"Entender dónde está el verdadero valor de Make en este flujo y por qué el email automático es lo que justifica todo.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 06</div><div class="module-name">Email automático de bienvenida</div></div>
+      <p>Aquí viene la segunda gran pregunta del curso. La primera era "¿para qué Sheets si Forms ya guarda solo?". Esta es: <strong>¿para qué Make si los datos ya están guardados?</strong></p>
+      <p>Make no compite contra "guardar datos". Forms+Sheets ya hacen eso solos. Make compite contra <strong>"no hacer nada después de guardar"</strong>. Y "no hacer nada" es el problema real de la captura de leads.</p>
+      <h3>El valor real está en lo que pasa DESPUÉS de guardar</h3>
+      <p>Lo que Make te permite hacer al detectar un lead nuevo, que Forms+Sheets nunca podrán hacer solos:</p>
+      <table class="compare-table">
+        <thead><tr><th>Acción al detectar el lead</th><th>Forms+Sheets</th><th>Con Make</th></tr></thead>
+        <tbody>
+          <tr><td>Guardar el lead</td><td class="yes">Sí</td><td class="yes">Sí</td></tr>
+          <tr><td>Mandar email automático al lead</td><td class="no">No</td><td class="yes">Sí</td></tr>
+          <tr><td>Notificarte por Slack/WhatsApp</td><td class="no">No</td><td class="yes">Sí</td></tr>
+          <tr><td>Crear contacto en CRM externo (Notion, Airtable, HubSpot)</td><td class="no">No</td><td class="yes">Sí</td></tr>
+          <tr><td>Asignar lead a vendedor según servicio elegido</td><td class="no">No</td><td class="yes">Sí</td></tr>
+          <tr><td>Filtrar leads basura (spam, dominios prohibidos)</td><td class="no">No</td><td class="yes">Sí</td></tr>
+          <tr><td>Enriquecer con datos externos (LinkedIn, Clearbit)</td><td class="no">No</td><td class="yes">Sí</td></tr>
+          <tr><td>Mandar diferentes emails según servicio elegido</td><td class="no">No</td><td class="yes">Sí</td></tr>
+        </tbody>
+      </table>
+      <p>De esta tabla, el caso más simple y de mayor impacto inmediato es el segundo: <strong>email automático al lead</strong>. Es lo que vamos a construir en la siguiente lección.</p>
+      <div class="callout callout-tip"><strong>Por qué el email automático cambia el juego</strong>Cuando un lead llena tu form, su nivel de interés está en su pico. En 30 minutos ese pico baja un 50%. En 24 horas, baja un 90%. Si tu primera respuesta llega 3 días después, el lead ya buscó otra opción. El email automático en menos de 60 segundos atrapa al lead en su momento de máximo interés. Esa es la magia que ningún Sheets+Forms puede dar.</div>
+    `},
+    {id:"6-2",titulo:"Configura Gmail con variables del lead",objetivo:"Tener el módulo de Gmail configurado para enviar un email de bienvenida personalizado a cada lead.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 06</div><div class="module-name">Email automático de bienvenida</div></div>
+      <p>Vamos a agregar el tercer y último módulo del flujo: Gmail - Send an Email.</p>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big">1</div><div class="step-content"><strong>Haz clic en el "+" a la derecha del módulo Google Sheets</strong></div></div>
+        <div class="step-item"><div class="step-number-big">2</div><div class="step-content"><strong>Busca "Gmail" → selecciona "Send an Email"</strong></div></div>
+        <div class="step-item"><div class="step-number-big">3</div><div class="step-content"><strong>Connection → conecta tu cuenta de Gmail</strong><p>Si te aparece un aviso de "reautorización pendiente para X fecha", ignóralo — es un recordatorio, no bloquea nada.</p></div></div>
+      </div>
+      <h3>De dónde leer las variables (importante)</h3>
+      <p>El módulo Gmail puede leer variables de cualquier módulo anterior. Tienes dos opciones:</p>
+      <ul>
+        <li><strong>Watch Responses (Forms):</strong> el módulo trigger original. Tiene los datos del lead anidados (necesitas navegar igual que en Sheets).</li>
+        <li><strong>Add a Row (Sheets):</strong> el módulo intermedio. Su output es la confirmación de la fila escrita, no los datos del lead procesados.</li>
+      </ul>
+      <p>Vas a leer del primero. <strong>Siempre lee del módulo más cercano a la fuente del dato</strong> — en este caso Watch Responses. Esa es la fuente única de verdad.</p>
+      <h3>Configura los campos</h3>
+      <p><strong>Recipient email address (To):</strong> click en el campo y arrastra:</p>
+      <div class="code-block"><div class="code-header"><span class="code-lang">Variable</span></div><pre>Watch Responses → Answers → Email → textAnswers → answers[] → value</pre></div>
+      <p><strong>Subject:</strong> construye combinando texto y variable:</p>
+      <div class="code-block"><div class="code-header"><span class="code-lang">Subject</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div><pre>Hola [pastilla:Nombre], recibimos tu solicitud ✓</pre></div>
+      <p><strong>Body type:</strong> déjalo en "Collection of contents (text, images, etc...)" (default).</p>
+      <p><strong>Body contents:</strong> click en "+ Add body content". En el campo Text construye combinando texto + variables. Esta es la plantilla:</p>
+      <div class="code-block"><div class="code-header"><span class="code-lang">Body (con pastillas)</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div><pre>Hola [pastilla:Nombre],
+
+Gracias por tu interés. Recibimos tu solicitud y queríamos confirmarte que ya está en nuestra bandeja.
+
+Esto fue lo que nos compartiste:
+
+· Servicio que te interesa: [pastilla:Servicio]
+· Empresa o proyecto: [pastilla:Empresa]
+
+En las próximas 24 horas te contactamos para coordinar una llamada de descubrimiento sin compromiso. Mientras tanto, si tienes alguna duda urgente, puedes responder directamente a este correo.
+
+Un saludo,
+El equipo
+
+—
+Este correo se generó automáticamente al recibir tu solicitud. Es real, lo leemos, y te responderemos en menos de 24h.</pre></div>
+      <p>Donde dice <span class="inline-code">[pastilla:Nombre]</span> arrastra la pastilla <strong>value</strong> de Nombre Completo, donde dice <span class="inline-code">[pastilla:Servicio]</span> arrastra la de Servicio, etc. Recuerda navegar 3 niveles dentro de cada Answer hasta llegar a value.</p>
+      <div class="callout callout-warning"><strong>Cuidado con las comas duplicadas</strong>Si escribes "Hola " + pastilla + "," puedes terminar con doble coma. Revisa tu plantilla antes de guardar — debe quedar limpio: "Hola Aury," (una sola coma).</div>
+      <p>Save. Ahora el flujo completo: Watch Responses → Add a Row → Send an Email.</p>
+      <div class="quiz-block" id="quiz-6-2">
+        <div class="quiz-label">🧠 Quiz · De dónde leer las variables</div>
+        <div class="quiz-question">En el módulo de Gmail, vas a poner el email del lead en el campo "To". Tienes dos opciones: arrastrar desde el bundle de Watch Responses (Forms) o desde el bundle de Add a Row (Sheets). ¿De cuál lo arrastras y por qué?</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="handleQuiz(this,false,'quiz-6-2')" data-incorrect="No. Add a Row es un módulo intermedio. Su output es la confirmación de la operación de escritura (números de fila, ID de spreadsheet), no los datos limpios del lead. Además leer del intermedio rompe el principio de fuente única de verdad — si mañana cambias el módulo de Sheets, todo lo que dependa de él se rompe.">Desde Add a Row, porque ahí están los datos ya procesados y limpios</button>
+          <button class="quiz-option" onclick="handleQuiz(this,true,'quiz-6-2')" data-correct="Correcto. Siempre lee del módulo más cercano a la fuente original del dato. Watch Responses es la fuente única de verdad — los datos llegan ahí primero y limpios. Si lees de ahí, tu Gmail funciona aunque cambies o quites el módulo de Sheets en el futuro. Es un principio de diseño llamado 'fuente única de verdad' (single source of truth) que evita acoplamiento innecesario entre módulos.">Desde Watch Responses, porque es la fuente única de verdad y mantiene el flujo desacoplado</button>
+          <button class="quiz-option" onclick="handleQuiz(this,false,'quiz-6-2')" data-incorrect="No. Aunque las dos opciones técnicamente funcionan, no dan el mismo resultado. Add a Row no tiene los datos limpios del lead — tiene metadatos de la operación de escritura. Y leer desde el módulo más reciente acopla tu Gmail al Sheets innecesariamente.">Da igual de cuál — los dos contienen los mismos datos</button>
+          <button class="quiz-option" onclick="handleQuiz(this,false,'quiz-6-2')" data-incorrect="No. Watch Responses sí expone el campo Email en su output (dentro de Answers). El bundle de Watch Responses tiene todos los datos del lead.">Desde un módulo nuevo de "Search Rows" en Sheets, porque Watch Responses no expone el email</button>
+        </div>
+        <div class="quiz-feedback" id="quiz-6-2-fb"></div>
+      </div>
+    `}
+  ]},
+{modulo:"07",titulo:"Prueba, activa y casos reales",lecciones:[
+    {id:"7-1",titulo:"Prueba completa end-to-end",objetivo:"Ejecutar el flujo completo por primera vez y verificar que todo funciona: la fila aparece en el CRM y el email llega al lead.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 07</div><div class="module-name">Prueba, activa y casos reales</div></div>
+      <div class="lesson-hero"><img decoding="async" src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Momento de éxito frente a la pantalla" onerror="this.parentElement.classList.add('broken');this.remove()"></div>
+      <p>Tienes los 3 módulos configurados. Ahora vas a ejecutar el flujo por primera vez y ver cómo el lead se procesa de principio a fin — sin que toques nada.</p>
+      <h3>Ejecuta la prueba manual</h3>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big">1</div><div class="step-content"><strong>Abre tu form en otra pestaña usando el link público</strong><p>El que copiaste cuando publicaste el form en el módulo 02.</p></div></div>
+        <div class="step-item"><div class="step-number-big">2</div><div class="step-content"><strong>Llena el form con datos de prueba (importante: usa tu email real)</strong><p>Necesitas tu email real para verificar que llega el correo de bienvenida.</p></div></div>
+        <div class="step-item"><div class="step-number-big">3</div><div class="step-content"><strong>Envía el form</strong><p>Verás la pantalla "Se ha registrado tu respuesta".</p></div></div>
+        <div class="step-item"><div class="step-number-big">4</div><div class="step-content"><strong>Vuelve a Make y haz clic en "Run once" (abajo a la izquierda)</strong><p>Make ejecuta el escenario una vez: detecta tu respuesta, la escribe en el CRM, y manda el email.</p></div></div>
+        <div class="step-item"><div class="step-number-big">5</div><div class="step-content"><strong>Verifica que aparezcan números verdes sobre cada módulo</strong><p>Un "1" verde sobre Watch Responses, otro sobre Add a Row, otro sobre Send an Email = éxito.</p></div></div>
+      </div>
+      <div class="challenge-block">
+        <div class="challenge-label">🎯 Reto 1 · Verificación del CRM</div>
+        <div class="challenge-question">¿Aparece la fila en tu CRM con los datos limpios y la fecha en formato DD/MM/YYYY?</div>
+        <div class="challenge-btns">
+          <button class="challenge-yes" onclick="handleChallenge(this,true)">Sí, perfecto 🎉</button>
+          <button class="challenge-no" onclick="handleChallenge(this,false)">No, algo salió mal</button>
+        </div>
+        <div class="challenge-response"></div>
+      </div>
+      <div class="challenge-block">
+        <div class="challenge-label">🎯 Reto 2 · Verificación del email</div>
+        <div class="challenge-question">¿Llegó el email a tu bandeja con el saludo personalizado y los datos del lead correctos?</div>
+        <div class="challenge-btns">
+          <button class="challenge-yes" onclick="handleChallenge(this,true)">Sí, llegó perfecto 📧</button>
+          <button class="challenge-no" onclick="handleChallenge(this,false)">No llegó / llegó mal</button>
+        </div>
+        <div class="challenge-response"></div>
+      </div>
+      <div class="callout callout-error"><strong>Si la fila tiene JSON crudo en vez de texto</strong>Vuelve al módulo 5.2 — no navegaste hasta el campo "value". Borra las pastillas mal mapeadas y vuelve a hacer el mapeo expandiendo Answers > [Pregunta] > textAnswers > answers[] > value.</div>
+      <div class="callout callout-error"><strong>Si el email no llegó</strong>Revisa: (1) la conexión Gmail está activa y autorizada, (2) la variable del campo "To" apunta a Email > textAnswers > answers[] > value, (3) revisa la carpeta de spam.</div>
+    `},
+    {id:"7-2",titulo:"Activa el escenario para que corra solo",objetivo:"Activar el escenario para que ejecute automáticamente cada 15 minutos sin intervención.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 07</div><div class="module-name">Prueba, activa y casos reales</div></div>
+      <p>"Run once" es solo para pruebas manuales. Para que tu automatización funcione de forma permanente sin que toques nada, tienes que activar la ejecución programada.</p>
+      <h3>Activa el toggle</h3>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big">1</div><div class="step-content"><strong>En la barra inferior izquierda, activa el toggle junto a "Every 15 minutes"</strong><p>Verás el toggle cambiar a estado activo (morado).</p></div></div>
+        <div class="step-item"><div class="step-number-big">2</div><div class="step-content"><strong>Aparece automáticamente el popup "Schedule settings"</strong><p>Es donde configuras la frecuencia. Por defecto: <span class="inline-code">Run scenario: At regular intervals</span> · <span class="inline-code">Minutes: 15</span></p></div></div>
+        <div class="step-item"><div class="step-number-big">3</div><div class="step-content"><strong>Déjalo en 15 y haz clic en Save</strong><p>15 minutos es el mínimo permitido en el plan free de Make.</p></div></div>
+        <div class="step-item"><div class="step-number-big">4</div><div class="step-content"><strong>Guarda el escenario con Cmd+S (o el botón Save)</strong><p>Tu automatización está activa para siempre.</p></div></div>
+      </div>
+      <div class="callout callout-success"><strong>Tu sistema está corriendo solo</strong>A partir de ahora, cada respuesta del form que llegue será detectada en máximo 15 minutos, escrita en tu CRM, y disparará el email de bienvenida. Sin que toques nada. Para siempre.</div>
+      <h3>Schedule settings: opciones avanzadas</h3>
+      <p>Si más adelante quieres más control sobre cuándo corre el escenario, en Schedule settings puedes elegir:</p>
+      <ul>
+        <li><strong>At regular intervals</strong> (default) — cada X minutos/horas</li>
+        <li><strong>Days of the week</strong> — solo lunes-viernes, por ejemplo</li>
+        <li><strong>Days of the month</strong> — solo días específicos</li>
+        <li><strong>Specific time</strong> — a las 9:00 AM cada día</li>
+      </ul>
+      <p>Para captura de leads, el default de cada 15 minutos es ideal — los leads no esperan.</p>
+      <div class="callout callout-tip"><strong>El consumo de operaciones</strong>Cada vez que el escenario corre y NO encuentra respuestas nuevas, consume 1 operación (la del Watch Responses). Si encuentra una respuesta nueva, consume 3 (Watch + Add Row + Send Email). En 1 día son ~96 operaciones de "vigilancia" + las que sumen los leads reales. El plan free (1,000 ops/mes) te alcanza para ~10 leads al día sin problema.</div>
+    `},
+    {id:"7-3",titulo:"6 casos de uso adaptables del mismo flujo",objetivo:"Saber cómo replicar este patrón en otros contextos de tu negocio sin empezar desde cero.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 07</div><div class="module-name">Prueba, activa y casos reales</div></div>
+      <p>Ya sabes el patrón. Ahora ese mismo patrón aplica a docenas de situaciones distintas. Lo único que cambia son los campos del form, las columnas del CRM y el contenido del email. La arquitectura es idéntica.</p>
+      <h3>6 variaciones listas para construir</h3>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big" style="background:var(--sky);">1</div><div class="step-content"><strong>Reserva de citas (consultorio, estudio, salón)</strong><p>Form: Nombre, Teléfono, Servicio, Fecha preferida. CRM: agenda. Email: confirmación con la fecha + datos de ubicación.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="background:var(--sky);">2</div><div class="step-content"><strong>Inscripción a webinar / evento</strong><p>Form: Nombre, Email, ¿Cómo nos conociste?. CRM: lista de inscritos. Email: link de Zoom + recordatorio.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="background:var(--sky);">3</div><div class="step-content"><strong>Solicitud de cotización (agencia, contratista)</strong><p>Form: Servicio, Presupuesto, Detalles del proyecto. CRM: pipeline de cotizaciones. Email: "recibimos tu solicitud, en 48h tienes la cotización".</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="background:var(--sky);">4</div><div class="step-content"><strong>Descarga de lead magnet (infoproductor)</strong><p>Form: Nombre, Email. CRM: lista de leads del lead magnet. Email: el PDF + invitación a tu newsletter.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="background:var(--sky);">5</div><div class="step-content"><strong>Reclutamiento (RRHH, agencia)</strong><p>Form: Nombre, Posición, CV (link). CRM: pipeline de candidatos. Email: "recibimos tu aplicación, te respondemos en 5 días".</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="background:var(--sky);">6</div><div class="step-content"><strong>Soporte / tickets (SaaS, ecommerce)</strong><p>Form: Email, Tipo de problema, Descripción. CRM: lista de tickets. Email: "ticket #X recibido, tiempo estimado de respuesta: 4h".</p></div></div>
+      </div>
+      <h3>Cómo duplicar tu escenario</h3>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big" style="font-size:11px;">A</div><div class="step-content"><strong>Ve a la lista de Scenarios en Make</strong><p>Haz clic en los tres puntos ⋯ junto al escenario que construiste.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="font-size:11px;">B</div><div class="step-content"><strong>Selecciona "Clone"</strong><p>Make crea una copia exacta con todas las configuraciones.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="font-size:11px;">C</div><div class="step-content"><strong>Cambia el Form ID y el Spreadsheet</strong><p>En el clon, cambia el Form ID del Watch Responses y selecciona la nueva hoja CRM.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="font-size:11px;">D</div><div class="step-content"><strong>Adapta el subject y body del Gmail</strong><p>Cambia el contenido del email al nuevo contexto.</p></div></div>
+      </div>
+      <div class="callout callout-tip"><strong>El criterio para decidir qué automatizar a continuación</strong>Antes de construir cualquier flujo nuevo, hazte esta pregunta: ¿cuántas veces atiendo este tipo de captura a la semana? Si son más de 3, vale la pena automatizarlo. Si son menos de 2, enfoca tu energía en otro lado primero.</div>
+    `}
+  ]},{modulo:"08",titulo:"¡Lo lograste!",lecciones:[
+    {id:"8-1",titulo:"Tienes un sistema de captura de leads autónomo",objetivo:"Cerrar el curso con un resumen de lo construido y un roadmap de qué automatizar después.",contenido:`
+      <div class="module-header"><div class="module-num">Módulo 08</div><div class="module-name">¡Lo lograste!</div></div>
+      <p>Llegaste hasta aquí. Eso no es trivial — la mayoría de la gente abandona en el módulo 5 cuando aparece el JSON crudo. Tú no.</p>
+      <h3>Lo que tienes corriendo ahora mismo</h3>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big" style="background:#4ade80;color:#07090F;">✓</div><div class="step-content"><strong>Un Google Form publicado</strong><p>Con 5 campos y validación de email. Puedes compartir el link en tu sitio, redes, o donde quieras.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="background:#4ade80;color:#07090F;">✓</div><div class="step-content"><strong>Un CRM curado en Sheets</strong><p>Con 8 columnas. Cada lead que llegue queda registrado con fecha bonita, datos limpios, y los campos Estado/Notas listos para que tú los uses.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="background:#4ade80;color:#07090F;">✓</div><div class="step-content"><strong>Un escenario de Make corriendo cada 15 minutos</strong><p>Tres módulos: Watch Responses → Add a Row → Send an Email. Detecta cada respuesta nueva, la registra y manda email de bienvenida.</p></div></div>
+        <div class="step-item"><div class="step-number-big" style="background:#4ade80;color:#07090F;">✓</div><div class="step-content"><strong>Conocimiento técnico real</strong><p>Sabes navegar variables anidadas, sabes formatear fechas con expresiones, sabes el principio de fuente única de verdad. Eso vale más que el flujo en sí.</p></div></div>
+      </div>
+      <h3>Qué automatizar después (roadmap)</h3>
+      <p>Ya tienes la base. Estos son los siguientes pasos lógicos, ordenados por impacto:</p>
+      <div class="step-list">
+        <div class="step-item"><div class="step-number-big">+1</div><div class="step-content"><strong>Notificación a tu equipo</strong><p>Agrega un módulo de Slack o WhatsApp después de Gmail. Cada vez que llegue un lead, tu equipo se entera al instante. Tiempo: 10 minutos.</p></div></div>
+        <div class="step-item"><div class="step-number-big">+2</div><div class="step-content"><strong>Asignación inteligente por servicio</strong><p>Agrega un módulo "Router" en Make: si Servicio = Diseño, manda a Juan. Si es Automatización, manda a María. Tiempo: 20 minutos.</p></div></div>
+        <div class="step-item"><div class="step-number-big">+3</div><div class="step-content"><strong>Secuencia de seguimiento</strong><p>Si el lead no responde en 3 días, manda un email de seguimiento automático. Necesitas combinar Make con un CRM más potente. Tiempo: 1-2 horas.</p></div></div>
+        <div class="step-item"><div class="step-number-big">+4</div><div class="step-content"><strong>Dashboard de leads</strong><p>Conecta Looker Studio o Google Data Studio a tu CRM. Visualiza leads por servicio, por mes, por estado. Tiempo: 2-3 horas.</p></div></div>
+      </div>
+      <div class="next-course">
+        <div class="next-course-label">Siguiente curso recomendado</div>
+        <div class="next-course-title">Correos en Piloto Automático</div>
+        <div class="next-course-desc">Aprende a mandar correos masivos personalizados desde Sheets a Gmail con Make. Ideal si quieres llevar tu CRM al siguiente nivel: facturas, recordatorios, confirmaciones, secuencias de nurturing — todo automático.</div>
+        <span class="next-course-btn" style="opacity:0.5;cursor:default;">Próximamente</span>
+      </div>
+      <div class="callout callout-success"><strong>Un último consejo</strong>La diferencia entre alguien que automatiza y alguien que no, es que el primero VE patrones repetitivos y los ataca. Cada vez que te encuentres haciendo lo mismo más de 3 veces a la semana, pregúntate: "¿esto puede ser un escenario de Make?". La respuesta es casi siempre: sí.</div>
+    `}
+  ]}
+];
+
+// ─────────────────────────────────────────
+// ESTADO
+// ─────────────────────────────────────────
+let currentLesson = 0;
+const allLessons = curso.flatMap(m => m.lecciones);
+const completed = new Set();
+const quizPassed = new Set();
+var BREVO_URL = 'https://0e103c7f.sibforms.com/serve/MUIFAIgfwcV4oiP7mMoPZV98atwF3jXqv4wt3uPUQh60ZXuIxi-6I65w0e2_rgFaz9PtgwlwSs7hkALTxQPaoZucHjjJErulpNlZE1uCU-awSSftnALZtsRKFDzM2tW9pcocom5-aR-di9YE53PTWiftpgw8oQeUD6-HhghrLfjD4UBEYm283U9gJQ8-_TGMXlQFCzV08LRq8Z6pfg==';
+var progressModalShown = false;
+
+// ─────────────────────────────────────────
+// RENDER SIDEBAR
+// ─────────────────────────────────────────
+function renderSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  curso.forEach((modulo) => {
+    const moduleEl = document.createElement('div');
+    moduleEl.className = 'nav-module';
+    const header = document.createElement('div');
+    header.className = 'nav-module-header';
+    header.innerHTML = `<span><span class="nav-module-num">${modulo.modulo}</span> ${modulo.titulo}</span>`;
+    header.onclick = () => {
+      const lessons = moduleEl.querySelector('.nav-lessons');
+      lessons.style.maxHeight = lessons.style.maxHeight ? '' : lessons.scrollHeight + 'px';
+    };
+    const lessons = document.createElement('div');
+    lessons.className = 'nav-lessons';
+    lessons.style.maxHeight = '500px';
+    modulo.lecciones.forEach((leccion) => {
+      const idx = allLessons.findIndex(l => l.id === leccion.id);
+      const item = document.createElement('div');
+      item.className = 'nav-lesson' + (idx === currentLesson ? ' active' : '') + (completed.has(idx) ? ' completed' : '');
+      item.dataset.idx = idx;
+      item.innerHTML = `<div class="lesson-dot"></div>${leccion.titulo}`;
+      item.onclick = () => goToLesson(idx);
+      lessons.appendChild(item);
+    });
+    moduleEl.appendChild(header);
+    moduleEl.appendChild(lessons);
+    nav.appendChild(moduleEl);
+  });
+}
+
+// ─────────────────────────────────────────
+// RENDER LESSON
+// ─────────────────────────────────────────
+function renderLesson(idx) {
+  const area = document.getElementById('content-area');
+  const leccion = allLessons[idx];
+  const modulo = curso.find(m => m.lecciones.some(l => l.id === leccion.id));
+  area.innerHTML = `
+    <div class="lesson active">
+      <div class="lesson-breadcrumb">
+        <span>Módulo ${modulo.modulo}</span>
+        <span class="breadcrumb-sep">›</span>
+        <span>Lección ${idx + 1} de ${allLessons.length}</span>
+      </div>
+      <h1 class="lesson-title">${leccion.titulo}</h1>
+      <div class="lesson-objective">${leccion.objetivo}</div>
+      <div class="lesson-body">${leccion.contenido}</div>
+      <div class="lesson-nav">
+        <button class="nav-btn nav-btn-prev" onclick="goToLesson(${idx - 1})" ${idx === 0 ? 'disabled' : ''}>← Anterior</button>
+        <button class="nav-btn nav-btn-next" onclick="nextLesson(${idx})">${idx === allLessons.length - 1 ? '¡Completado! 🐧' : 'Siguiente →'}</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('main-content').scrollTop = 0;
+}
+
+// ─────────────────────────────────────────
+// NAVEGACIÓN
+// ─────────────────────────────────────────
+function goToLesson(idx) {
+  if (idx < 0 || idx >= allLessons.length) return;
+  completed.add(currentLesson);
+  currentLesson = idx;
+  // Trigger del popup Brevo en lección 8 (índice 7) - después del Quiz técnico de variables dinámicas
+  if (idx === 7 && !progressModalShown) {
+    setTimeout(function() {
+      document.getElementById('progress-modal').classList.add('active');
+    }, 600);
+  }
+  renderLesson(idx);
+  renderSidebar();
+  updateProgress();
+  closeSidebar();
+}
+
+function nextLesson(idx) {
+  completed.add(idx);
+  if (idx < allLessons.length - 1) {
+    goToLesson(idx + 1);
+  } else {
+    updateProgress();
+    renderSidebar();
+    const lessonsWithQuizzes = allLessons
+      .map((l, i) => ({ idx: i, titulo: l.titulo, hasQuiz: l.contenido.includes('quiz-block') }))
+      .filter(l => l.hasQuiz);
+    const pending = lessonsWithQuizzes.filter(l => !quizPassed.has(l.idx));
+    if (pending.length === 0) {
+      document.getElementById('cert-overlay').classList.add('active');
+    } else {
+      const area = document.getElementById('content-area');
+      const lista = pending.map(l => `<li style="margin-bottom:8px;">${l.titulo}</li>`).join('');
+      area.innerHTML = `
+        <div class="lesson active">
+          <div class="lesson-breadcrumb"><span>Certificado</span></div>
+          <h1 class="lesson-title">Casi lo tienes 🐧</h1>
+          <div class="lesson-objective">Para descargar tu certificado necesitas responder correctamente todos los quizzes del curso.</div>
+          <div class="lesson-body">
+            <p>Tienes quizzes pendientes en las siguientes lecciones:</p>
+            <ul style="margin:16px 0 16px 20px;">${lista}</ul>
+            <p>Vuelve a esas lecciones, responde el quiz correctamente y regresa aquí para obtener tu certificado.</p>
+          </div>
+          <div class="lesson-nav">
+            <button class="nav-btn nav-btn-prev" onclick="goToLesson(${idx})">← Volver</button>
+            <button class="nav-btn nav-btn-next" onclick="
+              const lq = allLessons.map((l,i)=>({idx:i,hasQuiz:l.contenido.includes('quiz-block')})).filter(l=>l.hasQuiz).filter(l=>!quizPassed.has(l.idx));
+              if(lq.length===0){document.getElementById('cert-overlay').classList.add('active');}
+              else{goToLesson(lq[0].idx);}
+            ">Ir al quiz pendiente →</button>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
+// ─────────────────────────────────────────
+// CERTIFICADO
+// ─────────────────────────────────────────
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector('script[src="' + src + '"]')) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function certHTML(name, dateStr, auryBase64) {
+  const auryImg = auryBase64
+    ? `<img decoding="async" src="${auryBase64}" style="width:92%;object-fit:contain;object-position:bottom center;" alt="Aury">`
+    : '';
+  return `
+  <div style="width:1200px;height:848px;background:#07090F;position:relative;overflow:hidden;font-family:'DM Sans',sans-serif;">
+    <div style="position:absolute;top:-120px;right:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(196,96,48,0.13),transparent 65%);"></div>
+    <div style="position:absolute;bottom:-120px;left:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(58,100,148,0.1),transparent 65%);"></div>
+    <div style="position:absolute;inset:20px;border:1.5px solid rgba(196,96,48,0.4);pointer-events:none;"></div>
+    <div style="position:absolute;inset:26px;border:1px solid rgba(196,96,48,0.1);pointer-events:none;"></div>
+    <div style="position:absolute;top:16px;left:16px;width:14px;height:14px;border-top:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;top:16px;right:16px;width:14px;height:14px;border-top:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;left:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;right:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;top:48px;left:60px;right:60px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#7A6E60;font-weight:500;font-family:'DM Mono',monospace;">🐧 AuryOnTech</div>
+      <div style="width:38%;height:1px;background:linear-gradient(to right,transparent,rgba(196,96,48,0.25),transparent);"></div>
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(196,96,48,0.5);font-family:'DM Mono',monospace;">Certificado de Finalización</div>
+    </div>
+    <div style="position:absolute;top:0;left:0;width:760px;height:848px;display:flex;flex-direction:column;justify-content:center;padding:100px 56px 80px 60px;">
+      <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#C46030;font-family:'DM Mono',monospace;margin-bottom:18px;">Este documento certifica que</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:58px;color:#EEF4F8;line-height:1.05;letter-spacing:-1.5px;margin-bottom:22px;">${name}</div>
+      <div style="width:56px;height:3px;background:#C46030;margin-bottom:22px;border-radius:2px;"></div>
+      <div style="font-size:15px;color:#7A6E60;margin-bottom:10px;">ha completado satisfactoriamente el curso</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:24px;color:#D88050;letter-spacing:-0.3px;margin-bottom:52px;line-height:1.3;">De Formulario a Cliente sin Tocar Nada</div>
+      <div style="display:flex;gap:52px;align-items:flex-start;">
+        <div>
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Fecha</div>
+          <div style="font-size:13px;color:#EDE4D8;">${dateStr}</div>
+        </div>
+        <div style="width:1px;height:40px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>
+        <div>
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Emitido por</div>
+          <div style="font-size:13px;color:#EDE4D8;font-weight:600;">Cristian Lopez Garcia</div>
+          <div style="font-size:11px;color:#7A6E60;margin-top:2px;">Automation & Growth Partner · AuryOnTech</div>
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute;top:100px;bottom:80px;left:760px;width:1px;background:linear-gradient(to bottom,transparent,rgba(196,96,48,0.2) 30%,rgba(196,96,48,0.2) 70%,transparent);"></div>
+    <div style="position:absolute;right:0;bottom:0;width:440px;height:848px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;">${auryImg}</div>
+    <div style="position:absolute;bottom:34px;left:60px;font-size:10px;color:rgba(122,110,96,0.35);letter-spacing:2px;font-family:'DM Mono',monospace;text-transform:uppercase;">auryontech.com</div>
+  </div>`;
+}
+
+async function generateCert() {
+  const name = document.getElementById('cert-name').value.trim();
+  const certEmail = document.getElementById('cert-email').value.trim();
+  if (!name) { document.getElementById('cert-name').focus(); return; }
+  if (certEmail && certEmail.includes('@')) {
+    var bf = new FormData();
+    bf.append('EMAIL', certEmail);
+    bf.append('FIRSTNAME', name);
+    bf.append('email_address_check', '');
+    bf.append('locale', 'es');
+    fetch(BREVO_URL, { method: 'POST', body: bf, mode: 'no-cors' }).catch(function(){});
+  }
+  const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+  closeCertModal();
+  const loader = document.createElement('div');
+  loader.style.cssText = 'position:fixed;inset:0;background:rgba(7,9,15,0.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#EEF4F8;font-family:DM Sans,sans-serif;font-size:15px;gap:14px;';
+  loader.innerHTML = '<div style="font-size:36px;">🐧</div><div>Generando tu certificado...</div>';
+  document.body.appendChild(loader);
+  let auryBase64 = '';
+  try {
+    const resp = await fetch('assets/img/Aury-enfrente-de-la-Compu.png');
+    const blob = await resp.blob();
+    auryBase64 = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(blob); });
+  } catch(e) {}
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:1200px;height:848px;z-index:-1;';
+  div.innerHTML = certHTML(name, dateStr, auryBase64);
+  document.body.appendChild(div);
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 400));
+  const canvas = await html2canvas(div, { scale:2, useCORS:true, allowTaint:true, backgroundColor:'#07090F', width:1200, height:848, logging:false });
+  document.body.removeChild(div);
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 297, 210);
+  pdf.save('Certificado_AuryOnTech_' + name.replace(/ /g, '_') + '.pdf');
+  loader.remove();
+}
+
+function closeCertModal() {
+  document.getElementById('cert-overlay').classList.remove('active');
+}
+
+// ─────────────────────────────────────────
+// BREVO PROGRESS POPUP
+// ─────────────────────────────────────────
+function saveProgress() {
+  var email = document.getElementById('progress-email').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('progress-email').style.borderColor = '#ef4444';
+    return;
+  }
+  var body = new FormData();
+  body.append('EMAIL', email);
+  body.append('email_address_check', '');
+  body.append('locale', 'es');
+  fetch(BREVO_URL, { method: 'POST', body: body, mode: 'no-cors' }).catch(function(){});
+  dismissProgress();
+}
+
+function dismissProgress() {
+  document.getElementById('progress-modal').classList.remove('active');
+  progressModalShown = true;
+}
+
+function updateProgress() {
+  const total = allLessons.length;
+  const done = completed.size;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = done + ' / ' + total;
+}
+
+// ─────────────────────────────────────────
+// QUIZ
+// ─────────────────────────────────────────
+function handleQuiz(btn, isCorrect, blockId) {
+  const block = document.getElementById(blockId);
+  block.querySelectorAll('.quiz-option').forEach(o => {
+    o.disabled = true;
+    o.style.pointerEvents = 'none';
+  });
+  btn.classList.add(isCorrect ? 'quiz-correct' : 'quiz-incorrect');
+  const fb = document.getElementById(blockId + '-fb');
+  fb.className = 'quiz-feedback ' + (isCorrect ? 'fb-correct' : 'fb-incorrect');
+  if (isCorrect) {
+    fb.textContent = btn.dataset.correct;
+    quizPassed.add(currentLesson);
+  } else {
+    fb.innerHTML = btn.dataset.incorrect + '<br><br><button onclick="resetQuiz(\'' + blockId + '\')" style="margin-top:8px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;padding:7px 18px;border-radius:6px;font-family:DM Sans,sans-serif;font-size:13px;cursor:pointer;">↩ Volver a intentar</button>';
+  }
+}
+
+function resetQuiz(blockId) {
+  const block = document.getElementById(blockId);
+  block.querySelectorAll('.quiz-option').forEach(o => {
+    o.disabled = false;
+    o.style.pointerEvents = '';
+    o.classList.remove('quiz-correct', 'quiz-incorrect');
+  });
+  const fb = document.getElementById(blockId + '-fb');
+  fb.className = 'quiz-feedback';
+  fb.innerHTML = '';
+}
+
+// ─────────────────────────────────────────
+// CHALLENGE
+// ─────────────────────────────────────────
+function handleChallenge(btn, success) {
+  const block = btn.closest('.challenge-block');
+  block.querySelectorAll('button').forEach(b => {
+    b.disabled = true;
+    b.style.pointerEvents = 'none';
+    b.style.opacity = '0.5';
+  });
+  const resp = block.querySelector('.challenge-response');
+  if (success) {
+    resp.className = 'challenge-response success';
+    resp.innerHTML = '<strong>¡Increíble!</strong> Todo está funcionando como debe. Has construido un sistema real de captura de leads que va a trabajar para ti las 24 horas del día sin que toques nada. Ese es el tipo de palanca que cambia un negocio.';
+  } else {
+    resp.className = 'challenge-response error';
+    resp.innerHTML = '<strong>Tranquilo, vamos a debuggearlo.</strong> Revisa los callouts de error de arriba — el 95% de los problemas en este flujo son: variables mal mapeadas (no llegaste hasta "value"), conexión Gmail caducada, o el correo fue a spam. Si revisaste todo y sigue sin funcionar, vuelve al módulo correspondiente y verifica el mapeo paso a paso.';
+  }
+}
+
+// ─────────────────────────────────────────
+// COPY CODE
+// ─────────────────────────────────────────
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '¡Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ─────────────────────────────────────────
+// SIDEBAR MÓVIL
+// ─────────────────────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+}
+
+// ─────────────────────────────────────────
+// LIGHTBOX
+// ─────────────────────────────────────────
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('active');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeLightbox();
+});
+document.addEventListener('click', function(e) {
+  if (e.target.tagName === 'IMG' && e.target.closest('.screenshot-frame')) {
+    openLightbox(e.target.src);
+  }
+});
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+renderSidebar();
+renderLesson(0);
+updateProgress();
+
+// ─────────────────────────────────────────
+// CURSOR CUSTOM
+// ─────────────────────────────────────────
+(function() {
+  const dot = document.createElement('div'); dot.className = 'cursor-dot';
+  const ring = document.createElement('div'); ring.className = 'cursor-ring';
+  document.body.appendChild(dot);
+  document.body.appendChild(ring);
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+  document.addEventListener('mousedown', () => { dot.classList.add('clicking'); ring.classList.add('clicking'); });
+  document.addEventListener('mouseup', () => { dot.classList.remove('clicking'); ring.classList.remove('clicking'); });
+  (function animateRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animateRing); })();
+})();
+</script>
+
+</body>
+</html>

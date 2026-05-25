@@ -1,0 +1,1833 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tu Primera Automatización con Make — AuryOnTech</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #07090F;
+      --dawn: #C46030;
+      --dawn-l: #D88050;
+      --dawn-ll: #ECA878;
+      --sky: #3A6494;
+      --ice: #B8D4EC;
+      --snow: #EEF4F8;
+      --bone: #EDE4D8;
+      --warm: #7A6E60;
+      --ink-2: #0f1219;
+      --ink-3: #161b26;
+      --sidebar-w: 300px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; background: var(--ink); color: var(--snow); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.7; overflow: hidden; }
+
+    /* ── PROGRESS BAR TOP ── */
+    #progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--dawn), var(--dawn-ll)); z-index: 1000; transition: width 0.4s ease; }
+
+    /* ── LAYOUT ── */
+    .app { display: flex; height: 100vh; padding-top: 3px; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: var(--ink-2); border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 100; }
+    .sidebar-header { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .logo-icon { width: 32px; height: 32px; background: var(--dawn); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .logo-text { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 15px; color: var(--snow); letter-spacing: -0.3px; }
+    .course-title { font-size: 12px; color: var(--warm); line-height: 1.4; font-weight: 400; }
+    .progress-info { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .progress-label { font-size: 11px; color: var(--warm); font-family: 'DM Mono', monospace; }
+    .progress-pill { font-size: 11px; color: var(--dawn-ll); font-family: 'DM Mono', monospace; font-weight: 500; }
+    .progress-track { margin-top: 8px; height: 2px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--dawn); border-radius: 2px; transition: width 0.4s ease; }
+
+    /* ── NAV ── */
+    .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 0; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+    .nav-module { margin-bottom: 4px; }
+    .nav-module-header { padding: 8px 20px; font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--warm); font-family: 'DM Mono', monospace; cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; }
+    .nav-module-header:hover { color: var(--dawn-ll); }
+    .nav-module-num { color: var(--dawn); font-weight: 500; }
+    .nav-lessons { overflow: hidden; transition: max-height 0.3s ease; }
+    .nav-lesson { padding: 8px 20px 8px 32px; font-size: 13px; color: rgba(238,244,248,0.6); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; border-left: 2px solid transparent; line-height: 1.4; }
+    .nav-lesson:hover { color: var(--snow); background: rgba(255,255,255,0.03); }
+    .nav-lesson.active { color: var(--dawn-ll); border-left-color: var(--dawn); background: rgba(196,96,48,0.08); }
+    .nav-lesson.completed .lesson-dot { background: var(--dawn); }
+    .lesson-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.15); flex-shrink: 0; transition: background 0.2s; }
+
+    /* ── MAIN ── */
+    .main { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+    .content { max-width: 760px; margin: 0 auto; padding: 48px 40px 80px; }
+
+    /* ── LESSON ── */
+    .lesson { display: none; }
+    .lesson.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .lesson-breadcrumb { font-size: 12px; color: var(--warm); font-family: 'DM Mono', monospace; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .breadcrumb-sep { color: var(--dawn); }
+    .lesson-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 36px; line-height: 1.1; color: var(--snow); margin-bottom: 12px; letter-spacing: -0.5px; }
+    .lesson-objective { font-size: 15px; color: var(--dawn-ll); margin-bottom: 36px; padding: 14px 18px; background: rgba(196,96,48,0.08); border-left: 3px solid var(--dawn); border-radius: 0 6px 6px 0; font-style: italic; }
+    .lesson-body { font-size: 15px; color: rgba(238,244,248,0.85); line-height: 1.8; }
+    .lesson-body h3 { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 20px; color: var(--snow); margin: 36px 0 14px; letter-spacing: -0.3px; }
+    .lesson-body p { margin-bottom: 16px; }
+    .lesson-body ul, .lesson-body ol { margin: 0 0 16px 20px; }
+    .lesson-body li { margin-bottom: 8px; }
+    .lesson-body strong { color: var(--snow); font-weight: 600; }
+
+    /* ── MODULE HEADER ── */
+    .module-header { background: var(--ink-3); border-left: 4px solid var(--dawn); border-radius: 0 12px 12px 0; padding: 20px 24px; margin-bottom: 36px; }
+    .module-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn); font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
+    .module-name { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 14px; color: var(--warm); margin-top: 4px; }
+
+    /* ── LESSON HERO IMAGE ── */
+    .lesson-hero { width: 100%; height: 220px; border-radius: 12px; overflow: hidden; position: relative; margin-bottom: 36px; background: var(--ink-3); }
+    .lesson-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lesson-hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 65%; background: linear-gradient(to top, rgba(7,9,15,0.85), transparent); pointer-events: none; }
+    .lesson-hero.broken { display: none; }
+
+    /* ── SCREENSHOT FRAME ── */
+    .screenshot-frame { background: var(--ink-2); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; margin: 24px 0; }
+    .screenshot-bar { padding: 10px 16px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 6px; }
+    .screenshot-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .screenshot-dot:nth-child(1) { background: #ff5f57; }
+    .screenshot-dot:nth-child(2) { background: #febc2e; }
+    .screenshot-dot:nth-child(3) { background: #28c840; }
+    .screenshot-img { width: 100%; display: block; }
+    .screenshot-placeholder { padding: 40px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; border: 2px dashed rgba(255,255,255,0.07); margin: 12px; border-radius: 8px; min-height: 160px; justify-content: center; }
+    .ph-icon { font-size: 28px; opacity: 0.4; }
+    .ph-title { color: rgba(238,244,248,0.5); font-weight: 500; font-size: 14px; }
+    .ph-sub { color: var(--warm); font-size: 11px; font-family: 'DM Mono', monospace; opacity: 0.7; }
+    .screenshot-caption { padding: 10px 16px; font-size: 12px; color: var(--warm); font-family: 'DM Mono', monospace; border-top: 1px solid rgba(255,255,255,0.05); }
+
+    /* ── CODE BLOCKS ── */
+    .code-block { background: #0d1117; border-radius: 10px; margin: 20px 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); }
+    .code-header { padding: 10px 16px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; }
+    .code-lang { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--warm); text-transform: uppercase; letter-spacing: 1px; }
+    .copy-btn { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn-ll); background: none; border: 1px solid rgba(196,96,48,0.3); padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { background: rgba(196,96,48,0.15); border-color: var(--dawn); }
+    .copy-btn.copied { color: #4ade80; border-color: rgba(74,222,128,0.3); }
+    pre { padding: 20px; overflow-x: auto; font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.7; color: #e6edf3; }
+    .inline-code { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 2px 7px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dawn-ll); }
+
+    /* ── CALLOUTS ── */
+    .callout { padding: 16px 20px; border-radius: 8px; margin: 20px 0; font-size: 14px; line-height: 1.6; }
+    .callout-error { background: rgba(239,68,68,0.08); border-left: 3px solid #ef4444; color: #fca5a5; }
+    .callout-tip { background: rgba(58,100,148,0.12); border-left: 3px solid var(--sky); color: var(--ice); }
+    .callout-warning { background: rgba(196,96,48,0.1); border-left: 3px solid var(--dawn); color: var(--dawn-ll); }
+    .callout-success { background: rgba(74,222,128,0.07); border-left: 3px solid #4ade80; color: #86efac; }
+    .callout strong { display: block; margin-bottom: 4px; font-weight: 600; }
+
+    /* ── ACTION BLOCK ── */
+    .action-block { background: linear-gradient(135deg, rgba(196,96,48,0.12), rgba(196,96,48,0.05)); border: 1px solid rgba(196,96,48,0.25); border-radius: 12px; padding: 24px 28px; margin-top: 40px; }
+    .action-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dawn); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .action-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--dawn); }
+    .action-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: var(--snow); margin-bottom: 12px; }
+    .action-steps { list-style: none; margin: 0; padding: 0; }
+    .action-steps li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px; color: rgba(238,244,248,0.8); display: flex; align-items: flex-start; gap: 12px; }
+    .action-steps li:last-child { border-bottom: none; }
+    .step-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn); font-weight: 500; min-width: 20px; margin-top: 2px; }
+
+    /* ── STEP LIST ── */
+    .step-list { display: flex; flex-direction: column; gap: 6px; margin: 24px 0; }
+    .step-item { display: flex; gap: 16px; padding: 14px 16px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); align-items: flex-start; transition: background 0.2s; }
+    .step-item:hover { background: rgba(255,255,255,0.04); }
+    .step-number-big { width: 28px; height: 28px; background: var(--dawn); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; color: var(--snow); flex-shrink: 0; margin-top: 2px; }
+    .step-content { flex: 1; }
+    .step-content strong { display: block; font-size: 15px; color: var(--snow); margin-bottom: 3px; }
+    .step-content p { font-size: 13px; color: rgba(238,244,248,0.6); margin: 0; line-height: 1.5; }
+
+    /* ── QUIZ ── */
+    .quiz-block { background: rgba(58,100,148,0.08); border: 1px solid rgba(58,100,148,0.2); border-radius: 12px; padding: 24px 28px; margin: 32px 0; }
+    .quiz-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sky); margin-bottom: 16px; }
+    .quiz-question { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: var(--snow); margin-bottom: 16px; line-height: 1.3; }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-option { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px; text-align: left; color: rgba(238,244,248,0.8); font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; transition: all 0.2s; line-height: 1.5; }
+    .quiz-option:hover:not(:disabled) { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.2); color: var(--snow); }
+    .quiz-option.quiz-correct { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.4); color: #86efac; }
+    .quiz-option.quiz-incorrect { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.3); color: #fca5a5; }
+    .quiz-feedback { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.5; display: none; }
+    .quiz-feedback.fb-correct { background: rgba(74,222,128,0.08); color: #86efac; border-left: 3px solid #4ade80; display: block; }
+    .quiz-feedback.fb-incorrect { background: rgba(239,68,68,0.08); color: #fca5a5; border-left: 3px solid #ef4444; display: block; }
+
+    /* ── CHECKLIST ── */
+    .checklist-block { background: rgba(196,96,48,0.06); border: 1px solid rgba(196,96,48,0.2); border-radius: 12px; padding: 20px 24px; margin: 28px 0; }
+    .checklist-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dawn); margin-bottom: 14px; font-weight: 500; }
+    .checklist-item { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .checklist-item:last-child { border-bottom: none; }
+    .checklist-item input[type="checkbox"] { width: 17px; height: 17px; cursor: pointer; accent-color: var(--dawn); flex-shrink: 0; }
+    .checklist-item label { font-size: 14px; color: rgba(238,244,248,0.8); cursor: pointer; transition: all 0.2s; }
+    .checklist-item input:checked + label { color: var(--dawn-ll); text-decoration: line-through; opacity: 0.6; }
+
+    /* ── CHALLENGE ── */
+    .challenge-block { background: linear-gradient(135deg, rgba(74,222,128,0.05), rgba(58,100,148,0.08)); border: 1px solid rgba(74,222,128,0.15); border-radius: 12px; padding: 28px; margin: 36px 0; text-align: center; }
+    .challenge-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #4ade80; margin-bottom: 12px; font-weight: 500; }
+    .challenge-question { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 22px; color: var(--snow); margin-bottom: 20px; }
+    .challenge-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .challenge-yes { background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.35); color: #86efac; padding: 11px 28px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .challenge-yes:hover { background: rgba(74,222,128,0.2); }
+    .challenge-no { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; padding: 11px 28px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 15px; cursor: pointer; transition: all 0.2s; }
+    .challenge-response { margin-top: 20px; padding: 16px; border-radius: 8px; font-size: 15px; line-height: 1.6; display: none; }
+    .challenge-response.success { background: rgba(74,222,128,0.08); color: #86efac; border: 1px solid rgba(74,222,128,0.2); display: block; }
+    .challenge-response.error { background: rgba(239,68,68,0.08); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); display: block; }
+
+    /* ── NEXT COURSE ── */
+    .next-course { background: linear-gradient(135deg, var(--ink-3), rgba(196,96,48,0.08)); border: 1px solid rgba(196,96,48,0.2); border-radius: 16px; padding: 32px; margin: 40px 0; }
+    .next-course-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dawn); margin-bottom: 10px; }
+    .next-course-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 24px; color: var(--snow); margin-bottom: 10px; letter-spacing: -0.3px; }
+    .next-course-desc { font-size: 14px; color: rgba(238,244,248,0.7); margin-bottom: 20px; line-height: 1.6; }
+    .next-course-btn { display: inline-block; background: var(--dawn); color: var(--snow); padding: 11px 24px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 14px; text-decoration: none; transition: background 0.2s; }
+    .next-course-btn:hover { background: var(--dawn-l); }
+
+    /* ── NAV BUTTONS ── */
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .nav-btn { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; transition: all 0.2s; }
+    .nav-btn-prev { background: rgba(255,255,255,0.05); color: var(--warm); }
+    .nav-btn-prev:hover { background: rgba(255,255,255,0.09); color: var(--snow); }
+    .nav-btn-next { background: var(--dawn); color: var(--snow); }
+    .nav-btn-next:hover { background: var(--dawn-l); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* ── HAMBURGER ── */
+    .hamburger { display: none; position: fixed; top: 12px; left: 12px; z-index: 200; background: var(--ink-2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; width: 40px; height: 40px; cursor: pointer; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
+    .hamburger span { display: block; width: 18px; height: 2px; background: var(--snow); border-radius: 2px; }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 90; }
+
+    /* ── MOBILE ── */
+   * { cursor: none !important; }
+    a, button, [onclick], label, input[type="checkbox"], select, .nav-lesson, .nav-module-header, .quiz-option, .copy-btn, .cert-generate-btn, .cert-skip, .nav-btn, .challenge-yes, .challenge-no, .next-course-btn { cursor: pointer !important; }
+    .cursor-dot { position: fixed; width: 8px; height: 8px; background: #C46030; border-radius: 50%; pointer-events: none; z-index: 99999; transform: translate(-50%, -50%); transition: transform 0.1s ease, background 0.2s; }
+    .cursor-ring { position: fixed; width: 32px; height: 32px; border: 1.5px solid rgba(196,96,48,0.6); border-radius: 50%; pointer-events: none; z-index: 99998; transform: translate(-50%, -50%); transition: width 0.2s ease, height 0.2s ease, border-color 0.2s; }
+    .cursor-dot.clicking { transform: translate(-50%,-50%) scale(0.6); background: #ECA878; }
+    .cursor-ring.clicking { width: 20px; height: 20px; border-color: #C46030; }
+    @media (max-width: 768px) { * { cursor: auto !important; } .cursor-dot, .cursor-ring { display: none; } }
+
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .sidebar { position: fixed; left: -310px; top: 0; height: 100vh; transition: left 0.3s ease; z-index: 150; }
+      .sidebar.open { left: 0; }
+      .overlay.active { display: block; }
+      .content { padding: 60px 20px 80px; }
+      .lesson-title { font-size: 26px; }
+      .lesson-hero { height: 160px; }
+    }
+  /* ── CERTIFICADO ── */
+    .cert-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; display: none; align-items: center; justify-content: center; }
+    .cert-overlay.active { display: flex; }
+    .cert-modal { background: var(--ink-2); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 36px; max-width: 440px; width: 90%; text-align: center; }
+    .cert-modal-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 24px; color: var(--snow); margin-bottom: 8px; }
+    .cert-modal-sub { font-size: 14px; color: var(--warm); margin-bottom: 24px; line-height: 1.5; }
+    .cert-name-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 12px 16px; color: var(--snow); font-family: 'DM Sans', sans-serif; font-size: 16px; outline: none; margin-bottom: 16px; }
+    .cert-name-input:focus { border-color: var(--dawn); }
+    .cert-name-input::placeholder { color: var(--warm); }
+    .cert-generate-btn { width: 100%; background: var(--dawn); color: var(--snow); border: none; border-radius: 8px; padding: 13px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: background 0.2s; }
+    .cert-generate-btn:hover { background: var(--dawn-l); }
+    .cert-skip { margin-top: 12px; font-size: 13px; color: var(--warm); cursor: pointer; text-decoration: underline; }
+    .cert-skip:hover { color: var(--snow); }
+
+    /* ── LIGHTBOX ── */
+    .screenshot-frame img { cursor: zoom-in; transition: opacity 0.2s; }
+    .screenshot-frame img:hover { opacity: 0.92; }
+    .lightbox-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 40px; cursor: zoom-out; animation: lbFade 0.2s ease; }
+    .lightbox-overlay.active { display: flex; }
+    .lightbox-overlay img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); object-fit: contain; }
+    .lightbox-close { position: absolute; top: 20px; right: 24px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: var(--snow); width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; font-family: 'DM Sans', sans-serif; line-height: 1; }
+    .lightbox-close:hover { background: rgba(255,255,255,0.15); }
+    .lightbox-hint { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); font-size: 12px; color: rgba(238,244,248,0.5); font-family: 'DM Mono', monospace; letter-spacing: 1px; }
+    @keyframes lbFade { from { opacity: 0; } to { opacity: 1; } }
+
+    .certificate { display: none; }
+    @media print {
+      html, body { overflow: visible !important; height: auto !important; }
+      body > * { display: none !important; }
+      .certificate { display: flex !important; position: fixed; inset: 0; background: #FFFDF8; align-items: center; justify-content: center; font-family: 'DM Sans', sans-serif; }
+      .cert-inner { text-align: center; padding: 60px; max-width: 680px; border: 2px solid #C46030; border-radius: 4px; }
+      .cert-logo { font-size: 13px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #7A6E60; margin-bottom: 40px; }
+      .cert-presents { font-size: 13px; color: #7A6E60; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
+      .cert-student-name { font-family: 'Cabinet Grotesk', sans-serif; font-size: 48px; font-weight: 800; color: #07090F; margin-bottom: 20px; letter-spacing: -1px; }
+      .cert-completed { font-size: 15px; color: #7A6E60; margin-bottom: 12px; }
+      .cert-course-name { font-family: 'Cabinet Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #C46030; margin-bottom: 40px; }
+      .cert-divider { width: 60px; height: 2px; background: #C46030; margin: 0 auto 40px; }
+      .cert-date { font-size: 13px; color: #7A6E60; margin-bottom: 40px; }
+      .cert-signature { font-size: 13px; color: #07090F; font-weight: 600; }
+      .cert-signature-sub { font-size: 12px; color: #7A6E60; margin-top: 4px; }
+    }
+  
+
+/* === MINIMAL ESSENTIAL OVERRIDES (auto-applied) === */
+body, .hero, .about, .services, .testi, .uc, .valor, .flow-demo, .cta, .manifesto, footer {
+  background-color: #000 !important;
+}
+.hero {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/iceberg-sunset-amber.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: scroll, fixed !important;
+}
+.eyebrow, .kicker, .nav-cta { color: #ECA878 !important; }
+.flake { opacity: .55 !important; font-size: 13px !important; }
+
+/* === ICEBERGS on sections === */
+.manifesto { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/mountains-sunset-pink.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.about, section.about { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-aerial-dark.jpeg') !important; background-size: cover, cover !important; background-position: right center !important; }
+.services { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-texture-blue.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.flow-demo { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/glacier-wall-blue.jpeg') !important; background-size: cover, cover !important; }
+.valor { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-minimal.jpeg') !important; background-size: cover, cover !important; }
+.uc { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/aerial-snow-scale.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.testi { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-ice-columns.jpeg') !important; background-size: cover, cover !important; }
+.cta { background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/icebergs-twin-massive.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+footer, .footer { background-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.98)), url('assets/img/antarctic-moon.jpeg') !important; background-size: cover, cover !important; }
+@media (max-width: 900px) { .hero, .services, .uc, .cta, .manifesto { background-attachment: scroll !important; } }
+
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img decoding="async" id="lightbox-img" src="" alt="">
+  <div class="lightbox-hint">Haz clic en cualquier parte para cerrar</div>
+</div>
+
+<div class="cert-overlay" id="progress-modal">
+  <div class="cert-modal">
+    <img decoding="async" src="assets/img/Aury-Estudiando.png" style="width:80px;margin:0 auto 12px;display:block;" alt="Aury">
+    <div class="cert-modal-title">¿Guardamos tu progreso?</div>
+    <div class="cert-modal-sub">Déjame tu email y te aviso cuando publique nuevos cursos. Sin spam, solo lo útil.</div>
+    <input class="cert-name-input" id="progress-email" type="email" placeholder="tu@correo.com">
+    <button class="cert-generate-btn" onclick="saveProgress()">Guardar →</button>
+    <div class="cert-skip" onclick="dismissProgress()">Ahora no</div>
+  </div>
+</div>
+
+<div class="cert-overlay" id="cert-overlay">
+  <div class="cert-modal">
+    <img decoding="async" src="assets/img/Aury-con-Lupa-.png" style="width:90px;margin:0 auto 12px;display:block;" alt="Aury">
+    <div class="cert-modal-title">¡Lo lograste!</div>
+    <div class="cert-modal-sub">Terminaste el curso. Escribe tu nombre y correo para generar tu certificado y avisarte cuando publique nuevos cursos.</div>
+    <input class="cert-name-input" id="cert-name" type="text" placeholder="Tu nombre completo">
+    <input class="cert-name-input" id="cert-email" type="email" placeholder="tu@correo.com" style="margin-top:8px;">
+    <button class="cert-generate-btn" onclick="generateCert()">Descargar certificado →</button>
+    <div class="cert-skip" onclick="closeCertModal()">Omitir por ahora</div>
+  </div>
+</div>
+
+<div class="certificate" id="certificate">
+  <div class="cert-inner">
+    <div class="cert-logo">🐧 AuryOnTech</div>
+    <div class="cert-presents">Certifica que</div>
+    <div class="cert-student-name" id="cert-name-display">Nombre Apellido</div>
+    <div class="cert-completed">ha completado satisfactoriamente el curso</div>
+    <div class="cert-course-name">Tu Primera Automatización con Make</div>
+    <div class="cert-divider"></div>
+    <div class="cert-date" id="cert-date"></div>
+    <div class="cert-signature">Cristian Lopez Garcia</div>
+    <div class="cert-signature-sub">Automation &#038; Growth Partner · AuryOnTech</div>
+  </div>
+</div>
+
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+       <div class="logo-icon" style="background:none;padding:0;"><img decoding="async" src="assets/img/Logo.png" style="width:40px;height:40px;object-fit:contain;display:block;"></div>
+
+        <span class="logo-text">AuryOnTech</span>
+      </div>
+      <div class="course-title">Tu Primera Automatización con Make</div>
+      <div class="progress-info">
+        <span class="progress-label">Progreso</span>
+        <span class="progress-pill" id="progress-text">0 / 9</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+  </nav>
+
+  <main class="main" id="main-content">
+    <div class="content">
+      <div id="content-area"></div>
+    </div>
+  </main>
+</div>
+
+<button class="hamburger" onclick="toggleSidebar()">
+  <span></span><span></span><span></span>
+</button>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<script>
+const curso = [
+  {
+    modulo: "01",
+    titulo: "El problema que estás ignorando",
+    lecciones: [
+      {
+        id: "1-1",
+        titulo: "Cuánto tiempo pierdes en tareas repetitivas",
+        objetivo: "Calcular cuántas horas reales estás perdiendo en trabajo manual que una máquina puede hacer en tu lugar.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">El problema que estás ignorando</div>
+          </div>
+
+          <!--
+          🖼️ IMAGEN UNSPLASH — Lección 1.1
+          Busca en unsplash.com: "person laptop stressed email notifications"
+          Elige una foto oscura o con tono serio. Copia el enlace de descarga directa.
+          Reemplaza la URL del src de abajo con esa URL.
+          -->
+          <div class="lesson-hero">
+            <img decoding="async"
+              src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1400&#038;auto=format&#038;fit=crop&#038;q=80"
+              alt="Persona frente a laptop con trabajo acumulado"
+              onerror="this.parentElement.classList.add('broken'); this.remove()">
+          </div>
+
+          <p>Tienes un negocio. Llegan correos con facturas, pedidos, confirmaciones. Los abres, copias el dato que necesitas y lo pegas en una hoja de cálculo. Lo haces el lunes, el miércoles, el viernes. Cada semana, sin falta.</p>
+          <p>No parece gran cosa. Pero hagamos la cuenta real:</p>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>10 minutos al día en tareas repetitivas</strong>
+                <p>Registrar datos, reenviar correos, actualizar hojas, confirmar citas.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>50 minutos a la semana</strong>
+                <p>Que podrías dedicar a conseguir clientes nuevos o mejorar tu servicio.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Más de 3 horas al mes</strong>
+                <p>Haciendo exactamente lo mismo que hiciste el mes pasado. Y el anterior.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>40 horas al año</strong>
+                <p>Una semana laboral completa. Perdida. En copiar y pegar datos.</p>
+              </div>
+            </div>
+          </div>
+
+          <p>Y eso son solo 10 minutos. Si son 30, multiplica todo por tres.</p>
+
+          <h3>¿Cuáles son esas tareas en tu caso?</h3>
+          <p>Estos son los ejemplos más comunes en negocios pequeños y medianos:</p>
+          <ul>
+            <li><strong>Registrar facturas o pedidos</strong> que llegan por correo en una hoja de cálculo</li>
+            <li><strong>Enviar confirmaciones</strong> cada vez que alguien reserva o compra</li>
+            <li><strong>Guardar datos de leads</strong> que llegan por formulario en un CRM o una hoja</li>
+            <li><strong>Actualizar inventario</strong> manualmente después de cada venta</li>
+            <li><strong>Recordar a clientes</strong> sobre citas o pagos pendientes</li>
+          </ul>
+
+          <p>Todas estas tareas tienen algo en común: siguen siempre el mismo patrón. Cuando pasa X, hago Y. Y eso es exactamente lo que puede hacer una automatización.</p>
+
+          <div class="callout callout-tip">
+            <strong>La automatización no reemplaza tu criterio</strong>
+            No se trata de que una máquina tome decisiones por ti. Se trata de que no tengas que hacer el trabajo mecánico que no requiere tu cerebro. Tú defines la regla una sola vez. La máquina la ejecuta para siempre.
+          </div>
+
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Identifica tus tareas repetitivas</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Piensa en los últimos 3 días de trabajo</li>
+              <li><span class="step-num">02</span> Escribe 2 o 3 tareas que hiciste más de una vez y que siguieron el mismo patrón</li>
+              <li><span class="step-num">03</span> Marca cuál te quita más tiempo a la semana — esa es tu primera candidata para automatizar</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "1-2",
+        titulo: "Qué es Make y cómo piensa",
+        objetivo: "Entender los conceptos de trigger y acción para poder construir tu primera automatización sin confusión.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">El problema que estás ignorando</div>
+          </div>
+
+          <!--
+          🖼️ IMAGEN UNSPLASH — Lección 1.2
+          Busca en unsplash.com: "workflow automation connection technology"
+          Algo abstracto que transmita conexión entre sistemas. Fondo oscuro ideal.
+          Reemplaza la URL del src de abajo.
+          -->
+          <div class="lesson-hero">
+            <img decoding="async"
+              src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1400&#038;auto=format&#038;fit=crop&#038;q=80"
+              alt="Diagrama de conexiones y flujo"
+              onerror="this.parentElement.classList.add('broken'); this.remove()">
+          </div>
+
+          <p>Make es una herramienta que conecta aplicaciones y les da instrucciones. Sin código. Sin servidores. Sin nada técnico que no puedas entender en 5 minutos.</p>
+          <p>Todo lo que construyes en Make se llama un <strong>Scenario</strong>. Un Scenario es una regla: <em>cuando pase esto, haz aquello</em>. Eso es todo.</p>
+
+          <h3>Los dos ingredientes de cualquier automatización</h3>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background: var(--sky);">T</div>
+              <div class="step-content">
+                <strong>Trigger — el disparador</strong>
+                <p>El evento que activa todo el flujo. Sin trigger, nada se mueve. Ejemplo: "Llegó un correo con la palabra Factura en el asunto."</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background: var(--dawn);">A</div>
+              <div class="step-content">
+                <strong>Acción — qué hace Make</strong>
+                <p>Lo que ocurre automáticamente cuando el trigger se activa. Ejemplo: "Agrega una fila a mi Google Sheet con los datos de ese correo."</p>
+              </div>
+            </div>
+          </div>
+
+          <p>Eso es todo. Un trigger más una o más acciones. El resto es detalle de configuración.</p>
+
+          <h3>Lo que vamos a construir en este curso</h3>
+
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Flujo del curso</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Trigger: Gmail detecta un correo con "Factura" en el asunto
+   ↓
+Acción: Google Sheets agrega una fila con los datos del correo
+   ↓
+Resultado: tu registro de facturas se actualiza solo, sin que toques nada</pre>
+          </div>
+
+          <p>Al terminar esta sesión tendrás esto corriendo. Envías un correo de prueba con "Factura" en el asunto y ves la fila aparecer sola en tu hoja en menos de 30 segundos.</p>
+
+          <div class="callout callout-warning">
+            <strong>Make tiene un plan gratuito que es suficiente para este curso</strong>
+            El plan gratuito incluye 1,000 operaciones al mes. Una operación es un módulo ejecutado. Para el flujo de dos módulos que vamos a construir, 1,000 operaciones te dan para semanas de uso real sin pagar nada.
+          </div>
+
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">En Make, ¿qué es un "trigger"?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this, false)"
+                data-incorrect="Eso sería la acción. El trigger detecta el evento de entrada — sin él, el Scenario no arranca.">
+                La tarea que Make ejecuta automáticamente
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, true)"
+                data-correct="Exacto. El trigger detecta el evento que activa todo el flujo. Sin él, nada se mueve.">
+                El evento que activa el inicio del flujo
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)"
+                data-incorrect="Eso es el Scenario — el nombre que Make le da a toda la automatización, que incluye el trigger más las acciones.">
+                El nombre de la automatización completa
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Escribe tu primera regla de automatización</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Toma la tarea repetitiva que identificaste en la lección anterior</li>
+              <li><span class="step-num">02</span> Escríbela en formato: "Cuando [trigger], quiero que [acción]"</li>
+              <li><span class="step-num">03</span> Ejemplo: "Cuando llega un correo con Factura en el asunto, quiero que los datos se guarden solos en Sheets"</li>
+            </ul>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "02",
+    titulo: "Prepara tu espacio de trabajo",
+    lecciones: [
+      {
+        id: "2-1",
+        titulo: "Crea tu cuenta gratuita en Make",
+        objetivo: "Tener tu cuenta de Make activa y reconocer las tres secciones que vas a usar en este curso.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Prepara tu espacio de trabajo</div>
+          </div>
+
+          <p>Make corre 100% en el navegador. No hay nada que instalar. Solo necesitas una dirección de correo para crear tu cuenta gratuita y empezar a construir.</p>
+
+          <h3>Crea tu cuenta — paso a paso</h3>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Ve a make.com en tu navegador</strong>
+                <p>Escribe <span class="inline-code">make.com</span> y presiona Enter. Haz clic en el botón <span class="inline-code">Get started free</span>.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Regístrate con tu cuenta de Gmail</strong>
+                <p>Recomendado: usa la misma cuenta de Gmail que vas a conectar a la automatización. Así la autorización es más directa.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Confirma tu correo electrónico</strong>
+                <p>Make te manda un correo de verificación. Ábrelo y haz clic en el enlace. Puede tardar entre 1 y 3 minutos.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>Salta el asistente de bienvenida</strong>
+                <p>Make te mostrará un wizard inicial. Puedes cerrarlo — lo que necesitas está directamente en el dashboard principal.</p>
+              </div>
+            </div>
+          </div>
+
+          <p>Ya estás dentro. Tómate 2 minutos para explorar la pantalla antes de continuar.</p>
+
+          <h3>Las tres secciones que vas a usar</h3>
+
+          <!--
+          📸 CAPTURA TÚ — Lección 2.1
+          Pantalla: el dashboard de Make justo después de crear tu cuenta.
+          Pasos: toma el screenshot → sube a WordPress > Medios → copia la URL → pega en el src de abajo.
+          -->
+          <div class="screenshot-frame">
+            <div class="screenshot-bar">
+              <div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div>
+            </div>
+            <img decoding="async" src="assets/img/Screenshot-2026-04-25-at-4.58.13-p.m.png" alt="Dashboard de Make" class="screenshot-img"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="screenshot-placeholder" style="display:none">
+              <div class="ph-icon">📸</div>
+              <div class="ph-title">Captura pendiente</div>
+              <div class="ph-sub">Dashboard de Make · Reemplaza AQUÍ_VA_TU_URL en el HTML</div>
+            </div>
+            <div class="screenshot-caption">Así se ve tu dashboard de Make recién creada la cuenta</div>
+          </div>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background: var(--sky); font-size: 10px; letter-spacing: -0.5px;">SC</div>
+              <div class="step-content">
+                <strong>Scenarios</strong>
+                <p>Aquí viven todas tus automatizaciones. Por ahora está vacío. Aquí vamos a crear la tuya en el siguiente módulo.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background: var(--sky); font-size: 10px; letter-spacing: -0.5px;">CN</div>
+              <div class="step-content">
+                <strong>Connections</strong>
+                <p>Las aplicaciones que has conectado a Make. Gmail y Google Sheets aparecerán aquí cuando los conectemos.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background: var(--sky); font-size: 10px; letter-spacing: -0.5px;">HI</div>
+              <div class="step-content">
+                <strong>History</strong>
+                <p>El registro de cada ejecución de tus Scenarios. Útil para verificar que todo funciona correctamente.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Confirma antes de continuar</div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-2-1-a">
+              <label for="ck-2-1-a">Creé mi cuenta en make.com</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-2-1-b">
+              <label for="ck-2-1-b">Confirmé mi correo electrónico</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-2-1-c">
+              <label for="ck-2-1-c">Puedo ver el dashboard con la sección Scenarios visible</label>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: "2-2",
+        titulo: "Prepara tu Google Sheet",
+        objetivo: "Crear la hoja de cálculo con la estructura exacta que Make necesita para saber dónde escribir los datos.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Prepara tu espacio de trabajo</div>
+          </div>
+
+          <p>Antes de construir la automatización necesitas el destino: la hoja donde van a aterrizar los datos. Si no existe de antemano, Make no sabe dónde escribir.</p>
+
+          <h3>Crea el Google Sheet — paso a paso</h3>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Ve a sheets.google.com</strong>
+                <p>Asegúrate de estar con la misma cuenta de Google que usaste al registrarte en Make.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Crea una hoja nueva en blanco</strong>
+                <p>Haz clic en el botón <span class="inline-code">+</span> o en <span class="inline-code">Hoja de cálculo en blanco</span>.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Nómbrala "Registro de Facturas"</strong>
+                <p>Haz clic en el texto "Hoja de cálculo sin título" en la parte superior izquierda y escribe ese nombre.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>Escribe los encabezados en la fila 1</strong>
+                <p>Uno por columna, exactamente como aparecen abajo. Make los va a leer para saber qué dato va en qué columna.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Encabezados · Fila 1 de tu Sheet</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>A1: Fecha
+B1: Remitente
+C1: Asunto
+D1: Monto
+E1: Descripcion</pre>
+          </div>
+
+          <div class="callout callout-warning">
+            <strong>Escribe "Descripcion" sin tilde</strong>
+            Solo para este encabezado, omite el acento. Algunos entornos de WordPress tienen conflictos de encoding con caracteres especiales en nombres de columna. El contenido que llegue de los correos puede tener acentos sin problema.
+          </div>
+
+          <!--
+          📸 CAPTURA TÚ — Lección 2.2
+          Pantalla: tu Google Sheet con los 5 encabezados escritos en la fila 1, columnas A a E.
+          Pasos: toma el screenshot → sube a WordPress > Medios → copia la URL → pega en el src de abajo.
+          -->
+          <div class="screenshot-frame">
+            <div class="screenshot-bar">
+              <div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div>
+            </div>
+            <img decoding="async" src="assets/img/Screenshot-2026-04-25-at-5.03.06-p.m.png" alt="Google Sheet con encabezados" class="screenshot-img"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="screenshot-placeholder" style="display:none">
+              <div class="ph-icon">📸</div>
+              <div class="ph-title">Captura pendiente</div>
+              <div class="ph-sub">Google Sheet con los 5 encabezados · Reemplaza AQUÍ_VA_TU_URL</div>
+            </div>
+            <div class="screenshot-caption">Tu Sheet debe verse así antes de conectarla a Make</div>
+          </div>
+
+          <h3>Para qué sirve cada columna</h3>
+          <p><strong>Fecha:</strong> Make captura automáticamente el timestamp del correo — cuándo llegó exactamente.</p>
+          <p><strong>Remitente:</strong> El correo de quien mandó la factura. Te dice de qué proveedor viene sin tener que abrir el correo.</p>
+          <p><strong>Asunto:</strong> La línea de asunto completa del correo.</p>
+          <p><strong>Monto:</strong> Lo dejamos vacío por ahora. En el módulo de escalado verás cómo extraerlo automáticamente del cuerpo del correo.</p>
+          <p><strong>Descripcion:</strong> El fragmento inicial del cuerpo del correo — los primeros ~200 caracteres. Suficiente para saber de qué se trata.</p>
+
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿En qué fila deben estar los encabezados de tu Sheet para que Make los detecte correctamente?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this, false)"
+                data-incorrect="No. Make necesita leer los encabezados desde la fila 1. Si dejas filas vacías antes, el módulo no los detecta.">
+                En cualquier fila — Make los encuentra solo
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, true)"
+                data-correct="Correcto. Los encabezados deben estar en la fila 1 sin celdas vacías antes. Así Make los lee automáticamente al seleccionar el archivo.">
+                En la fila 1, sin celdas vacías antes
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)"
+                data-incorrect="No. Los encabezados van en la fila 1, no en la fila 2. Si los pones en la fila 2, Make trata la fila 1 como la primera fila de datos y el mapeo falla.">
+                En la fila 2, para dejar la primera libre
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Confirma antes de continuar</div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-2-2-a">
+              <label for="ck-2-2-a">Creé el archivo "Registro de Facturas" en Google Sheets</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-2-2-b">
+              <label for="ck-2-2-b">Los 5 encabezados están escritos exactamente como se indica en la fila 1</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-2-2-c">
+              <label for="ck-2-2-c">Estoy usando la misma cuenta de Google que registré en Make</label>
+            </div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "03",
+    titulo: "Construye la automatización",
+    lecciones: [
+      {
+        id: "3-1",
+        titulo: "Configura el trigger: Gmail detecta 'Factura'",
+        objetivo: "Conectar Gmail a Make y configurar el módulo que vigila tu bandeja de entrada en busca de correos con 'Factura' en el asunto.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Construye la automatización</div>
+          </div>
+
+          <p>Aquí empieza lo concreto. Vas a crear tu primer Scenario en Make y configurar el módulo que vigila tu bandeja de entrada.</p>
+
+          <h3>Crea el Scenario</h3>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Ve a Scenarios en el menú izquierdo de Make</strong>
+                <p>Haz clic en <span class="inline-code">+ Create a new scenario</span> — el botón naranja en la esquina superior derecha.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Verás un canvas vacío con un círculo grande en el centro</strong>
+                <p>Ese círculo es donde va el trigger. Haz clic en él para agregar el primer módulo.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Busca "Gmail" en el buscador que aparece</strong>
+                <p>Escribe "Gmail" y selecciona la aplicación de Google de la lista de resultados.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>Elige "Watch emails"</strong>
+                <p>No elijas "Watch email threads" ni ninguna otra opción — solo <span class="inline-code">Watch emails</span>.</p>
+              </div>
+            </div>
+          </div>
+
+          <h3>Conecta tu cuenta de Gmail</h3>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">5</div>
+              <div class="step-content">
+                <strong>En el campo "Connection", haz clic en "Create a Connection"</strong>
+                <p>Se abre un diálogo con el campo "Connection name" — puedes dejarlo como "My Gmail connection". Haz clic en "Sign in with Google", selecciona tu cuenta y acepta los permisos que Google solicita.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">6</div>
+              <div class="step-content">
+                <strong>Selecciona tu cuenta de Gmail y autoriza el acceso</strong>
+                <p>Google te pedirá confirmar que Make puede leer tus correos. Esto es necesario para que el trigger funcione.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout callout-tip">
+            <strong>¿Qué permisos le das a Make exactamente?</strong>
+            Make puede leer correos nuevos según los filtros que tú configures. No puede enviar ni eliminar correos a menos que tú agregues un módulo específico para eso. Tú controlas qué puede y qué no puede hacer.
+          </div>
+
+          <h3>Configura el módulo de Gmail</h3>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">7</div>
+              <div class="step-content">
+                <strong>Filter type → dejar en "Simple filter"</strong>
+                <p>El valor por defecto es correcto. No lo cambies.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">8</div>
+              <div class="step-content">
+                <strong>Folder → dejar en "System folders: Inbox"</strong>
+                <p>Make va a vigilar tu bandeja de entrada principal.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">9</div>
+              <div class="step-content">
+                <strong>Criteria → cambiar a "Only unread messages"</strong>
+                <p>Así Make solo procesa correos nuevos que aún no has leído. Abre el desplegable y selecciona <span class="inline-code">Only unread messages</span>.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">10</div>
+              <div class="step-content">
+                <strong>Mark email message(s) as read when fetched → dejar en "No"</strong>
+                <p>Dejar en No para que Make no marque tus correos como leídos automáticamente.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">11</div>
+              <div class="step-content">
+                <strong>Limit → cambiar a 1</strong>
+                <p>El valor por defecto es 10. Cámbialo a <span class="inline-code">1</span>. Significa que Make procesa un correo por ejecución — suficiente para empezar.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">12</div>
+              <div class="step-content">
+                <strong>Activa el toggle "Advanced settings" en la parte inferior izquierda</strong>
+                <p>Al activarlo aparecen campos adicionales de filtrado: "Sender email address", "Subject", "Has the words", entre otros.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">13</div>
+              <div class="step-content">
+                <strong>Subject → escribe "Factura"</strong>
+                <p>En el campo <span class="inline-code">Subject</span> escribe exactamente: <span class="inline-code">Factura</span>. Make procesará solo los correos que contengan esa palabra en el asunto. Puedes cambiarlo por cualquier palabra clave que usen tus correos.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">14</div>
+              <div class="step-content">
+                <strong>Haz clic en "Save"</strong>
+                <p>Aparece un diálogo: "Choose where to start". Selecciona <span class="inline-code">From now on</span> y haz clic en "Save". Esto le dice a Make que solo procese correos nuevos a partir de este momento, no los que ya tienes en el inbox.</p>
+              </div>
+            </div>
+          </div>
+
+          <!--
+          📸 CAPTURA TÚ — Lección 3.1
+          Pantalla: el canvas de Make con el módulo de Gmail configurado.
+          Idealmente con el panel de configuración visible mostrando el filtro "subject:Factura".
+          Pasos: toma el screenshot → sube a WordPress > Medios → copia la URL → pega en el src de abajo.
+          -->
+          <div class="screenshot-frame">
+            <div class="screenshot-bar">
+              <div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div>
+            </div>
+            <img decoding="async" src="assets/img/Screenshot-2026-04-25-at-5.28.48-p.m.png" alt="Gmail trigger configurado en Make" class="screenshot-img"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="screenshot-placeholder" style="display:none">
+              <div class="ph-icon">📸</div>
+              <div class="ph-title">Captura pendiente</div>
+              <div class="ph-sub">Módulo Gmail con filtro · Reemplaza AQUÍ_VA_TU_URL</div>
+            </div>
+            <div class="screenshot-caption">El módulo de Gmail configurado con el campo "Subject: Factura" en Advanced settings</div>
+          </div>
+
+          <div class="callout callout-error">
+            <strong>Error frecuente: "No connection selected"</strong>
+            Si ves este mensaje al abrir el módulo, la conexión con Google no se completó. Haz clic en "Create a Connection" junto al campo Connection y repite el proceso de autorización desde el paso 5.
+          </div>
+
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Dónde configuras en Make el filtro para que solo procese correos con "Factura" en el asunto?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this, false)"
+                data-incorrect="No. El campo Criteria solo filtra por estado del correo: todos, leídos o no leídos. No filtra por contenido del asunto.">
+                En el campo "Criteria" del módulo de Gmail
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)"
+                data-incorrect="No. Has the words filtra por cualquier texto en cualquier parte del correo, no específicamente en el asunto. Para filtrar por asunto usas Subject.">
+                En el campo "Has the words" dentro de Advanced settings
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, true)"
+                data-correct="Exacto. El campo Subject dentro de Advanced settings procesa solo los correos que contienen esa palabra en el asunto. Es el filtro más preciso para este caso.">
+                En el campo "Subject" dentro de Advanced settings
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="action-block">
+            <div class="action-label">Hasta aquí</div>
+            <div class="action-title">El trigger está listo</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Gmail conectado en Make ✓</li>
+              <li><span class="step-num">02</span> <span class="inline-code">Factura</span> escrito en el campo "Subject" dentro de Advanced settings ✓</li>
+              <li><span class="step-num">03</span> "From now on" seleccionado en el diálogo "Choose where to start" ✓</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "3-2",
+        titulo: "Configura la acción: los datos llegan solos a Sheets",
+        objetivo: "Conectar Google Sheets a Make y mapear los campos del correo a las columnas de tu hoja.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Construye la automatización</div>
+          </div>
+
+          <p>Tienes el trigger. Ahora le dices a Make qué hacer cuando detecta ese correo: abrir tu hoja de Sheets y escribir los datos automáticamente.</p>
+
+          <h3>Agrega el módulo de Google Sheets</h3>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>En el canvas, haz clic en el "+" a la derecha del módulo de Gmail</strong>
+                <p>Ese símbolo es donde encadenas la siguiente acción al trigger.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Busca "Google Sheets" y selecciónalo</strong>
+                <p>Escribe "Sheets" en el buscador que aparece.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Elige "Add a row"</strong>
+                <p>Esta acción agrega una fila nueva al final de tu hoja cada vez que se ejecuta.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>Conecta tu cuenta de Google</strong>
+                <p>En el campo "Connection" haz clic en "Create a Connection". Se abre el diálogo con el campo "Connection name" — puedes dejarlo como "My Google connection". Haz clic en "Sign in with Google". Google te pide autorizar dos permisos: acceso a Google Drive y acceso a Google Sheets. Ambos vienen marcados por defecto — déjalos así y haz clic en "Continuar". Make solo va a tocar el archivo que tú le indiques, nada más.</p>
+              </div>
+            </div>
+          </div>
+
+          <h3>Selecciona el archivo y mapea los campos</h3>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">5</div>
+              <div class="step-content">
+                <strong>Spreadsheet Name → haz clic en "Click here to choose file"</strong>
+                <p>Se abre el selector de archivos de tu Google Drive. Navega hasta el archivo "Registro de Facturas" que creaste antes y selecciónalo. El campo mostrará <span class="inline-code">/ REGISTRO DE FACTURAS</span>.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">6</div>
+              <div class="step-content">
+                <strong>Sheet Name → seleccionar "REGISTRO DE FACTURAS"</strong>
+                <p>Make detecta automáticamente las pestañas del archivo. En el desplegable aparece <span class="inline-code">REGISTRO DE FACTURAS</span> — selecciónalo.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">7</div>
+              <div class="step-content">
+                <strong>Mapea los valores — aquí está la clave</strong>
+                <p>Make detecta tus encabezados y muestra un campo por columna: FECHA (A), REMITENTE (B), ASUNTO (C), MONTO (D) y DESCRIPCION (E). Haz clic en cada campo — se abre un selector con todas las variables disponibles del módulo de Gmail. Puedes escribir el nombre para filtrar la lista.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Mapeo de campos Gmail → Sheets</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>FECHA (A)       → haz clic en el campo → selecciona "Date"
+REMITENTE (B)   → haz clic en el campo → selecciona "From (email)"
+ASUNTO (C)      → haz clic en el campo → selecciona "Subject"
+MONTO (D)       → dejar vacío por ahora
+DESCRIPCION (E) → haz clic en el campo → selecciona "Snippet"</pre>
+          </div>
+
+          <div class="callout callout-tip">
+            <strong>¿Qué es "Snippet"?</strong>
+            Gmail genera automáticamente un resumen de los primeros ~200 caracteres del cuerpo de cada correo. Make puede leerlo y escribirlo en tu hoja sin necesidad de parsear el cuerpo completo.
+          </div>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">8</div>
+              <div class="step-content">
+                <strong>Haz clic en "Save"</strong>
+                <p>El módulo queda guardado. Tu canvas ahora muestra dos módulos conectados: Gmail → Google Sheets.</p>
+              </div>
+            </div>
+          </div>
+
+          <!--
+          📸 CAPTURA TÚ — Lección 3.2
+          Pantalla: el canvas de Make con los dos módulos conectados, y el panel de Sheets abierto mostrando el mapeo de campos.
+          Pasos: toma el screenshot → sube a WordPress > Medios → copia la URL → pega en el src de abajo.
+          -->
+          <div class="screenshot-frame">
+            <div class="screenshot-bar">
+              <div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div>
+            </div>
+            <img decoding="async" src="assets/img/Screenshot-2026-04-25-at-5.30.30-p.m.png" alt="Mapeo de campos en Make" class="screenshot-img"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="screenshot-placeholder" style="display:none">
+              <div class="ph-icon">📸</div>
+              <div class="ph-title">Captura pendiente</div>
+              <div class="ph-sub">Módulo Sheets con campos mapeados · Reemplaza AQUÍ_VA_TU_URL</div>
+            </div>
+            <div class="screenshot-caption">Cada campo de Gmail asignado a su columna en Sheets — así se ve el mapeo correcto</div>
+          </div>
+
+          <div class="callout callout-error">
+            <strong>Make no detecta las columnas de tu Sheet</strong>
+            Verifica que "Table contains headers" esté en "Yes" y que los encabezados estén en la fila 1 sin celdas vacías antes. Si acabas de crear el archivo, cierra el panel y vuelve a abrirlo — a veces Make necesita un momento para leer la hoja.
+          </div>
+
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Qué variable de Gmail mapeas a la columna DESCRIPCION de tu Sheet?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this, false)"
+                data-incorrect="No. Full text body contiene el cuerpo completo del correo — puede ser muy largo y difícil de leer en una celda. Para un resumen rápido usamos Snippet.">
+                Full text body
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)"
+                data-incorrect="No. HTML body contiene el código HTML completo del correo, no el texto plano. No es útil como descripción en una hoja de cálculo.">
+                HTML body
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, true)"
+                data-correct="Correcto. Snippet es el resumen automático de los primeros ~200 caracteres del cuerpo del correo que genera Gmail. Es lo justo para entender de qué trata sin abrir el correo.">
+                Snippet
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="action-block">
+            <div class="action-label">Hasta aquí</div>
+            <div class="action-title">Los dos módulos están conectados</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Google Sheets conectado ✓</li>
+              <li><span class="step-num">02</span> Archivo "Registro de Facturas" seleccionado ✓</li>
+              <li><span class="step-num">03</span> FECHA → Date, REMITENTE → From (email), ASUNTO → Subject, DESCRIPCION → Snippet mapeados ✓</li>
+              <li><span class="step-num">04</span> Haz clic en "Save" — el canvas muestra Gmail → Google Sheets conectados ✓</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "3-3",
+        titulo: "Prueba en vivo — envía el correo y mira qué pasa",
+        objetivo: "Ejecutar la automatización por primera vez y verificar que la fila aparece sola en tu Google Sheet.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Construye la automatización</div>
+          </div>
+
+          <!--
+          🖼️ IMAGEN UNSPLASH — Lección 3.3
+          Busca en unsplash.com: "success achievement computer screen happy"
+          Algo que transmita ese momento de "funcionó". Fondo claro u oscuro, lo que quede mejor.
+          Reemplaza la URL del src de abajo.
+          -->
+          <div class="lesson-hero">
+            <img decoding="async"
+              src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=1400&#038;auto=format&#038;fit=crop&#038;q=80"
+              alt="Momento de éxito frente a la pantalla"
+              onerror="this.parentElement.classList.add('broken'); this.remove()">
+          </div>
+
+          <p>Los dos módulos están configurados y conectados. Ahora vas a ejecutar la automatización por primera vez y ver cómo los datos aparecen solos en tu hoja — sin que toques nada.</p>
+
+          <h3>Ejecuta la prueba manual</h3>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Abre Gmail y envíate un correo de prueba con "Factura" en el asunto</strong>
+                <p>Dirígelo a tu misma dirección de Gmail. En el asunto escribe algo como: <span class="inline-code">Factura de prueba #001</span>. El cuerpo puede ser cualquier cosa.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Vuelve a Make y haz clic en "Run once" (abajo a la izquierda)</strong>
+                <p>Make ejecuta el Scenario una vez: busca en tu bandeja de entrada los correos no leídos con "Factura" en el asunto y procesa el que acabas de enviar.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Verifica que aparecen números verdes sobre cada módulo</strong>
+                <p>Un número verde sobre Gmail y otro sobre Google Sheets confirman que la ejecución fue exitosa y que se procesó un correo.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>Abre tu "Registro de Facturas" en Google Sheets</strong>
+                <p>Debería aparecer una nueva fila con la fecha, el remitente, el asunto y el snippet del correo de prueba — escrita sola, sin que hayas tocado nada.</p>
+              </div>
+            </div>
+          </div>
+
+          <!--
+          📸 CAPTURA TÚ — Lección 3.3
+          Pantalla: tu Google Sheet con la fila de prueba ya visible — columnas A a E con datos reales.
+          Pasos: toma el screenshot → sube a WordPress > Medios → copia la URL → pega en el src de abajo.
+          -->
+          <div class="screenshot-frame">
+            <div class="screenshot-bar">
+              <div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div>
+            </div>
+            <img decoding="async" src="assets/img/Screenshot-2026-04-25-at-5.39.03-p.m.png" alt="Fila de prueba en Google Sheets" class="screenshot-img"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="screenshot-placeholder" style="display:none">
+              <div class="ph-icon">📸</div>
+              <div class="ph-title">Captura pendiente</div>
+              <div class="ph-sub">Fila de prueba en Sheets con datos reales · Reemplaza AQUÍ_VA_TU_URL</div>
+            </div>
+            <div class="screenshot-caption">Una fila nueva con los datos del correo de prueba — aparecida sola, sin intervención</div>
+          </div>
+
+          <div class="callout callout-error">
+            <strong>Nada apareció en Sheets — revisa en este orden</strong>
+            1. El asunto del correo contiene la palabra "Factura" con F mayúscula. 2. El correo llegó a tu bandeja de entrada, no a Spam. 3. En el módulo de Gmail, dentro de Advanced settings, el campo "Subject" dice exactamente <span class="inline-code">Factura</span>. 4. El archivo seleccionado en el módulo de Sheets es "Registro de Facturas" y no otro.
+          </div>
+
+          <h3>Activa el Scenario para que corra solo</h3>
+
+          <p>"Run once" es solo para pruebas — ejecuta el flujo una sola vez de forma manual. Para que tu automatización funcione de forma permanente sin que hagas nada, tienes que activar la ejecución programada:</p>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">5</div>
+              <div class="step-content">
+                <strong>En la barra inferior, activa el toggle junto a "Every 15 minutes"</strong>
+                <p>Verás el toggle cambiar a activo. Esto le dice a Make que revise tu bandeja automáticamente cada 15 minutos y ejecute el Scenario si encuentra correos nuevos con "Factura" en el asunto. En el plan gratuito el intervalo mínimo es 15 minutos.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">6</div>
+              <div class="step-content">
+                <strong>Guarda el Scenario con Cmd+S o el botón Save</strong>
+                <p>Tu automatización está activa y funcionando de forma permanente. A partir de ahora cada correo con "Factura" en el asunto que llegue a tu bandeja quedará registrado solo en tu Sheet — sin que toques nada.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout callout-success">
+            <strong>Tienes tu primera automatización corriendo</strong>
+            Cada correo con "Factura" en el asunto que llegue a tu bandeja se registrará automáticamente en tu Sheet. Para siempre. Sin que toques nada.
+          </div>
+
+          <div class="challenge-block">
+            <div class="challenge-label">🎯 Momento de verdad</div>
+            <div class="challenge-question">¿Apareció la fila en tu Google Sheet?</div>
+            <div class="challenge-btns">
+              <button class="challenge-yes" onclick="handleChallenge(this, true)">Sí, la veo 🎉</button>
+              <button class="challenge-no" onclick="handleChallenge(this, false)">No, algo salió mal</button>
+            </div>
+            <div class="challenge-response"></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "04",
+    titulo: "Ahora escala",
+    lecciones: [
+      {
+        id: "4-1",
+        titulo: "Variaciones: qué más puedes capturar con este flujo",
+        objetivo: "Adaptar el Scenario que construiste a otros casos de uso de tu negocio sin empezar desde cero.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Ahora escala</div>
+          </div>
+
+          <p>Ya conoces la lógica. Ahora esa misma lógica aplica a docenas de situaciones distintas en tu negocio. Lo único que cambia es el filtro y el destino.</p>
+
+          <h3>Cuatro variaciones listas para construir</h3>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background: var(--sky);">1</div>
+              <div class="step-content">
+                <strong>Registro de pedidos</strong>
+                <p>Cambia el filtro a <span class="inline-code">subject:Pedido</span> y el Sheet destino a "Registro de Pedidos". Cada pedido que llegue por correo queda registrado solo.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background: var(--sky);">2</div>
+              <div class="step-content">
+                <strong>Registro de reservas</strong>
+                <p>Filtro: <span class="inline-code">subject:Reserva</span>. Ideal para consultorios, estudios de tatuajes, restaurantes o cualquier negocio basado en citas.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background: var(--sky);">3</div>
+              <div class="step-content">
+                <strong>Captura de leads</strong>
+                <p>Si recibes notificaciones de tu formulario de contacto por correo, filtra por el asunto que generan y guarda nombre, email y mensaje en tu hoja de leads automáticamente.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background: var(--sky);">4</div>
+              <div class="step-content">
+                <strong>Alertas de pago</strong>
+                <p>Filtro: <span class="inline-code">from:noreply@paypal.com</span> o <span class="inline-code">subject:Pago confirmado</span>. Cada confirmación de pago queda registrada sin que la busques.</p>
+              </div>
+            </div>
+          </div>
+
+          <h3>Cómo duplicar tu Scenario en 4 pasos</h3>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Ve a la lista de Scenarios en Make</strong>
+                <p>Haz clic en el ícono de tres puntos <span class="inline-code">···</span> junto al Scenario que construiste.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Selecciona "Clone"</strong>
+                <p>Make crea una copia exacta con todas las configuraciones y conexiones existentes.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Entra al clon y cambia el filtro de Gmail</strong>
+                <p>Activa "Advanced settings" y modifica solo el campo "Subject" con la nueva palabra clave. Todo lo demás se queda igual.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>Cambia el Sheet de destino en el módulo de Google Sheets</strong>
+                <p>Apúntalo al archivo correcto para ese flujo. Guarda y activa.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout callout-tip">
+            <strong>Agrega una segunda acción al mismo Scenario</strong>
+            No tienes que crear un Scenario nuevo para cada acción. Al mismo flujo de "Factura detectada" puedes encadenar un módulo de Gmail que te mande un correo de notificación al instante. Así sabes en tiempo real cuando llegó una factura nueva, sin revisar el Sheet.
+          </div>
+
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Construye tu segundo flujo</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> ¿Qué tipo de correo recibes frecuentemente que sería útil registrar automáticamente?</li>
+              <li><span class="step-num">02</span> ¿Qué palabra siempre aparece en el asunto de ese correo?</li>
+              <li><span class="step-num">03</span> Crea el Sheet de destino y duplica el Scenario — ya sabes exactamente cómo hacerlo</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "4-2",
+        titulo: "Las 3 automatizaciones que siguen para tu negocio",
+        objetivo: "Tener un roadmap claro de las próximas automatizaciones de mayor impacto, ordenadas de menor a mayor complejidad.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Ahora escala</div>
+          </div>
+
+          <!--
+          🖼️ IMAGEN UNSPLASH — Lección 4.2
+          Busca en unsplash.com: "technology future digital scale growth"
+          Algo que transmita escala, crecimiento o infraestructura digital.
+          Reemplaza la URL del src de abajo.
+          -->
+          <div class="lesson-hero">
+            <img decoding="async"
+              src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1400&#038;auto=format&#038;fit=crop&#038;q=80"
+              alt="Infraestructura digital y escala"
+              onerror="this.parentElement.classList.add('broken'); this.remove()">
+          </div>
+
+          <p>Completaste tu primera automatización. Eso es el primer 10% de lo que Make puede hacer por tu negocio. Estas son las siguientes piezas, ordenadas de menor a mayor complejidad:</p>
+
+          <h3>Automatización #2 — Respuesta automática a nuevos leads</h3>
+          <p><strong>Qué hace:</strong> Cuando alguien llena tu formulario de contacto, Make detecta el correo de notificación y envía automáticamente un mensaje de respuesta a ese lead con la información que tú definas.</p>
+          <p><strong>Tiempo ahorrado:</strong> 15-20 minutos al día si recibes varios leads.</p>
+          <p><strong>Lo que necesitas:</strong> Gmail + Gmail. Los dos módulos que ya conoces.</p>
+          <p><strong>Dificultad:</strong> Baja — es el mismo flujo con un módulo "Send an email" encadenado al final.</p>
+
+          <h3>Automatización #3 — Recordatorio de citas</h3>
+          <p><strong>Qué hace:</strong> Cada día a las 8am, Make revisa tu Google Calendar, busca las citas del día siguiente y envía un correo de recordatorio a cada cliente automáticamente.</p>
+          <p><strong>Tiempo ahorrado:</strong> 30 minutos al día. Reducción real de no-shows.</p>
+          <p><strong>Lo que necesitas:</strong> Google Calendar + Gmail.</p>
+          <p><strong>Dificultad:</strong> Media — requiere un trigger de horario en vez de un trigger de correo.</p>
+
+          <h3>Automatización #4 — Dashboard de ventas semanal</h3>
+          <p><strong>Qué hace:</strong> Cada semana, Make recopila tus ventas de WooCommerce, Stripe o PayPal y actualiza automáticamente una hoja con el resumen: ingresos, productos vendidos, clientes nuevos.</p>
+          <p><strong>Tiempo ahorrado:</strong> 1-2 horas semanales en reportes manuales.</p>
+          <p><strong>Lo que necesitas:</strong> Tu plataforma de ventas + Google Sheets.</p>
+          <p><strong>Dificultad:</strong> Media-alta — hay filtros y transformaciones de datos.</p>
+
+          <div class="callout callout-tip">
+            <strong>El criterio para decidir qué automatizar a continuación</strong>
+            Antes de construir cualquier flujo nuevo, hazte esta pregunta: ¿cuántas veces hago esto a la semana? Si son más de 3, vale la pena automatizarlo. Si son menos de 2, enfoca tu energía en otro lado primero.
+          </div>
+
+          <div class="next-course">
+            <div class="next-course-label">Siguiente nivel</div>
+            <div class="next-course-title">Automatiza tu negocio con n8n</div>
+            <div class="next-course-desc">Ya dominas Make. En este curso construyes automatizaciones más avanzadas con n8n: reportes en PDF con diseño de marca, integraciones con WooCommerce y Stripe, y flujos con lógica condicional y JavaScript.</div>
+            <span class="next-course-btn" style="opacity:0.5;cursor:default;">Próximamente</span>
+          </div>
+
+          <div class="action-block">
+            <div class="action-label">Tu siguiente paso</div>
+            <div class="action-title">Define tu roadmap de automatización</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> De las 3 automatizaciones de arriba, ¿cuál resuelve el dolor más urgente en tu negocio hoy?</li>
+              <li><span class="step-num">02</span> Escríbela: "Cuando [trigger], quiero que [acción] para [resultado]"</li>
+              <li><span class="step-num">03</span> Comparte ese caso de uso — te digo exactamente cómo construirlo</li>
+            </ul>
+          </div>
+        `
+      }
+    ]
+  }
+];
+
+// ─────────────────────────────────────────
+// ESTADO
+// ─────────────────────────────────────────
+let currentLesson = 0;
+const allLessons = curso.flatMap(m => m.lecciones);
+const completed = new Set();
+const quizPassed = new Set();
+
+// ─────────────────────────────────────────
+// RENDER SIDEBAR
+// ─────────────────────────────────────────
+function renderSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  curso.forEach((modulo) => {
+    const moduleEl = document.createElement('div');
+    moduleEl.className = 'nav-module';
+    const header = document.createElement('div');
+    header.className = 'nav-module-header';
+    header.innerHTML = `<span><span class="nav-module-num">${modulo.modulo}</span> ${modulo.titulo}</span>`;
+    header.onclick = () => {
+      const lessons = moduleEl.querySelector('.nav-lessons');
+      lessons.style.maxHeight = lessons.style.maxHeight ? '' : lessons.scrollHeight + 'px';
+    };
+    const lessons = document.createElement('div');
+    lessons.className = 'nav-lessons';
+    lessons.style.maxHeight = '500px';
+    modulo.lecciones.forEach((leccion) => {
+      const idx = allLessons.findIndex(l => l.id === leccion.id);
+      const item = document.createElement('div');
+      item.className = 'nav-lesson' + (idx === currentLesson ? ' active' : '') + (completed.has(idx) ? ' completed' : '');
+      item.dataset.idx = idx;
+      item.innerHTML = `<div class="lesson-dot"></div>${leccion.titulo}`;
+      item.onclick = () => goToLesson(idx);
+      lessons.appendChild(item);
+    });
+    moduleEl.appendChild(header);
+    moduleEl.appendChild(lessons);
+    nav.appendChild(moduleEl);
+  });
+}
+
+// ─────────────────────────────────────────
+// RENDER LESSON
+// ─────────────────────────────────────────
+function renderLesson(idx) {
+  const area = document.getElementById('content-area');
+  const leccion = allLessons[idx];
+  const modulo = curso.find(m => m.lecciones.some(l => l.id === leccion.id));
+  area.innerHTML = `
+    <div class="lesson active">
+      <div class="lesson-breadcrumb">
+        <span>Módulo ${modulo.modulo}</span>
+        <span class="breadcrumb-sep">›</span>
+        <span>Lección ${idx + 1} de ${allLessons.length}</span>
+      </div>
+      <h1 class="lesson-title">${leccion.titulo}</h1>
+      <div class="lesson-objective">${leccion.objetivo}</div>
+      <div class="lesson-body">${leccion.contenido}</div>
+      <div class="lesson-nav">
+        <button class="nav-btn nav-btn-prev" onclick="goToLesson(${idx - 1})" ${idx === 0 ? 'disabled' : ''}>
+          ← Anterior
+        </button>
+        <button class="nav-btn nav-btn-next" onclick="nextLesson(${idx})">
+          ${idx === allLessons.length - 1 ? '¡Completado! 🐧' : 'Siguiente →'}
+        </button>
+      </div>
+    </div>
+  `;
+  document.getElementById('main-content').scrollTop = 0;
+}
+
+// ─────────────────────────────────────────
+// NAVEGACIÓN
+// ─────────────────────────────────────────
+function goToLesson(idx) {
+  if (idx < 0 || idx >= allLessons.length) return;
+  completed.add(currentLesson);
+  currentLesson = idx;
+  if (idx === 2 && !progressModalShown) {
+    setTimeout(function() {
+      document.getElementById('progress-modal').classList.add('active');
+    }, 600);
+  }
+  renderLesson(idx);
+  renderSidebar();
+  updateProgress();
+  closeSidebar();
+}
+
+function nextLesson(idx) {
+  completed.add(idx);
+  if (idx < allLessons.length - 1) {
+    goToLesson(idx + 1);
+  } else {
+    updateProgress();
+    renderSidebar();
+    const lessonsWithQuizzes = allLessons
+      .map((l, i) => ({ idx: i, titulo: l.titulo, hasQuiz: l.contenido.includes('quiz-block') }))
+      .filter(l => l.hasQuiz);
+    const pending = lessonsWithQuizzes.filter(l => !quizPassed.has(l.idx));
+    if (pending.length === 0) {
+      document.getElementById('cert-overlay').classList.add('active');
+    } else {
+      const area = document.getElementById('content-area');
+      const lista = pending.map(l => `<li style="margin-bottom:8px;">${l.titulo}</li>`).join('');
+      area.innerHTML = `
+        <div class="lesson active">
+          <div class="lesson-breadcrumb"><span>Certificado</span></div>
+          <h1 class="lesson-title">Casi lo tienes 🐧</h1>
+          <div class="lesson-objective">Para descargar tu certificado necesitas responder correctamente todos los quizzes del curso.</div>
+          <div class="lesson-body">
+            <p>Tienes quizzes pendientes en las siguientes lecciones:</p>
+            <ul style="margin:16px 0 16px 20px;">${lista}</ul>
+            <p>Vuelve a esas lecciones, responde el quiz correctamente y regresa aquí para obtener tu certificado.</p>
+          </div>
+          <div class="lesson-nav">
+            <button class="nav-btn nav-btn-prev" onclick="goToLesson(${idx})">← Volver</button>
+            <button class="nav-btn nav-btn-next" onclick="
+              const lq = allLessons.map((l,i)=>({idx:i,hasQuiz:l.contenido.includes('quiz-block')})).filter(l=>l.hasQuiz).filter(l=>!quizPassed.has(l.idx));
+              if(lq.length===0){document.getElementById('cert-overlay').classList.add('active');}
+              else{goToLesson(lq[0].idx);}
+            ">Ir al quiz pendiente →</button>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector('script[src="' + src + '"]')) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function certHTML(name, dateStr, auryBase64) {
+  const auryImg = auryBase64
+    ? `<img decoding="async" src="${auryBase64}" style="width:92%;object-fit:contain;object-position:bottom center;" alt="Aury">`
+    : '';
+  return `
+  <div style="width:1200px;height:848px;background:#07090F;position:relative;overflow:hidden;font-family:'DM Sans',sans-serif;">
+    <div style="position:absolute;top:-120px;right:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(196,96,48,0.13),transparent 65%);"></div>
+    <div style="position:absolute;bottom:-120px;left:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(58,100,148,0.1),transparent 65%);"></div>
+    <div style="position:absolute;inset:20px;border:1.5px solid rgba(196,96,48,0.4);pointer-events:none;"></div>
+    <div style="position:absolute;inset:26px;border:1px solid rgba(196,96,48,0.1);pointer-events:none;"></div>
+    <div style="position:absolute;top:16px;left:16px;width:14px;height:14px;border-top:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;top:16px;right:16px;width:14px;height:14px;border-top:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;left:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;right:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;top:48px;left:60px;right:60px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#7A6E60;font-weight:500;font-family:'DM Mono',monospace;">🐧 AuryOnTech</div>
+      <div style="width:38%;height:1px;background:linear-gradient(to right,transparent,rgba(196,96,48,0.25),transparent);"></div>
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(196,96,48,0.5);font-family:'DM Mono',monospace;">Certificado de Finalización</div>
+    </div>
+    <div style="position:absolute;top:0;left:0;width:760px;height:848px;display:flex;flex-direction:column;justify-content:center;padding:100px 56px 80px 60px;">
+      <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#C46030;font-family:'DM Mono',monospace;margin-bottom:18px;">Este documento certifica que</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:58px;color:#EEF4F8;line-height:1.05;letter-spacing:-1.5px;margin-bottom:22px;">${name}</div>
+      <div style="width:56px;height:3px;background:#C46030;margin-bottom:22px;border-radius:2px;"></div>
+      <div style="font-size:15px;color:#7A6E60;margin-bottom:10px;">ha completado satisfactoriamente el curso</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:24px;color:#D88050;letter-spacing:-0.3px;margin-bottom:52px;line-height:1.3;">Tu Primera Automatización con Make</div>
+      <div style="display:flex;gap:52px;align-items:flex-start;">
+        <div>
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Fecha</div>
+          <div style="font-size:13px;color:#EDE4D8;">${dateStr}</div>
+        </div>
+        <div style="width:1px;height:40px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>
+        <div>
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Emitido por</div>
+          <div style="font-size:13px;color:#EDE4D8;font-weight:600;">Cristian Lopez Garcia</div>
+          <div style="font-size:11px;color:#7A6E60;margin-top:2px;">Automation & Growth Partner · AuryOnTech</div>
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute;top:100px;bottom:80px;left:760px;width:1px;background:linear-gradient(to bottom,transparent,rgba(196,96,48,0.2) 30%,rgba(196,96,48,0.2) 70%,transparent);"></div>
+    <div style="position:absolute;right:0;bottom:0;width:440px;height:848px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;">${auryImg}</div>
+    <div style="position:absolute;bottom:34px;left:60px;font-size:10px;color:rgba(122,110,96,0.35);letter-spacing:2px;font-family:'DM Mono',monospace;text-transform:uppercase;">auryontech.com</div>
+  </div>`;
+}
+
+async function generateCert() {
+  const name = document.getElementById('cert-name').value.trim();
+  const certEmail = document.getElementById('cert-email').value.trim();
+  if (!name) { document.getElementById('cert-name').focus(); return; }
+  if (certEmail && certEmail.includes('@')) {
+    var bf = new FormData();
+    bf.append('EMAIL', certEmail);
+    bf.append('FIRSTNAME', name);
+    bf.append('email_address_check', '');
+    bf.append('locale', 'es');
+    fetch(BREVO_URL, { method: 'POST', body: bf, mode: 'no-cors' }).catch(function(){});
+  }
+  const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+  closeCertModal();
+  const loader = document.createElement('div');
+  loader.style.cssText = 'position:fixed;inset:0;background:rgba(7,9,15,0.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#EEF4F8;font-family:DM Sans,sans-serif;font-size:15px;gap:14px;';
+  loader.innerHTML = '<div style="font-size:36px;">🐧</div><div>Generando tu certificado...</div>';
+  document.body.appendChild(loader);
+  let auryBase64 = '';
+  try {
+    const resp = await fetch('assets/img/Aury-enfrente-de-la-Compu.png');
+    const blob = await resp.blob();
+    auryBase64 = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(blob); });
+  } catch(e) {}
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:1200px;height:848px;z-index:-1;';
+  div.innerHTML = certHTML(name, dateStr, auryBase64);
+  document.body.appendChild(div);
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 400));
+  const canvas = await html2canvas(div, { scale:2, useCORS:true, allowTaint:true, backgroundColor:'#07090F', width:1200, height:848, logging:false });
+  document.body.removeChild(div);
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 297, 210);
+  pdf.save('Certificado_AuryOnTech_' + name.replace(/ /g, '_') + '.pdf');
+  loader.remove();
+}
+
+function closeCertModal() {
+  document.getElementById('cert-overlay').classList.remove('active');
+}
+
+var BREVO_URL = 'https://0e103c7f.sibforms.com/serve/MUIFACcAVhg6Tdy02KJvq_hyOt1ErujA5XWYIXUjZGCP0aKb2PfchzFL0MmgCrVlb1wEbVXQ78Y9PbaGvV-h6eDwhdF1DDKQ5gagxblvVU8Q8b25JkPbdElyJuMPxRuahKLEGB8cKfU8PXYfyg47EBCuanXes8JrDJ4pO7UM5qRmplP0_w5w6kxLdLm-XrMFaeqBufSlout3txidkQ==';
+var progressModalShown = false;
+
+function saveProgress() {
+  var email = document.getElementById('progress-email').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('progress-email').style.borderColor = '#ef4444';
+    return;
+  }
+  var body = new FormData();
+  body.append('EMAIL', email);
+  body.append('email_address_check', '');
+  body.append('locale', 'es');
+  fetch(BREVO_URL, { method: 'POST', body: body, mode: 'no-cors' }).catch(function(){});
+  dismissProgress();
+}
+
+function dismissProgress() {
+  document.getElementById('progress-modal').classList.remove('active');
+  progressModalShown = true;
+}
+
+function updateProgress() {
+  const total = allLessons.length;
+  const done = completed.size;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = done + ' / ' + total;
+}
+
+// ─────────────────────────────────────────
+// QUIZ
+// ─────────────────────────────────────────
+function handleQuiz(btn, isCorrect) {
+  const block = btn.closest('.quiz-block');
+  block.querySelectorAll('.quiz-option').forEach(o => {
+    o.disabled = true;
+    o.style.pointerEvents = 'none';
+  });
+  btn.classList.add(isCorrect ? 'quiz-correct' : 'quiz-incorrect');
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback ' + (isCorrect ? 'fb-correct' : 'fb-incorrect');
+  if (isCorrect) {
+    fb.textContent = btn.dataset.correct;
+    quizPassed.add(currentLesson);
+  } else {
+    fb.innerHTML = btn.dataset.incorrect + '<br><br><button onclick="resetQuiz(this)" style="margin-top:8px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;padding:7px 18px;border-radius:6px;font-family:\'DM Sans\',sans-serif;font-size:13px;cursor:pointer;">↩ Volver a intentar</button>';
+  }
+}
+
+function resetQuiz(btn) {
+  const block = btn.closest('.quiz-block');
+  block.querySelectorAll('.quiz-option').forEach(o => {
+    o.disabled = false;
+    o.style.pointerEvents = '';
+    o.classList.remove('quiz-correct', 'quiz-incorrect');
+  });
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback';
+  fb.innerHTML = '';
+}
+
+// ─────────────────────────────────────────
+// CHALLENGE
+// ─────────────────────────────────────────
+function handleChallenge(btn, success) {
+  const block = btn.closest('.challenge-block');
+  block.querySelectorAll('button').forEach(b => {
+    b.disabled = true;
+    b.style.pointerEvents = 'none';
+    b.style.opacity = '0.5';
+  });
+  const resp = block.querySelector('.challenge-response');
+  if (success) {
+    resp.className = 'challenge-response success';
+    resp.innerHTML = '<strong>¡Increíble!</strong> Tu primera automatización está funcionando. Cada correo con "Factura" en el asunto que llegue se registrará solo en tu Sheet de ahora en adelante. Eso es tiempo que recuperas para siempre.';
+  } else {
+    resp.className = 'challenge-response error';
+    resp.innerHTML = '<strong>Tranquilo, es lo más normal.</strong> Revisa los puntos del callout de arriba en orden. El 90% de los problemas son: la F de Factura no está en mayúscula en el asunto del correo, o el correo fue a Spam. Si revisaste todo y sigue sin funcionar, deja un comentario con el error que ves en Make y lo resolvemos.';
+  }
+}
+
+// ─────────────────────────────────────────
+// COPY CODE
+// ─────────────────────────────────────────
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '¡Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ─────────────────────────────────────────
+// SIDEBAR MÓVIL
+// ─────────────────────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+}
+
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('active');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeLightbox();
+});
+document.addEventListener('click', function(e) {
+  if (e.target.tagName === 'IMG' && e.target.closest('.screenshot-frame')) {
+    openLightbox(e.target.src);
+  }
+});
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+renderSidebar();
+renderLesson(0);
+updateProgress();
+
+(function() {
+  const dot = document.createElement('div'); dot.className = 'cursor-dot';
+  const ring = document.createElement('div'); ring.className = 'cursor-ring';
+  document.body.appendChild(dot);
+  document.body.appendChild(ring);
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+  document.addEventListener('mousedown', () => { dot.classList.add('clicking'); ring.classList.add('clicking'); });
+  document.addEventListener('mouseup', () => { dot.classList.remove('clicking'); ring.classList.remove('clicking'); });
+  (function animateRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animateRing); })();
+})();
+</script>
+
+<!--
+  ============================================================
+  METADATOS DEL CURSO
+  ============================================================
+
+  TÍTULO SUGERIDO:
+  Tu Primera Automatización con Make: de cero a corriendo en 30 minutos
+
+  DESCRIPCIÓN PARA LANDING PAGE:
+  Aprende a conectar Gmail y Google Sheets con Make para que tus datos
+  lleguen solos a tu hoja de cálculo — sin código, sin instalar nada,
+  y con resultado visible en la primera sesión.
+
+  PRECIO SUGERIDO:
+  Gratis — curso de entrada al ecosistema AuryOnTech
+
+  LO QUE APRENDE EL ALUMNO (bullets para página de ventas):
+  ✦ Crear y configurar su primera automatización real en Make desde cero
+  ✦ Conectar Gmail y Google Sheets para registrar datos de correos automáticamente
+  ✦ Duplicar y adaptar el flujo a cualquier tipo de correo de su negocio
+
+  ============================================================
+-->
+
+</body>
+</html>
+
+
+
+<p></p>

@@ -1,0 +1,989 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deja de recordarles tú. Que Make lo haga. — AuryOnTech</title>
+<meta name="description" content="Conecta Google Calendar con Gmail y haz que tus clientes reciban recordatorios automáticos el día antes de su cita. Gratis. Sin código.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#000000;--ink2:#070707;--ink3:#0F0F10;--ink4:#161617;
+  --dawn:#C46030;--dawn-l:#D88050;--dawn-ll:#ECA878;--dawn-pale:#2A1008;
+  --sky:#3A6494;--sky-l:#5A84B4;
+  --ice:#B8D4EC;--ice-l:#D0E8F8;
+  --snow:#EEF4F8;--bone:#EDE4D8;--bone2:#D8CCBC;--bone3:#B4A898;
+  --warm:#7A6E60;--warm-l:#9A8E80;
+  --surface:#0f1219;--surface-2:#161b24;
+  --border:rgba(238,244,248,.07);--border-dawn:rgba(196,96,48,.22);--border-ice:rgba(184,212,236,.15);
+  --shadow:0 8px 32px rgba(0,0,0,.4);--shadow-lg:0 24px 80px rgba(0,0,0,.5);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--ink);
+  color: var(--bone);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+body::after {
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;opacity:.35;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.045'/%3E%3C/svg%3E");
+}
+
+/* SNOW */
+.snow-field{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;}
+.flake{position:absolute;top:-20px;color:var(--ice-l);font-size:12px;animation:snowfall linear infinite;opacity:0;user-select:none;}
+@keyframes snowfall{0%{transform:translateY(-20px) rotate(0deg);opacity:0;}5%{opacity:.5;}95%{opacity:.2;}100%{transform:translateY(110vh) rotate(360deg);opacity:0;}}
+
+/* CURSOR */
+.cr{position:fixed;width:9px;height:9px;background:var(--dawn);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s;}
+.crr{position:fixed;width:30px;height:30px;border:1.5px solid var(--dawn-l);border-radius:50%;pointer-events:none;z-index:9997;transform:translate(-50%,-50%);opacity:.3;transition:width .3s,height .3s;}
+
+a, button { cursor: pointer !important; }
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 40px;
+  transition: background .4s, border-color .4s;
+  border-bottom: 1px solid transparent;
+}
+
+nav.scrolled {
+  background: rgba(7,9,15,.94);
+  backdrop-filter: blur(20px);
+  border-color: var(--border);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.nav-logo img {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.nav-logo span {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--snow);
+}
+
+.nav-badge {
+  background: rgba(196,96,48,0.15);
+  border: 1px solid rgba(196,96,48,0.3);
+  color: var(--dawn-ll);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-family: 'DM Mono', monospace;
+}
+
+/* ANIMACIONES */
+@keyframes orbF{0%{transform:translateY(0) scale(1);}33%{transform:translateY(-24px) scale(1.04);}66%{transform:translateY(12px) scale(.97);}100%{transform:translateY(0) scale(1);}}
+@keyframes floatBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 120px 40px 80px;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(ellipse 80% 60% at 15% 15%, rgba(196,96,48,.2) 0%, transparent 55%), radial-gradient(ellipse 60% 50% at 85% 30%, rgba(58,100,148,.12) 0%, transparent 55%), linear-gradient(175deg, #120A04 0%, #0A0E1C 40%, #07090F 100%);
+}
+
+.hero-orb-1 {
+  position: absolute;
+  top: -60px; left: 5%;
+  width: 400px; height: 400px;
+  background: rgba(196,96,48,.1);
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  animation: orbF 24s linear infinite;
+}
+
+.hero-orb-2 {
+  position: absolute;
+  bottom: 10%; right: 10%;
+  width: 280px; height: 280px;
+  background: rgba(58,100,148,.1);
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  animation: orbF 30s linear infinite -12s;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 70% 70% at 40% 50%, black 10%, transparent 100%);
+  pointer-events: none;
+}
+
+.hero-aurora {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 200px;
+  pointer-events: none;
+  background: linear-gradient(0deg, rgba(58,100,148,.15) 0%, transparent 100%);
+  z-index: 0;
+}
+
+.hero-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(196,96,48,.1);
+  border: 1px solid var(--border-dawn);
+  color: var(--dawn-ll);
+  font-size: .73rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 100px;
+  margin-bottom: 24px;
+  animation: fadeUp .5s ease both;
+}
+
+.badge-dot {
+  width: 6px; height: 6px;
+  background: var(--dawn);
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.hero-title {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-weight: 800;
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+
+.hero-title .accent { color: var(--dawn); }
+
+.hero-subtitle {
+  font-size: 18px;
+  color: rgba(238,244,248,0.65);
+  margin-bottom: 32px;
+  line-height: 1.7;
+  max-width: 480px;
+}
+
+.hero-proof {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+
+.proof-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--warm);
+}
+
+.proof-item span { color: var(--snow); font-weight: 600; }
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--dawn);
+  color: white;
+  padding: 16px 36px;
+  border-radius: 100px;
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  border: none;
+  transition: all 0.2s;
+  box-shadow: 0 8px 32px rgba(196,96,48,0.3);
+}
+
+.cta-btn:hover {
+  background: var(--dawn-l);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(196,96,48,0.4);
+}
+
+.cta-note {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--warm);
+}
+
+/* HERO CARD */
+.hero-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hero-card-header {
+  background: linear-gradient(135deg, rgba(196,96,48,0.15), rgba(58,100,148,0.1));
+  padding: 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.hero-card-header img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.hero-card-header h3 {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.hero-card-header p {
+  font-size: 12px;
+  color: var(--warm);
+  margin-top: 2px;
+}
+
+.email-demo {
+  padding: 20px 24px;
+}
+
+.email-demo-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--warm);
+  margin-bottom: 10px;
+}
+
+.email-mock {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 13px;
+}
+
+.email-mock-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.email-mock-from {
+  font-size: 11px;
+  color: var(--warm);
+}
+
+.email-mock-from strong { color: var(--snow); }
+
+.email-mock-subject {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--snow);
+}
+
+.email-mock-body {
+  padding: 14px 16px;
+  color: rgba(238,244,248,0.75);
+  line-height: 1.7;
+  font-size: 13px;
+}
+
+.email-mock-body .em-bold { font-weight: 600; color: var(--snow); }
+
+.email-mock-body .em-row {
+  display: flex;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+.auto-badge {
+  margin: 16px 24px;
+  background: rgba(52,168,83,0.1);
+  border: 1px solid rgba(52,168,83,0.25);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #7dd3a8;
+  font-weight: 600;
+}
+
+/* TOOLS STRIP */
+.tools-strip {
+  padding: 40px 40px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.tools-strip-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tools-label {
+  font-size: 12px;
+  color: var(--warm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-right: 8px;
+}
+
+.tool-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.tool-chip .chip-free {
+  font-size: 10px;
+  background: rgba(52,168,83,0.15);
+  border: 1px solid rgba(52,168,83,0.25);
+  color: #7dd3a8;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* WHAT YOU LEARN */
+.section {
+  padding: 80px 40px;
+}
+
+.section-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--dawn);
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-weight: 800;
+  font-size: clamp(26px, 4vw, 38px);
+  line-height: 1.2;
+  margin-bottom: 40px;
+  max-width: 520px;
+}
+
+.learn-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.learn-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: border-color 0.2s;
+}
+
+.learn-card:hover {
+  border-color: rgba(196,96,48,0.3);
+}
+
+.learn-icon {
+  font-size: 28px;
+  margin-bottom: 14px;
+  display: block;
+}
+
+.learn-card h4 {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.learn-card p {
+  font-size: 13px;
+  color: rgba(238,244,248,0.6);
+  line-height: 1.6;
+}
+
+/* FLOW SECTION */
+.flow-section {
+  padding: 80px 40px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.flow-steps {
+  display: flex;
+  gap: 0;
+  margin-top: 40px;
+  position: relative;
+}
+
+.flow-steps::before {
+  content: '';
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  right: 28px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--dawn), rgba(196,96,48,0.2));
+  z-index: 0;
+}
+
+.flow-step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  padding: 0 16px;
+}
+
+.flow-step-dot {
+  width: 56px;
+  height: 56px;
+  background: var(--ink);
+  border: 2px solid var(--dawn);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 22px;
+}
+
+.flow-step h4 {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.flow-step p {
+  font-size: 12px;
+  color: rgba(238,244,248,0.55);
+  line-height: 1.6;
+}
+
+/* FOR WHO */
+.for-who {
+  padding: 80px 40px;
+}
+
+.for-who-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 40px;
+}
+
+.for-who-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  transition: border-color 0.2s;
+}
+
+.for-who-item:hover { border-color: rgba(196,96,48,0.3); }
+
+.for-who-item .fw-icon { font-size: 24px; flex-shrink: 0; }
+
+.for-who-item h4 {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 3px;
+}
+
+.for-who-item p {
+  font-size: 12px;
+  color: var(--warm);
+  line-height: 1.5;
+}
+
+/* CTA FINAL */
+.cta-final {
+  padding: 80px 40px;
+  text-align: center;
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(196,96,48,0.05) 100%);
+  border-top: 1px solid var(--border);
+}
+
+.cta-final-inner {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.cta-final img {
+  width: 120px;
+  margin-bottom: 24px;
+}
+
+.cta-final h2 {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-weight: 800;
+  font-size: clamp(26px, 4vw, 38px);
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.cta-final h2 .accent { color: var(--dawn); }
+
+.cta-final p {
+  font-size: 16px;
+  color: rgba(238,244,248,0.6);
+  margin-bottom: 32px;
+}
+
+/* FOOTER */
+footer {
+  padding: 32px 40px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-logo {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--snow);
+  text-decoration: none;
+}
+
+footer p {
+  font-size: 12px;
+  color: var(--warm);
+}
+
+/* ANIMATIONS */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; }
+  .hero-card { display: none; }
+  nav { padding: 14px 20px; }
+  .hero { padding: 100px 20px 60px; }
+  .section, .flow-section, .for-who, .cta-final { padding: 60px 20px; }
+  .tools-strip { padding: 32px 20px; }
+  .flow-steps { flex-direction: column; gap: 20px; }
+  .flow-steps::before { display: none; }
+  footer { padding: 24px 20px; }
+}
+
+
+/* === MINIMAL ESSENTIAL OVERRIDES (auto-applied) === */
+body, .hero, .about, .services, .testi, .uc, .valor, .flow-demo, .cta, .manifesto, footer {
+  background-color: #000 !important;
+}
+.hero {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/iceberg-sunset-amber.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: scroll, fixed !important;
+}
+.eyebrow, .kicker, .nav-cta { color: #ECA878 !important; }
+.flake { opacity: .55 !important; font-size: 13px !important; }
+
+/* === ICEBERGS on sections === */
+.manifesto { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/mountains-sunset-pink.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.about, section.about { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-aerial-dark.jpeg') !important; background-size: cover, cover !important; background-position: right center !important; }
+.services { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-texture-blue.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.flow-demo { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/glacier-wall-blue.jpeg') !important; background-size: cover, cover !important; }
+.valor { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-minimal.jpeg') !important; background-size: cover, cover !important; }
+.uc { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/aerial-snow-scale.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.testi { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-ice-columns.jpeg') !important; background-size: cover, cover !important; }
+.cta { background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/icebergs-twin-massive.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+footer, .footer { background-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.98)), url('assets/img/antarctic-moon.jpeg') !important; background-size: cover, cover !important; }
+@media (max-width: 900px) { .hero, .services, .uc, .cta, .manifesto { background-attachment: scroll !important; } }
+
+</style>
+</head>
+<body>
+
+<div class="snow-field" id="snowField"></div>
+<div class="cr" id="cr"></div>
+<div class="crr" id="crr"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img decoding="async" src="assets/img/Aury-Art-Computadora-1-2.png" alt="Aury">
+    <span>AuryOnTech</span>
+  </a>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="nav-badge">🆓 Curso gratuito</div>
+    <div style="position:relative;">
+      <button class="nav-badge" style="cursor:pointer;" onclick="var m=document.getElementById('contact-menu');m.style.display=m.style.display==='flex'?'none':'flex'">✉️ Contacto ▾</button>
+      <div id="contact-menu" style="display:none;flex-direction:column;gap:6px;position:absolute;top:calc(100% + 8px);right:0;background:var(--surface);border:1px solid var(--border-dawn);border-radius:12px;padding:8px;min-width:230px;box-shadow:var(--shadow-lg);z-index:200;">
+        <a href="mailto:contact@auryontech.com" style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:8px;text-decoration:none;color:white;font-size:14px;font-weight:600;background:var(--dawn);transition:background .2s;" onmouseover="this.style.background='var(--dawn-l)'" onmouseout="this.style.background='var(--dawn)'">✉️ Enviar correo</a>
+        <a href="https://wa.me/34684790538" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:8px;text-decoration:none;color:white;font-size:14px;font-weight:600;background:#25D366;transition:opacity .2s;" onmouseover="this.style.opacity=&#039;0.85&#039;" onmouseout="this.style.opacity=&#039;1&#039;">💬 WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orb-1"></div>
+  <div class="hero-orb-2"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-aurora"></div>
+
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-eyebrow"><span class="badge-dot"></span>Make · Google Calendar · Gmail</div>
+      <h1 class="hero-title">
+        Deja de<br>recordarles tú.<br>
+        <span class="accent">Que Make lo haga.</span>
+      </h1>
+      <p class="hero-subtitle">Conecta tu Google Calendar con Gmail y haz que tus clientes reciban un recordatorio automático el día antes de su cita. Sin código. Sin coste.</p>
+
+      <div class="hero-proof">
+        <div class="proof-item">⏱️ <span>~45 min</span> para completarlo</div>
+        <div class="proof-item">💸 <span>100% gratis</span></div>
+        <div class="proof-item">🛠️ <span>Sin código</span></div>
+      </div>
+
+      <button class="cta-btn" onclick="abrirPopup()">
+        Empezar el curso gratis →
+      </button>
+      <p class="cta-note">Sin tarjeta de crédito · Sin registro en plataformas externas</p>
+    </div>
+
+    <!-- CARD VISUAL -->
+    <div style="position:relative;">
+      
+     
+      <div class="hero-card">
+   
+      <div class="hero-card-inner">
+      <div class="hero-card-header">
+        <img decoding="async" src="assets/img/Aury-enfrente-de-la-Compu.png" alt="Aury">
+        <div>
+          <h3>Tu flujo cuando termines el curso</h3>
+          <p>Se ejecuta cada día a las 8:00 AM</p>
+        </div>
+      </div>
+      <div class="email-demo">
+        <div class="email-demo-label">Correo generado automáticamente</div>
+        <div class="email-mock">
+          <div class="email-mock-header">
+            <div class="email-mock-from">De: <strong>tu@negocio.com</strong></div>
+            <div class="email-mock-subject">Recordatorio: Consulta con María mañana</div>
+          </div>
+          <div class="email-mock-body">
+            Hola,<br><br>
+            Te recordamos tu cita de mañana:<br>
+            <span class="em-bold">Consulta con María</span><br><br>
+            <div class="em-row">📅 <span>01/05/2026</span></div>
+            <div class="em-row">🕐 <span>10:00</span></div>
+            <div class="em-row">📍 <span>Oficina Central</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="auto-badge">
+        ✓ Enviado automáticamente por Make · Sin que hayas hecho nada
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS STRIP -->
+<div class="tools-strip">
+  <div class="tools-strip-inner">
+    <span class="tools-label">Herramientas</span>
+    <div class="tool-chip">🔧 Make <span class="chip-free">Gratis</span></div>
+    <div class="tool-chip">📅 Google Calendar <span class="chip-free">Gratis</span></div>
+    <div class="tool-chip">📧 Gmail <span class="chip-free">Gratis</span></div>
+  </div>
+</div>
+
+<!-- QUÉ APRENDERÁS -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-label reveal">Lo que construyes</div>
+    <h2 class="section-title reveal">Una automatización real que funciona mientras duermes</h2>
+
+    <div class="learn-grid">
+      <div class="learn-card reveal">
+        <span class="learn-icon">🔍</span>
+        <h4>Buscar eventos de mañana</h4>
+        <p>Make se conecta a tu Google Calendar y busca todos los eventos del día siguiente, desde las 00:00 hasta las 23:59.</p>
+      </div>
+      <div class="learn-card reveal">
+        <span class="learn-icon">👥</span>
+        <h4>Detectar a tus clientes</h4>
+        <p>El flujo identifica a cada invitado externo del evento y los procesa uno a uno, ignorando al organizador.</p>
+      </div>
+      <div class="learn-card reveal">
+        <span class="learn-icon">📨</span>
+        <h4>Enviar el recordatorio</h4>
+        <p>Gmail manda un correo personalizado con el nombre de la cita, la fecha, la hora y el lugar.</p>
+      </div>
+      <div class="learn-card reveal">
+        <span class="learn-icon">⏰</span>
+        <h4>Programarlo para siempre</h4>
+        <p>El flujo se activa automáticamente cada mañana a las 8am. Una vez configurado, no tocas nada más.</p>
+      </div>
+      <div class="learn-card reveal">
+        <span class="learn-icon">🐛</span>
+        <h4>Resolver los errores reales</h4>
+        <p>Te explicamos los errores que te vas a encontrar (duplicate instance id, funciones de fecha en Make EU) y cómo solucionarlos.</p>
+      </div>
+      <div class="learn-card reveal">
+        <span class="learn-icon">✏️</span>
+        <h4>Personalizar el mensaje</h4>
+        <p>Adaptas el correo al tono de tu negocio y aprendes la variante para mandarte el aviso a ti en lugar de al cliente.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<div class="flow-section">
+  <div class="section-inner">
+    <div class="section-label reveal">El flujo paso a paso</div>
+    <h2 class="section-title reveal">Tres módulos, cero complicaciones</h2>
+
+    <div class="flow-steps reveal">
+      <div class="flow-step">
+        <div class="flow-step-dot">📅</div>
+        <h4>Google Calendar</h4>
+        <p>Busca todos los eventos de mañana en tu calendario principal</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot">🔁</div>
+        <h4>Iterator</h4>
+        <p>Recorre cada invitado del evento uno por uno</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot">📧</div>
+        <h4>Gmail</h4>
+        <p>Envía el recordatorio personalizado a cada cliente</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PARA QUIÉN ES -->
+<section class="for-who">
+  <div class="section-inner">
+    <div class="section-label reveal">¿Para quién es esto?</div>
+    <h2 class="section-title reveal">Para cualquiera que tenga citas con clientes</h2>
+
+    <div class="for-who-grid">
+      <div class="for-who-item reveal">
+        <div class="fw-icon">💇</div>
+        <div>
+          <h4>Salones y peluquerías</h4>
+          <p>Reduce los no-shows y llena tu agenda.</p>
+        </div>
+      </div>
+      <div class="for-who-item reveal">
+        <div class="fw-icon">🏥</div>
+        <div>
+          <h4>Consultas y clínicas</h4>
+          <p>Tus pacientes llegan preparados y a tiempo.</p>
+        </div>
+      </div>
+      <div class="for-who-item reveal">
+        <div class="fw-icon">📋</div>
+        <div>
+          <h4>Consultores y coaches</h4>
+          <p>Sin perseguir a cada cliente por WhatsApp.</p>
+        </div>
+      </div>
+      <div class="for-who-item reveal">
+        <div class="fw-icon">🏋️</div>
+        <div>
+          <h4>Entrenadores personales</h4>
+          <p>Tus alumnos no olvidan el entrenamiento.</p>
+        </div>
+      </div>
+      <div class="for-who-item reveal">
+        <div class="fw-icon">🔧</div>
+        <div>
+          <h4>Técnicos y servicios a domicilio</h4>
+          <p>El cliente recuerda la visita y está en casa.</p>
+        </div>
+      </div>
+      <div class="for-who-item reveal">
+        <div class="fw-icon">📚</div>
+        <div>
+          <h4>Profesores y tutores</h4>
+          <p>Menos cancelaciones de última hora.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <div class="cta-final-inner">
+    <img decoding="async" src="assets/img/Aury-Saludando.png" alt="Aury saludando" class="reveal" style="animation:floatBob 4.5s ease-in-out infinite;">
+    <h2 class="reveal">Tu agenda avisa sola.<br><span class="accent">Empieza hoy.</span></h2>
+    <p class="reveal">45 minutos. Sin código. Sin coste. Y funciona para siempre.</p>
+    <button class="cta-btn reveal" onclick="abrirPopup()">
+      Empezar el curso gratis →
+    </button>
+    <p class="cta-note reveal">Sin tarjeta de crédito · Sin registro en plataformas externas</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="index.html" class="footer-logo">AuryOnTech</a>
+  <p>© 2026 AuryOnTech · <a href="mailto:contacto@auryontech.com" style="color:var(--warm)">contacto@auryontech.com</a></p>
+</footer>
+
+<script>
+// ─── CURSOR ───────────────────────────────────────────────────────────────────
+const cr = document.getElementById('cr'), crr = document.getElementById('crr');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cr.style.left = mx+'px'; cr.style.top = my+'px'; });
+(function anim(){ rx+=(mx-rx)*.12; ry+=(my-ry)*.12; crr.style.left=rx+'px'; crr.style.top=ry+'px'; requestAnimationFrame(anim); })();
+document.querySelectorAll('a,button').forEach(el => {
+  el.addEventListener('mouseenter', () => { cr.style.width='16px'; cr.style.height='16px'; crr.style.width='44px'; crr.style.height='44px'; });
+  el.addEventListener('mouseleave', () => { cr.style.width='9px'; cr.style.height='9px'; crr.style.width='30px'; crr.style.height='30px'; });
+});
+
+// ─── NAV SCROLL ───────────────────────────────────────────────────────────────
+const nav = document.querySelector('nav');
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 40));
+
+document.addEventListener('click', function(e) {
+  var menu = document.getElementById('contact-menu');
+  if (menu && !e.target.closest('[onclick*="contact-menu"]') && !menu.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+
+// ─── SNOW ─────────────────────────────────────────────────────────────────────
+const sf = document.getElementById('snowField');
+const sc = ['*', '+', '·', '❄', '✦'];
+for (let i = 0; i < 20; i++) {
+  const f = document.createElement('div');
+  f.className = 'flake';
+  f.textContent = sc[Math.floor(Math.random() * sc.length)];
+  f.style.left = Math.random() * 100 + 'vw';
+  f.style.animationDuration = (8 + Math.random() * 14) + 's';
+  f.style.animationDelay = (-Math.random() * 14) + 's';
+  f.style.fontSize = (8 + Math.random() * 8) + 'px';
+  f.style.opacity = Math.random() * .4;
+  sf.appendChild(f);
+}
+
+// ─── REVEAL ON SCROLL ────────────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach((el, i) => {
+  el.style.transitionDelay = (i % 4) * 0.07 + 's';
+  observer.observe(el);
+});
+
+// ─── IR AL CURSO (sin captura — Brevo va dentro del material) ─────────────────
+function abrirPopup() {
+  window.location.href = 'landing-citas.html';
+}
+</script>
+</body>
+</html>

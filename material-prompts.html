@@ -1,0 +1,1801 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompts que Trabajan — AuryOnTech</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #07090F;
+      --dawn: #C46030;
+      --dawn-l: #D88050;
+      --dawn-ll: #ECA878;
+      --sky: #3A6494;
+      --ice: #B8D4EC;
+      --snow: #EEF4F8;
+      --bone: #EDE4D8;
+      --warm: #7A6E60;
+      --ink-2: #0f1219;
+      --ink-3: #161b26;
+      --sidebar-w: 300px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; background: var(--ink); color: var(--snow); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.7; overflow: hidden; }
+
+    #progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--dawn), var(--dawn-ll)); z-index: 1000; transition: width 0.4s ease; }
+
+    .app { display: flex; height: 100vh; padding-top: 3px; }
+
+    .sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: var(--ink-2); border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 100; }
+    .sidebar-header { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .logo-icon { width: 32px; height: 32px; background: var(--dawn); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .logo-text { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 15px; color: var(--snow); letter-spacing: -0.3px; }
+    .course-title { font-size: 12px; color: var(--warm); line-height: 1.4; font-weight: 400; }
+    .progress-info { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .progress-label { font-size: 11px; color: var(--warm); font-family: 'DM Mono', monospace; }
+    .progress-pill { font-size: 11px; color: var(--dawn-ll); font-family: 'DM Mono', monospace; font-weight: 500; }
+    .progress-track { margin-top: 8px; height: 2px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--dawn); border-radius: 2px; transition: width 0.4s ease; }
+
+    .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 0; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+    .nav-module { margin-bottom: 4px; }
+    .nav-module-header { padding: 8px 20px; font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--warm); font-family: 'DM Mono', monospace; cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; }
+    .nav-module-header:hover { color: var(--dawn-ll); }
+    .nav-module-num { color: var(--dawn); font-weight: 500; }
+    .nav-lessons { overflow: hidden; transition: max-height 0.3s ease; }
+    .nav-lesson { padding: 8px 20px 8px 32px; font-size: 13px; color: rgba(238,244,248,0.6); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; border-left: 2px solid transparent; line-height: 1.4; }
+    .nav-lesson:hover { color: var(--snow); background: rgba(255,255,255,0.03); }
+    .nav-lesson.active { color: var(--dawn-ll); border-left-color: var(--dawn); background: rgba(196,96,48,0.08); }
+    .nav-lesson.completed { color: rgba(134,239,172,0.7); }
+    .nav-lesson.completed .lesson-dot { background: #4ade80; }
+    .lesson-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.15); flex-shrink: 0; transition: background 0.2s; }
+    .nav-lesson.active .lesson-dot { background: var(--dawn); }
+
+    .main { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+    .content { max-width: 760px; margin: 0 auto; padding: 48px 40px 80px; }
+
+    .lesson { display: none; }
+    .lesson.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .lesson-breadcrumb { font-size: 12px; color: var(--warm); font-family: 'DM Mono', monospace; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .breadcrumb-sep { color: var(--dawn); }
+    .lesson-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 36px; line-height: 1.1; color: var(--snow); margin-bottom: 12px; letter-spacing: -0.5px; }
+    .lesson-objective { font-size: 15px; color: var(--dawn-ll); margin-bottom: 36px; padding: 14px 18px; background: rgba(196,96,48,0.08); border-left: 3px solid var(--dawn); border-radius: 0 6px 6px 0; font-style: italic; }
+    .lesson-body { font-size: 15px; color: rgba(238,244,248,0.85); line-height: 1.8; }
+    .lesson-body h3 { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 20px; color: var(--snow); margin: 36px 0 14px; letter-spacing: -0.3px; }
+    .lesson-body p { margin-bottom: 16px; }
+    .lesson-body ul, .lesson-body ol { margin: 0 0 16px 20px; }
+    .lesson-body li { margin-bottom: 8px; }
+    .lesson-body strong { color: var(--snow); font-weight: 600; }
+
+    .module-header { background: var(--ink-3); border-left: 4px solid var(--dawn); border-radius: 0 12px 12px 0; padding: 20px 24px; margin-bottom: 36px; }
+    .module-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn); font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
+    .module-name { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 14px; color: var(--warm); margin-top: 4px; }
+
+    .lesson-hero { width: 100%; height: 220px; border-radius: 12px; overflow: hidden; position: relative; margin-bottom: 36px; background: var(--ink-3); }
+    .lesson-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lesson-hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 65%; background: linear-gradient(to top, rgba(7,9,15,0.85), transparent); pointer-events: none; }
+    .lesson-hero.broken { display: none; }
+
+    .prompt-box { background: #0d1117; border-radius: 10px; margin: 20px 0; overflow: hidden; border: 1px solid rgba(58,100,148,0.3); border-left: 3px solid var(--sky); }
+    .prompt-box-label { padding: 10px 16px; background: rgba(58,100,148,0.08); border-bottom: 1px solid rgba(58,100,148,0.15); display: flex; align-items: center; justify-content: space-between; }
+    .prompt-box-label span { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--sky); text-transform: uppercase; letter-spacing: 1px; }
+    .copy-btn { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn-ll); background: none; border: 1px solid rgba(196,96,48,0.3); padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { background: rgba(196,96,48,0.15); border-color: var(--dawn); }
+    .copy-btn.copied { color: #4ade80; border-color: rgba(74,222,128,0.3); }
+    .prompt-box pre { padding: 20px; overflow-x: auto; font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.7; color: var(--ice); }
+    .prompt-box pre .placeholder { color: var(--dawn-ll); background: rgba(196,96,48,0.1); padding: 1px 4px; border-radius: 3px; }
+    .prompt-box pre .comment { color: rgba(238,244,248,0.3); }
+
+    .code-block { background: #0d1117; border-radius: 10px; margin: 20px 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); }
+    .code-header { padding: 10px 16px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; }
+    .code-lang { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--warm); text-transform: uppercase; letter-spacing: 1px; }
+    pre { padding: 20px; overflow-x: auto; font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.7; color: #e6edf3; }
+    .inline-code { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 2px 7px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dawn-ll); }
+
+    .callout { padding: 16px 20px; border-radius: 8px; margin: 20px 0; font-size: 14px; line-height: 1.6; }
+    .callout-error { background: rgba(239,68,68,0.08); border-left: 3px solid #ef4444; color: #fca5a5; }
+    .callout-tip { background: rgba(58,100,148,0.12); border-left: 3px solid var(--sky); color: var(--ice); }
+    .callout-warning { background: rgba(196,96,48,0.1); border-left: 3px solid var(--dawn); color: var(--dawn-ll); }
+    .callout-success { background: rgba(74,222,128,0.07); border-left: 3px solid #4ade80; color: #86efac; }
+    .callout strong { display: block; margin-bottom: 4px; font-weight: 600; }
+
+    .action-block { background: linear-gradient(135deg, rgba(196,96,48,0.12), rgba(196,96,48,0.05)); border: 1px solid rgba(196,96,48,0.25); border-radius: 12px; padding: 24px 28px; margin-top: 40px; }
+    .action-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dawn); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .action-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--dawn); }
+    .action-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: var(--snow); margin-bottom: 12px; }
+    .action-steps { list-style: none; margin: 0; padding: 0; }
+    .action-steps li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px; color: rgba(238,244,248,0.8); display: flex; align-items: flex-start; gap: 12px; }
+    .action-steps li:last-child { border-bottom: none; }
+    .step-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn); font-weight: 500; min-width: 20px; margin-top: 2px; }
+
+    .step-list { display: flex; flex-direction: column; gap: 6px; margin: 24px 0; }
+    .step-item { display: flex; gap: 16px; padding: 14px 16px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); align-items: flex-start; transition: background 0.2s; }
+    .step-item:hover { background: rgba(255,255,255,0.04); }
+    .step-number-big { width: 28px; height: 28px; background: var(--dawn); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; color: var(--snow); flex-shrink: 0; margin-top: 2px; }
+    .step-content { flex: 1; }
+    .step-content strong { display: block; font-size: 15px; color: var(--snow); margin-bottom: 3px; }
+    .step-content p { font-size: 13px; color: rgba(238,244,248,0.6); margin: 0; line-height: 1.5; }
+
+    .summary-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13.5px; }
+    .summary-table th { background: rgba(196,96,48,0.08); color: var(--dawn-l); font-family: 'DM Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 14px; text-align: left; border-bottom: 1px solid rgba(196,96,48,0.2); }
+    .summary-table td { padding: 10px 14px; color: rgba(238,244,248,0.68); border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+    .summary-table tr:last-child td { border-bottom: none; }
+    .tag { display: inline-block; font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 3px; margin-right: 4px; }
+    .tag-sky { background: rgba(58,100,148,0.2); color: var(--ice); border: 1px solid rgba(58,100,148,0.3); }
+    .tag-dawn { background: rgba(196,96,48,0.12); color: var(--dawn-l); border: 1px solid rgba(196,96,48,0.25); }
+
+    .quiz-block { background: rgba(58,100,148,0.08); border: 1px solid rgba(58,100,148,0.2); border-radius: 12px; padding: 24px 28px; margin: 32px 0; }
+    .quiz-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sky); margin-bottom: 16px; }
+    .quiz-question { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: var(--snow); margin-bottom: 16px; line-height: 1.3; }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-option { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px; text-align: left; color: rgba(238,244,248,0.8); font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; transition: all 0.2s; line-height: 1.5; }
+    .quiz-option:hover:not(:disabled) { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.2); color: var(--snow); }
+    .quiz-option.quiz-correct { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.4); color: #86efac; }
+    .quiz-option.quiz-incorrect { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.3); color: #fca5a5; }
+    .quiz-feedback { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.5; display: none; }
+    .quiz-feedback.fb-correct { background: rgba(74,222,128,0.08); color: #86efac; border-left: 3px solid #4ade80; display: block; }
+    .quiz-feedback.fb-incorrect { background: rgba(239,68,68,0.08); color: #fca5a5; border-left: 3px solid #ef4444; display: block; }
+
+    .challenge-block { background: linear-gradient(135deg,rgba(196,96,48,0.08),rgba(58,100,148,0.05)); border: 1px solid rgba(196,96,48,0.15); border-radius: 12px; padding: 22px; margin: 24px 0; }
+    .challenge-label { font-family: 'DM Mono',monospace; font-size: 11px; color: var(--dawn-ll); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+    .challenge-question { font-family: 'Cabinet Grotesk',sans-serif; font-weight: 700; font-size: 16px; color: var(--snow); margin-bottom: 14px; line-height: 1.4; }
+    .challenge-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+    .challenge-yes, .challenge-no { padding: 10px 20px; border-radius: 8px; font-family: 'DM Sans',sans-serif; font-size: 14px; font-weight: 500; border: 1px solid; transition: all 0.15s; cursor: pointer; }
+    .challenge-yes { background: rgba(74,222,128,0.12); border-color: rgba(74,222,128,0.4); color: #86efac; }
+    .challenge-yes:hover:not(:disabled) { background: rgba(74,222,128,0.2); }
+    .challenge-no { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #fca5a5; }
+    .challenge-no:hover:not(:disabled) { background: rgba(239,68,68,0.2); }
+    .challenge-response { margin-top: 14px; padding: 12px 14px; border-radius: 8px; font-size: 13.5px; line-height: 1.55; display: none; }
+    .challenge-response.success { display: block; background: rgba(74,222,128,0.08); border-left: 3px solid #4ade80; color: rgba(238,244,248,0.85); }
+    .challenge-response.error { display: block; background: rgba(239,68,68,0.08); border-left: 3px solid #ef4444; color: rgba(238,244,248,0.85); }
+
+    .checklist-block { background: rgba(196,96,48,0.06); border: 1px solid rgba(196,96,48,0.2); border-radius: 12px; padding: 20px 24px; margin: 28px 0; }
+    .checklist-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dawn); margin-bottom: 14px; font-weight: 500; }
+    .checklist-item { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .checklist-item:last-child { border-bottom: none; }
+    .checklist-item input[type="checkbox"] { width: 17px; height: 17px; cursor: pointer; accent-color: var(--dawn); flex-shrink: 0; }
+    .checklist-item label { font-size: 14px; color: rgba(238,244,248,0.8); cursor: pointer; transition: all 0.2s; }
+    .checklist-item input:checked + label { color: var(--dawn-ll); text-decoration: line-through; opacity: 0.6; }
+
+    .next-course { background: linear-gradient(135deg, var(--ink-3), rgba(196,96,48,0.08)); border: 1px solid rgba(196,96,48,0.2); border-radius: 16px; padding: 32px; margin: 40px 0; }
+    .next-course-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dawn); margin-bottom: 10px; }
+    .next-course-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 24px; color: var(--snow); margin-bottom: 10px; letter-spacing: -0.3px; }
+    .next-course-desc { font-size: 14px; color: rgba(238,244,248,0.7); margin-bottom: 20px; line-height: 1.6; }
+    .next-course-btn { display: inline-block; background: var(--dawn); color: var(--snow); padding: 11px 24px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 14px; text-decoration: none; transition: background 0.2s; }
+    .next-course-btn:hover { background: var(--dawn-l); }
+
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .nav-btn { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; transition: all 0.2s; }
+    .nav-btn-prev { background: rgba(255,255,255,0.05); color: var(--warm); }
+    .nav-btn-prev:hover { background: rgba(255,255,255,0.09); color: var(--snow); }
+    .nav-btn-next { background: var(--dawn); color: var(--snow); }
+    .nav-btn-next:hover { background: var(--dawn-l); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .hamburger { display: none; position: fixed; top: 12px; left: 12px; z-index: 200; background: var(--ink-2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; width: 40px; height: 40px; cursor: pointer; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
+    .hamburger span { display: block; width: 18px; height: 2px; background: var(--snow); border-radius: 2px; }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 90; }
+
+    .cert-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; display: none; align-items: center; justify-content: center; }
+    .cert-overlay.active { display: flex; }
+    .cert-modal { background: var(--ink-2); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 36px; max-width: 440px; width: 90%; text-align: center; }
+    .cert-modal-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 24px; color: var(--snow); margin-bottom: 8px; }
+    .cert-modal-sub { font-size: 14px; color: var(--warm); margin-bottom: 24px; line-height: 1.5; }
+    .cert-name-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 12px 16px; color: var(--snow); font-family: 'DM Sans', sans-serif; font-size: 16px; outline: none; margin-bottom: 16px; }
+    .cert-name-input:focus { border-color: var(--dawn); }
+    .cert-name-input::placeholder { color: var(--warm); }
+    .cert-generate-btn { width: 100%; background: var(--dawn); color: var(--snow); border: none; border-radius: 8px; padding: 13px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: background 0.2s; }
+    .cert-generate-btn:hover { background: var(--dawn-l); }
+    .cert-skip { margin-top: 12px; font-size: 13px; color: var(--warm); cursor: pointer; text-decoration: underline; }
+    .cert-skip:hover { color: var(--snow); }
+    .certificate { display: none; }
+
+    * { cursor: none !important; }
+    a, button, [onclick], label, input[type="checkbox"], select, .nav-lesson, .nav-module-header, .quiz-option, .copy-btn, .cert-generate-btn, .cert-skip, .nav-btn, .challenge-yes, .challenge-no { cursor: pointer !important; }
+    .cursor-dot { position: fixed; width: 8px; height: 8px; background: #C46030; border-radius: 50%; pointer-events: none; z-index: 99999; transform: translate(-50%, -50%); transition: transform 0.1s ease, background 0.2s; }
+    .cursor-ring { position: fixed; width: 32px; height: 32px; border: 1.5px solid rgba(196,96,48,0.6); border-radius: 50%; pointer-events: none; z-index: 99998; transform: translate(-50%, -50%); transition: width 0.2s ease, height 0.2s ease, border-color 0.2s; }
+    .cursor-dot.clicking { transform: translate(-50%,-50%) scale(0.6); background: #ECA878; }
+    .cursor-ring.clicking { width: 20px; height: 20px; border-color: #C46030; }
+    @media (max-width: 768px) { * { cursor: auto !important; } .cursor-dot, .cursor-ring { display: none; } }
+
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .sidebar { position: fixed; left: -310px; top: 0; height: 100vh; transition: left 0.3s ease; z-index: 150; }
+      .sidebar.open { left: 0; }
+      .overlay.active { display: block; }
+      .content { padding: 60px 20px 80px; }
+      .lesson-title { font-size: 26px; }
+      .lesson-hero { height: 160px; }
+    }
+  
+
+/* === MINIMAL ESSENTIAL OVERRIDES (auto-applied) === */
+body, .hero, .about, .services, .testi, .uc, .valor, .flow-demo, .cta, .manifesto, footer {
+  background-color: #000 !important;
+}
+.hero {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/iceberg-sunset-amber.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: scroll, fixed !important;
+}
+.eyebrow, .kicker, .nav-cta { color: #ECA878 !important; }
+.flake { opacity: .55 !important; font-size: 13px !important; }
+
+/* === ICEBERGS on sections === */
+.manifesto { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/mountains-sunset-pink.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.about, section.about { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-aerial-dark.jpeg') !important; background-size: cover, cover !important; background-position: right center !important; }
+.services { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-texture-blue.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.flow-demo { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/glacier-wall-blue.jpeg') !important; background-size: cover, cover !important; }
+.valor { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-minimal.jpeg') !important; background-size: cover, cover !important; }
+.uc { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/aerial-snow-scale.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.testi { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-ice-columns.jpeg') !important; background-size: cover, cover !important; }
+.cta { background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/icebergs-twin-massive.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+footer, .footer { background-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.98)), url('assets/img/antarctic-moon.jpeg') !important; background-size: cover, cover !important; }
+@media (max-width: 900px) { .hero, .services, .uc, .cta, .manifesto { background-attachment: scroll !important; } }
+
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div class="cert-overlay" id="progress-modal">
+  <div class="cert-modal">
+    <div class="cert-modal-title">🐧 ¿Guardamos tu progreso?</div>
+    <div class="cert-modal-sub">Déjame tu email y te aviso cuando publique nuevos cursos. Sin spam, solo lo útil.</div>
+    <input class="cert-name-input" id="progress-email" type="email" placeholder="tu@correo.com">
+    <button class="cert-generate-btn" onclick="saveProgress()">Guardar →</button>
+    <div class="cert-skip" onclick="dismissProgress()">Ahora no</div>
+  </div>
+</div>
+
+<div class="cert-overlay" id="cert-overlay">
+  <div class="cert-modal">
+    <div class="cert-modal-title">🐧 ¡Lo lograste!</div>
+    <div class="cert-modal-sub">Terminaste el curso. Escribe tu nombre y correo para generar tu certificado.</div>
+    <input class="cert-name-input" id="cert-name" type="text" placeholder="Tu nombre completo">
+    <input class="cert-name-input" id="cert-email" type="email" placeholder="tu@correo.com" style="margin-top:8px;">
+    <button class="cert-generate-btn" onclick="generateCert()">Descargar certificado →</button>
+    <div class="cert-skip" onclick="closeCertModal()">Omitir por ahora</div>
+  </div>
+</div>
+
+<div class="certificate" id="certificate"></div>
+
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon" style="background:none;padding:0;"><img decoding="async" src="assets/img/Logo.png" style="width:40px;height:40px;object-fit:contain;display:block;"></div>
+        <span class="logo-text">AuryOnTech</span>
+      </div>
+      <div class="course-title">Prompts que Trabajan: la guía que nadie te dio</div>
+      <div class="progress-info">
+        <span class="progress-label">Progreso</span>
+        <span class="progress-pill" id="progress-text">0 / 19</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+  </nav>
+
+  <main class="main" id="main-content">
+    <div class="content">
+      <div id="content-area"></div>
+    </div>
+  </main>
+</div>
+
+<button class="hamburger" onclick="toggleSidebar()">
+  <span></span><span></span><span></span>
+</button>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<script>
+const curso = [
+  {
+    modulo: "01",
+    titulo: "Por qué la IA te falla",
+    lecciones: [
+      {
+        id: "1-1",
+        titulo: "Cómo piensa realmente un modelo de lenguaje",
+        objetivo: "Entender cómo procesa información la IA para dejar de usarla como buscador y empezar a usarla como herramienta.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">Por qué la IA te falla</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Inteligencia artificial abstracta" onerror="this.parentElement.classList.add('broken'); this.remove()">
+          </div>
+          <p>ChatGPT no es un buscador, no es una base de datos y no «sabe» cosas de la misma forma que tú. Es un modelo entrenado para predecir cuál es el siguiente token más probable dado un contexto. Eso tiene implicaciones muy concretas:</p>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>El contexto lo es todo</strong>
+                <p>La IA solo sabe lo que hay dentro de la conversación. No sabe quién eres, ni en qué industria trabajas, a menos que se lo digas.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Tiende al promedio</strong>
+                <p>Si no la guías, producirá la respuesta más genérica posible porque es la estadísticamente más probable.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>No adivina tu intención</strong>
+                <p>Si escribes «hazme un email», no sabe si es formal o informal, corto o largo, para un cliente nuevo o para un proveedor de 10 años.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <strong>Idea clave</strong>
+            Cuanto más contexto le das, menos tiene que inventar y más útil es el resultado. El prompting es el arte de eliminar ambigüedad.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué la IA tiende a producir respuestas genéricas cuando no le das contexto?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No. La IA no tiene una preferencia estética por lo simple — produce lo más probable estadísticamente. Sin contexto, lo más probable es lo más común para todos los usuarios.">
+                Porque está programada para preferir respuestas simples
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, true)" data-correct="Exacto. La IA predice el siguiente token más probable. Sin contexto que acote tu situación específica, lo más probable es la respuesta promedio que aplicaría a cualquier usuario en cualquier contexto. Por eso suena genérica.">
+                Porque sin contexto, la respuesta más probable estadísticamente es la más promedio y aplicable a todos
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No. La IA puede generar respuestas extremadamente específicas — siempre que tenga la información para hacerlo. El problema no es una limitación técnica, es la falta de información de entrada.">
+                Porque la IA no es capaz de generar respuestas específicas
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Identifica cómo usas la IA hoy</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Abre ChatGPT y revisa los últimos 3 prompts que escribiste</li>
+              <li><span class="step-num">02</span> ¿Le diste contexto? ¿Le dijiste quién eras y qué necesitabas exactamente?</li>
+              <li><span class="step-num">03</span> Anota qué información faltaba en cada uno — eso es lo que vas a aprender a incluir</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "1-2",
+        titulo: "Los 3 errores que comete el 95% de los usuarios",
+        objetivo: "Reconocer los errores más comunes de prompting para no repetirlos desde hoy.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">Por qué la IA te falla</div>
+          </div>
+          <h3>Error 1: El prompt telegrama</h3>
+          <p>«Escríbeme un email para mi cliente.» Eso no es un prompt, es una orden de telegrama de 1920. La IA no tiene ningún dato sobre quién es el cliente, de qué trata el email, qué quieres lograr ni cuál es tu tono.</p>
+          <div class="callout callout-error">
+            <strong>❌ Ejemplo real de prompt telegrama</strong>
+            "Dame ideas de marketing para mi negocio." La IA no sabe qué negocio tienes, quién es tu cliente, cuánto presupuesto tienes, ni qué ya has intentado.
+          </div>
+          <h3>Error 2: Pedir todo en una sola instrucción</h3>
+          <p>«Analiza mi negocio, dame ideas de marketing, escríbeme un plan de 6 meses y también sugiere herramientas de automatización.» Esto produce una respuesta larga, superficial y poco útil en todas las áreas. Las tareas complejas se dividen.</p>
+          <h3>Error 3: Aceptar el primer resultado sin iterar</h3>
+          <p>La primera respuesta es un borrador, no el resultado final. El 80% de los usuarios lee la primera respuesta, decide que «la IA no sirve» y la cierra. Los que obtienen valor real le indican a la IA qué cambiar y por qué.</p>
+          <div class="callout callout-success">
+            <strong>La buena noticia</strong>
+            Los tres errores tienen solución inmediata. Al terminar este módulo ya no los vas a cometer.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Cuál es el problema principal del "prompt telegrama"?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No es el largo — un prompt corto puede funcionar bien si tiene el contexto necesario. El problema es la falta de información, no la longitud.">
+                Que es demasiado corto
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, true)" data-correct="Exacto. Sin contexto, la IA no tiene información para generar algo útil y produce el resultado genérico más probable.">
+                Que no da contexto suficiente para que la IA sepa qué necesitas
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="La IA puede entender perfectamente instrucciones cortas. El problema es la falta de contexto, no la complejidad del lenguaje.">
+                Que usa lenguaje demasiado simple para la IA
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        `
+      },
+      {
+        id: "1-3",
+        titulo: "La anatomía de un prompt que funciona",
+        objetivo: "Aprender los 4 elementos que debe tener cualquier prompt para producir resultados útiles al primer intento.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">Por qué la IA te falla</div>
+          </div>
+          <p>Todo prompt útil tiene, como mínimo, estos 4 elementos:</p>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">R</div>
+              <div class="step-content">
+                <strong>Rol</strong>
+                <p>Quién debe ser la IA para esta tarea. "Eres un consultor de marketing con 10 años de experiencia."</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">C</div>
+              <div class="step-content">
+                <strong>Contexto</strong>
+                <p>La información de fondo necesaria para responder bien. Tu negocio, tu cliente, la situación.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--dawn);">T</div>
+              <div class="step-content">
+                <strong>Tarea</strong>
+                <p>Exactamente qué debe hacer, con el mayor detalle posible.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--dawn);">F</div>
+              <div class="step-content">
+                <strong>Formato del output</strong>
+                <p>Cómo quieres que te entregue el resultado: lista, párrafo, tabla, longitud, tono.</p>
+              </div>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Comparación: prompt malo vs. prompt con anatomía</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre><span class="comment">// ❌ Prompt malo</span>
+Escríbeme un email para mi cliente.
+
+<span class="comment">// ✅ Prompt con anatomía completa</span>
+Eres un consultor de comunicación empresarial con 10 años de experiencia.
+
+Contexto: Tengo una tienda de ropa online. Mi cliente María lleva 3 meses
+sin comprar y acaba de ver nuestros nuevos productos en Instagram sin hacer clic.
+
+Tarea: Escribe un email de reactivación para María que sea cálido, no agresivo,
+que mencione los nuevos productos sin sonar a vendedor e incluya un descuento
+del 10% para su primera compra de vuelta.
+
+Formato: Asunto + cuerpo de máximo 120 palabras. Tono cercano,
+como si lo escribiera una persona real, no una marca.</pre>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Antes de continuar al Módulo 2</div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-1-a">
+              <label for="ck-1-a">Entiendo por qué la IA produce respuestas genéricas sin contexto</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-1-b">
+              <label for="ck-1-b">Reconozco los 3 errores más comunes en mis prompts anteriores</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-1-c">
+              <label for="ck-1-c">Sé los 4 elementos que debe tener un prompt: Rol, Contexto, Tarea, Formato</label>
+            </div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "02",
+    titulo: "Las 6 técnicas que cambian todo",
+    lecciones: [
+      {
+        id: "2-1",
+        titulo: "Role Prompting: dale un personaje a la IA",
+        objetivo: "Usar la asignación de roles para activar el tono, conocimiento y estilo exacto que necesitas en cada tarea.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Las 6 técnicas que cambian todo</div>
+          </div>
+          <p>Cuando le asignas un rol a la IA, activas un conjunto específico de conocimientos, tono y estilo de razonamiento. La diferencia entre «ayúdame con esto» y «eres un experto en X, ayúdame con esto» es enorme.</p>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Estructura del role prompt</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres <span class="placeholder">[rol específico]</span> con <span class="placeholder">[años de experiencia / especialidad]</span>.
+Tu estilo de comunicación es <span class="placeholder">[tono: directo, empático, técnico, etc.]</span>.
+Tu audiencia es <span class="placeholder">[a quién le hablas]</span>.
+
+<span class="placeholder">[Tarea a realizar]</span></pre>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Ejemplos reales por sector</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre><span class="comment">// Para un salón de belleza</span>
+Eres una experta en marketing para negocios de belleza con 8 años de experiencia
+en redes sociales. Tu tono es cercano y motivador. Tu audiencia son mujeres de
+25 a 45 años que buscan cuidarse sin gastar una fortuna.
+
+Escríbeme 3 ideas de posts de Instagram para promocionar mi servicio de
+manicura semipermanente esta semana.
+
+<span class="comment">// Para una consultoría</span>
+Eres un consultor de ventas B2B con 12 años de experiencia cerrando contratos
+de servicio de 1.000 a 10.000€. Tu comunicación es directa y orientada a resultados.
+
+Escríbeme un mensaje de LinkedIn para contactar a un CEO que acaba de publicar
+que están en proceso de digitalización.</pre>
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué asignar un rol a la IA produce respuestas más útiles que pedirle algo sin definir quién debe ser?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No. La IA no tiene 'modos especialista' precargados. Lo que hace el rol es algo más sutil: condiciona estadísticamente qué tipo de vocabulario, ejemplos y estructura es más probable que aparezcan en la respuesta.">
+                Porque la IA tiene módulos de experto que se activan con palabras clave
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, true)" data-correct="Exacto. El rol funciona como un sesgo estadístico: al definir quién debe ser, la IA prioriza el vocabulario, los ejemplos y el estilo de razonamiento típicos de ese rol. No 'activa' nada — orienta su predicción hacia un patrón específico.">
+                Porque condiciona qué vocabulario, ejemplos y estilo de razonamiento son más probables en la respuesta
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No. La IA tiene siempre acceso a la misma información independientemente del rol. El rol no le 'da' conocimiento nuevo — orienta cómo organiza y presenta lo que ya sabe.">
+                Porque le da acceso a información a la que normalmente no podría acceder
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Crea el rol definitivo para tu negocio</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Define qué tipo de experto necesitas más en tu día a día</li>
+              <li><span class="step-num">02</span> Escribe un role prompt con: cargo, años de experiencia, especialidad, tono y audiencia</li>
+              <li><span class="step-num">03</span> Guárdalo — lo vas a pegar al principio de muchas conversaciones</li>
+              <li><span class="step-num">04</span> Pruébalo con una tarea real de esta semana y ajusta si el tono no es el que necesitas</li>
+            </ul>
+          </div>
+          <div class="challenge-block">
+            <div class="challenge-label">🎯 Reto · Prueba el efecto del rol</div>
+            <div class="challenge-question">Pídele a ChatGPT lo mismo dos veces: una sin rol y otra empezando con "Eres un [tu rol experto]...". ¿Notas diferencia clara entre las dos respuestas?</div>
+            <div class="challenge-btns">
+              <button class="challenge-yes" onclick="handleChallenge(this, true)">Sí, la diferencia es clara 🎯</button>
+              <button class="challenge-no" onclick="handleChallenge(this, false)">No noto mucha diferencia</button>
+            </div>
+            <div class="challenge-response"></div>
+          </div>
+        `
+      },
+      {
+        id: "2-2",
+        titulo: "Chain of Thought: hazla pensar antes de responder",
+        objetivo: "Obtener análisis profundos y decisiones mejor razonadas pidiendo a la IA que muestre su proceso de pensamiento.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Las 6 técnicas que cambian todo</div>
+          </div>
+          <p>Por defecto, la IA salta directamente a la respuesta. Para tareas complejas — análisis, decisiones, estrategias — eso produce resultados superficiales. El Chain of Thought le ordena que muestre su razonamiento paso a paso antes de concluir.</p>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Cómo activar el Chain of Thought</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre><span class="comment">// Opción 1: Explícito</span>
+Antes de responder, piensa paso a paso y muéstrame tu razonamiento.
+
+<span class="comment">// Opción 2: Estructurado</span>
+Responde siguiendo esta estructura:
+1. Analiza el problema
+2. Identifica las variables clave
+3. Evalúa las opciones
+4. Concluye con una recomendación clara
+
+<span class="comment">// Ejemplo completo aplicado a un negocio</span>
+Tengo una tienda de artesanías online. Vendo entre 30 y 50 productos al mes
+con un ticket medio de 35€. Quiero llegar a 80 ventas/mes en 3 meses.
+
+Antes de responder, analiza paso a paso:
+1. Cuál es mi gap actual (ventas vs. objetivo)
+2. Qué palancas pueden moverlo (tráfico, conversión, ticket, recurrencia)
+3. Qué acciones son más rápidas y baratas de implementar
+4. Dame un plan de 4 acciones ordenadas por impacto potencial</pre>
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué pedirle a la IA que "piense paso a paso" mejora la calidad de respuestas a problemas complejos?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No. La IA siempre tiene acceso a su 'capacidad de razonamiento' — no es algo que se desbloquee. Lo que cambia es CÓMO genera la respuesta: en pasos intermedios o de un solo salto.">
+                Porque desbloquea una capacidad de razonamiento más avanzada
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, true)" data-correct="Exacto. Cuando la IA escribe pasos intermedios, cada paso se convierte en contexto para el siguiente — su propia respuesta se va condicionando en cada token. Sin ese andamiaje, debe saltar de la pregunta directo a la conclusión sin construir el razonamiento, lo que produce respuestas más superficiales.">
+                Porque cada paso intermedio que escribe se convierte en contexto para el siguiente, construyendo razonamiento en lugar de saltar a una conclusión
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No. La IA no consulta fuentes externas en tiempo real al pensar paso a paso. Lo que mejora es la calidad del razonamiento sobre la información que ya tiene en contexto, no el acceso a información nueva.">
+                Porque le da tiempo para consultar más fuentes antes de responder
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Usa la IA para tomar una decisión real</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Piensa en una decisión de negocio pendiente: precio, canal, contratar, expandir</li>
+              <li><span class="step-num">02</span> Describe la situación con todos los datos que tengas</li>
+              <li><span class="step-num">03</span> Añade: "Antes de darme una recomendación, analiza paso a paso los pros, contras y riesgos"</li>
+              <li><span class="step-num">04</span> Si algo no cuadra con tu realidad, corrígelo y pídele que recalcule</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "2-3",
+        titulo: "Few-Shot Prompting: enséñale con ejemplos",
+        objetivo: "Usar ejemplos reales para que la IA replique tu tono, formato y estilo de forma consistente.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Las 6 técnicas que cambian todo</div>
+          </div>
+          <p>En lugar de describirle lo que quieres, se lo muestras. Le das 2 o 3 ejemplos del resultado que buscas y la IA aprende el patrón para replicarlo. Es la técnica más poderosa para mantener consistencia de tono y formato.</p>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Estructura del few-shot prompt</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Voy a darte ejemplos del tipo de <span class="placeholder">[contenido]</span> que necesito.
+Aprende el patrón y genera uno nuevo.
+
+--- EJEMPLO 1 ---
+<span class="placeholder">[Tu ejemplo real número 1]</span>
+
+--- EJEMPLO 2 ---
+<span class="placeholder">[Tu ejemplo real número 2]</span>
+
+--- AHORA GENERA ---
+Contexto: <span class="placeholder">[datos del nuevo caso]</span>
+Genera un/una <span class="placeholder">[tipo de contenido]</span> siguiendo exactamente el mismo patrón.</pre>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Caso real: posts de LinkedIn con voz propia</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Voy a darte dos posts de LinkedIn que escribí yo. Aprende mi estilo:
+directo, sin palabrería, con una pregunta al final que invite a debatir.
+
+--- EJEMPLO 1 ---
+La mayoría de los negocios no tienen un problema de ventas.
+Tienen un problema de seguimiento.
+Un cliente que dijo "lo pienso" hace 2 semanas no desapareció.
+Solo está esperando que alguien lo recuerde.
+¿Cuántos leads tienes en ese limbo ahora mismo?
+
+--- EJEMPLO 2 ---
+Automatizar no es para grandes empresas.
+Es para el autónomo que contesta WhatsApp a las 11 de la noche.
+La tecnología existe. Solo hace falta saber usarla.
+¿Qué proceso repetitivo te está robando más tiempo esta semana?
+
+--- AHORA GENERA ---
+Tema: los dueños de negocio usan ChatGPT mal porque lo tratan como buscador.
+Genera un post con mi estilo.</pre>
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué dar 2-3 ejemplos funciona mejor que describir con palabras lo que quieres?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this, true)" data-correct="Exacto. Una descripción como 'tono cercano y directo' es ambigua — para ti y para la IA pueden significar cosas distintas. Los ejemplos eliminan esa ambigüedad: la IA puede detectar patrones concretos (longitud de frases, signos de puntuación, tipo de palabras) que ninguna descripción captura completamente.">
+                Porque los ejemplos muestran patrones concretos (longitud, ritmo, vocabulario) que las descripciones nunca capturan completamente
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No. La IA puede entender perfectamente descripciones complejas. La ventaja de los ejemplos no está en la simplicidad — está en la precisión. Una descripción siempre es interpretable; un ejemplo es concreto.">
+                Porque la IA entiende mejor cuando las instrucciones son simples
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No. La IA no aprende ni se entrena con los ejemplos que le das en el chat. Los ejemplos solo afectan a esa conversación específica — son contexto temporal, no aprendizaje permanente.">
+                Porque los ejemplos entrenan a la IA para futuras conversaciones
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Clona tu tono de comunicación</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Busca 2 textos que hayas escrito tú que te parezcan buenos ejemplos de cómo quieres sonar</li>
+              <li><span class="step-num">02</span> Cópialos en el prompt como Ejemplo 1 y Ejemplo 2</li>
+              <li><span class="step-num">03</span> Pídele que genere el contenido que necesitas con ese mismo tono</li>
+              <li><span class="step-num">04</span> Guarda esos ejemplos junto a tu role prompt — juntos forman tu perfil de comunicación reutilizable</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "2-4",
+        titulo: "Delimitadores: controla exactamente el formato",
+        objetivo: "Usar delimitadores para obtener siempre el formato exacto que necesitas sin tener que reformatear manualmente.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Las 6 técnicas que cambian todo</div>
+          </div>
+          <p>Cuando la IA no sabe cómo estructurar la respuesta, elige ella. Eso produce textos largos, mal organizados o en el formato equivocado. Los delimitadores le dicen exactamente qué estructura quieres.</p>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Delimitadores más útiles y cuándo usarlos</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre><span class="comment">// Para separar secciones del prompt</span>
+###CONTEXTO###
+[aquí va el contexto]
+
+###TAREA###
+[aquí va la instrucción]
+
+###FORMATO DE RESPUESTA###
+[aquí le dices cómo quieres la respuesta]
+
+<span class="comment">// Para controlar el output exacto</span>
+Responde SOLO con esto, sin explicaciones adicionales:
+- Asunto: [una línea]
+- Cuerpo: [máximo 100 palabras]
+- CTA: [una frase de cierre con llamada a la acción]
+
+<span class="comment">// Para extraer datos específicos de un texto</span>
+Del texto que te voy a dar, extrae SOLO:
+1. Nombre del cliente
+2. Problema principal que menciona
+3. Presupuesto si lo indica (o "no mencionado")
+4. Siguiente paso que pide
+Formato: una línea por punto. Sin texto adicional.</pre>
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Genera una plantilla de respuesta a clientes con formato exacto</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Piensa en el tipo de mensaje de cliente que más recibes</li>
+              <li><span class="step-num">02</span> Escribe un prompt con delimitadores: asunto + cuerpo (máx. 80 palabras) + tono definido</li>
+              <li><span class="step-num">03</span> Pruébalo con 3 situaciones: cliente contento, con duda, cliente molesto</li>
+              <li><span class="step-num">04</span> Ajusta los delimitadores hasta que el formato sea exactamente lo que necesitas</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "2-5",
+        titulo: "Prompts en cadena: divide para vencer",
+        objetivo: "Producir contenido complejo de alta calidad dividiendo la tarea en pasos incrementales.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Las 6 técnicas que cambian todo</div>
+          </div>
+          <p>Las tareas complejas producen mejores resultados cuando se dividen en pasos. En lugar de pedirlo todo en un prompt, construyes la respuesta de forma incremental: primero el esquema, luego el desarrollo, luego la revisión.</p>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Cadena real: de idea a contenido publicable en 4 pasos</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre><span class="comment">// PASO 1: Genera el esquema</span>
+Tema: cómo un salón de belleza puede usar WhatsApp Business para reducir
+cancelaciones de última hora.
+Dame un esquema con 4 secciones. Solo los títulos y un subtítulo de una línea.
+Sin desarrollar el contenido aún.
+
+<span class="comment">// PASO 2: Desarrolla sección por sección</span>
+Perfecto. Ahora desarrolla SOLO la sección 1: [título que te dio].
+Máximo 120 palabras. Tono cercano, sin tecnicismos.
+
+<span class="comment">// PASO 3: Ajusta el tono</span>
+El contenido está bien pero suena demasiado formal.
+Reescríbelo como si se lo estuvieras contando a una amiga que tiene un salón.
+Misma información, diferente tono.
+
+<span class="comment">// PASO 4: Genera el CTA final</span>
+Ahora escribe el párrafo de cierre. Debe incluir un llamado a la acción
+hacia una auditoría gratuita de automatización. Máximo 40 palabras.</pre>
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué dividir una tarea compleja en varios prompts produce mejor resultado que pedirla toda de golpe?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No. No es por velocidad — de hecho varios prompts tardan más que uno solo. La razón es de calidad: cuando le pides muchas cosas a la vez, la IA reparte 'atención' entre todas y produce respuestas superficiales en cada una.">
+                Porque la IA procesa más rápido respuestas cortas
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, true)" data-correct="Exacto. La IA tiene una 'atención' finita por respuesta. Cuando le pides 5 cosas a la vez, reparte esa atención entre todas y produce 5 respuestas mediocres. Cuando le pides una sola cosa por vez, dedica toda su capacidad a esa tarea y profundiza en cada paso.">
+                Porque la IA puede dedicar toda su atención a una tarea por vez en lugar de repartirla entre varias
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No. La IA puede manejar prompts muy largos sin problema. La diferencia no está en el tamaño del prompt — está en la cantidad de tareas distintas que le pides resolver simultáneamente.">
+                Porque la IA tiene un límite de caracteres por prompt
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Produce un artículo o post largo en 4 pasos</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Elige un tema de tu industria que quieras publicar esta semana</li>
+              <li><span class="step-num">02</span> Usa el Paso 1 para generar el esquema — no sigas hasta que te convenza</li>
+              <li><span class="step-num">03</span> Desarrolla una sección a la vez, corrige el tono en cada una</li>
+              <li><span class="step-num">04</span> Al final pídele que unifique el tono de todo el artículo y revise contradicciones</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "2-6",
+        titulo: "Iteración dirigida: del borrador al resultado final",
+        objetivo: "Llevar cualquier respuesta del 60% al 95% de calidad usando instrucciones de mejora específicas.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Las 6 técnicas que cambian todo</div>
+          </div>
+          <p>El 80% del valor de la IA está en la segunda y tercera iteración, no en la primera. La iteración dirigida es la habilidad de pedirle mejoras específicas en lugar de decir «no me gusta, inténtalo de nuevo».</p>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Cómo pedir mejoras específicas</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre><span class="comment">// ❌ Iteración vaga (produce resultados aleatorios)</span>
+No me gusta. Inténtalo de nuevo.
+Hazlo mejor.
+Más profesional.
+
+<span class="comment">// ✅ Iteración dirigida (produce mejoras concretas)</span>
+Está bien pero:
+- El segundo párrafo es demasiado largo. Córtalo a la mitad.
+- El tono del primer párrafo suena corporativo. Hazlo más conversacional.
+- Añade una pregunta retórica al inicio para captar atención.
+- Elimina la frase "en el mundo actual" y cualquier cliché similar.
+
+<span class="comment">// Para ajustar longitud</span>
+Esto tiene 200 palabras y necesito máximo 80.
+Conserva la idea principal y el CTA. Elimina todo lo que sea relleno.
+
+<span class="comment">// Para cambiar audiencia</span>
+Reescribe esto pero para alguien que no sabe nada de tecnología.
+Elimina todos los términos técnicos y sustituye cada uno por una analogía cotidiana.</pre>
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué decir "hazlo mejor" o "no me gusta" produce resultados aleatorios?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this, true)" data-correct="Exacto. 'Mejor' es completamente subjetivo y la IA no tiene forma de saber qué dimensión específica corregir — más corto, más formal, más emocional, otro tono. Sin un criterio concreto, la IA elige al azar qué cambiar y el resultado es impredecible.">
+                Porque "mejor" es subjetivo y la IA no tiene forma de saber qué dimensión concreta cambiar
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No. La IA puede generar variaciones infinitas del mismo texto. El problema no es de capacidad — es de orientación: sin saber qué cambiar, la IA elige al azar y rara vez acierta con lo que tú querías.">
+                Porque la IA solo tiene una versión de cada texto y no puede generar otra distinta
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No. La IA está perfectamente entrenada para procesar feedback negativo. El problema no es el negativismo de la frase — es la falta de información específica sobre qué corregir.">
+                Porque la IA está entrenada para responder mal a feedback negativo
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Las 6 técnicas dominadas</div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-2-a">
+              <label for="ck-2-a">Tengo mi role prompt creado y guardado</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-2-b">
+              <label for="ck-2-b">Usé Chain of Thought en una decisión real</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-2-c">
+              <label for="ck-2-c">Tengo 2 ejemplos de mi voz para few-shot prompting</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-2-d">
+              <label for="ck-2-d">Sé usar delimitadores para controlar el formato del output</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-2-e">
+              <label for="ck-2-e">Produje un texto complejo usando prompts en cadena</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-2-f">
+              <label for="ck-2-f">Llevé un texto del primer borrador a un resultado publicable usando iteración dirigida</label>
+            </div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "03",
+    titulo: "Tu biblioteca de prompts",
+    lecciones: [
+      {
+        id: "3-1",
+        titulo: "El sistema de las 3 carpetas",
+        objetivo: "Organizar tus prompts de forma que puedas encontrar cualquiera en menos de 10 segundos.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Tu biblioteca de prompts</div>
+          </div>
+          <p>Una biblioteca de prompts desordenada es inútil. El sistema de 3 carpetas es el mínimo viable para que puedas encontrar cualquier prompt en menos de 10 segundos:</p>
+          <table class="summary-table">
+            <thead><tr><th>Carpeta</th><th>Qué contiene</th><th>Ejemplo</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag tag-dawn">Base</span></td><td>Tu role prompt + tus ejemplos de voz. Van al inicio de casi todas las conversaciones.</td><td>"Eres [tu experto ideal]…" + 2 textos de ejemplo</td></tr>
+              <tr><td><span class="tag tag-sky">Tareas recurrentes</span></td><td>Prompts para lo que haces más de 2 veces por semana.</td><td>Emails de seguimiento, posts de RRSS, respuestas a clientes</td></tr>
+              <tr><td><span class="tag tag-dawn">Proyectos</span></td><td>Prompts de proyectos puntuales que puedes reutilizar.</td><td>Lanzar un producto, redactar propuestas, analizar competencia</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-tip">
+            <strong>Herramienta recomendada</strong>
+            Notion, Google Docs o simplemente una carpeta en tu gestor de notas favorito. Lo importante es que esté siempre accesible desde cualquier dispositivo.
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Crea tu biblioteca base</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Crea una carpeta llamada "Biblioteca de Prompts" en Notion o Google Docs</li>
+              <li><span class="step-num">02</span> Crea las 3 subcarpetas: Base, Tareas recurrentes, Proyectos</li>
+              <li><span class="step-num">03</span> En "Base", pega tu role prompt y tus 2 ejemplos de voz del Módulo 2</li>
+              <li><span class="step-num">04</span> En "Tareas recurrentes", irás añadiendo los prompts de las próximas lecciones</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "3-2",
+        titulo: "Prompts para email y comunicación",
+        objetivo: "Tener listos los prompts de email más frecuentes para usarlos desde hoy sin construirlos desde cero.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Tu biblioteca de prompts</div>
+          </div>
+          <p>Estos prompts van directos a tu carpeta "Tareas recurrentes". Personaliza los campos marcados con naranja y úsalos esta semana.</p>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Prompt 1 — Email de seguimiento comercial</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres un consultor de ventas que escribe emails de seguimiento directos y sin presión.
+
+Contexto:
+- Nombre del prospecto: <span class="placeholder">[nombre]</span>
+- Contacto previo: <span class="placeholder">[cuándo y de qué hablaron]</span>
+- Lo que ofreces: <span class="placeholder">[tu producto o servicio]</span>
+- Han pasado: <span class="placeholder">[X días]</span> sin respuesta
+
+Escribe un email de seguimiento de máximo 80 palabras.
+Sin presionar, sin "solo quería saber si…", con una pregunta directa
+al final que sea fácil de responder con sí o no.</pre>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Prompt 2 — Gestionar una queja</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres un experto en atención al cliente que convierte quejas en fidelización.
+
+Situación: El cliente <span class="placeholder">[nombre]</span> se queja de que <span class="placeholder">[describe el problema]</span>.
+Causa real: <span class="placeholder">[qué pasó internamente]</span>
+Lo que puedes ofrecer: <span class="placeholder">[tu solución concreta]</span>
+
+Escribe un email que:
+1. Reconozca el problema sin excusas
+2. Explique brevemente qué pasó (honestidad sin drama)
+3. Proponga la solución concreta
+4. Cierre dejando al cliente con mejor percepción que antes de quejarse
+
+Máximo 120 palabras. Tono cálido y responsable.</pre>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Prompt 3 — Email de bienvenida a nuevo cliente</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres el responsable de comunicación de <span class="placeholder">[nombre de tu negocio]</span>.
+
+Nuevo cliente: <span class="placeholder">[nombre]</span> acaba de contratar <span class="placeholder">[producto o servicio]</span>.
+
+Escribe un email de bienvenida que:
+- Sea cálido pero no exagerado
+- Le diga exactamente qué pasa ahora (próximos pasos)
+- Le dé un consejo rápido para sacar más provecho desde el primer día
+- Invite a contactar sin sonar a obligación
+
+Asunto + cuerpo. Máximo 100 palabras.</pre>
+          </div>
+        `
+      },
+      {
+        id: "3-3",
+        titulo: "Prompts para redes sociales",
+        objetivo: "Generar contenido de redes sociales coherente con tu voz y orientado a generar engagement real.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Tu biblioteca de prompts</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Prompt 4 — Post de LinkedIn que genera debate</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres un experto en contenido B2B para LinkedIn con foco en negocios de servicios.
+
+Tema: <span class="placeholder">[tema del post]</span>
+Mi negocio: <span class="placeholder">[descripción en 1 línea]</span>
+Audiencia: <span class="placeholder">[a quién le escribes]</span>
+
+Escribe un post de LinkedIn que:
+- Abra con una afirmación directa o ligeramente polémica (no una pregunta)
+- Desarrolle el argumento en 3-4 párrafos cortos (máximo 2 líneas cada uno)
+- Use saltos de línea frecuentes para facilitar lectura móvil
+- Cierre con una pregunta que invite a comentar
+- Sin emojis en exceso (máximo 2 en todo el post)
+- Máximo 3 hashtags al final
+
+Longitud total: entre 150 y 220 palabras.</pre>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Prompt 5 — 5 ideas de contenido semanal</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres un estratega de contenido para redes sociales especializado en pequeños negocios.
+
+Mi negocio: <span class="placeholder">[descripción]</span>
+Mi audiencia: <span class="placeholder">[quiénes son, qué problema tienen]</span>
+Red social principal: <span class="placeholder">[LinkedIn / Instagram / Facebook]</span>
+Esta semana me enfoco en: <span class="placeholder">[tema o campaña]</span>
+
+Dame 5 ideas de posts para esta semana. Para cada idea:
+- Gancho de apertura (1 línea)
+- Ángulo del contenido (2 líneas)
+- Formato sugerido (texto, carrusel, vídeo corto, imagen)
+
+No desarrolles los posts, solo las ideas. Quiero elegir primero.</pre>
+          </div>
+        `
+      },
+      {
+        id: "3-4",
+        titulo: "Prompts para análisis y toma de decisiones",
+        objetivo: "Usar la IA como consultor estratégico para analizar tu negocio y mejorar tus textos.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Tu biblioteca de prompts</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Prompt 6 — DAFO rápido de tu negocio</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres un consultor estratégico que trabaja con pequeñas empresas.
+
+Mi negocio: <span class="placeholder">[describe qué haces, a quién, cuánto tiempo llevas]</span>
+Situación actual: <span class="placeholder">[facturación, clientes, canal principal de venta]</span>
+Contexto del mercado: <span class="placeholder">[competencia, tendencias que estás viendo]</span>
+
+Realiza un DAFO con este formato:
+- Fortalezas: 3 puntos concretos (no genéricos)
+- Debilidades: 3 puntos concretos
+- Oportunidades: 3 oportunidades específicas del mercado actual
+- Amenazas: 3 amenazas reales, no teóricas
+
+Al final, dame las 2 acciones más urgentes basadas en el DAFO.
+Sé directo. Si ves algo preocupante, dímelo sin suavizarlo.</pre>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Prompt 7 — Revisión y mejora de un texto tuyo</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres un editor de textos con experiencia en comunicación de negocios y copywriting.
+
+Voy a darte un texto que escribí yo. Necesito que:
+1. Lo evalúes del 1 al 10 en claridad, impacto y llamada a la acción
+2. Identifiques las 3 frases más débiles y expliques por qué
+3. Propongas una versión mejorada de cada frase débil
+4. Indiques si el tono es coherente de principio a fin
+
+No reescribas el texto completo. Solo analiza y mejora las partes débiles.
+
+Aquí está el texto:
+---
+<span class="placeholder">[pega aquí tu texto]</span>
+---</pre>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Tu biblioteca está lista cuando</div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-3-a">
+              <label for="ck-3-a">Creé las 3 carpetas: Base, Tareas recurrentes, Proyectos</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-3-b">
+              <label for="ck-3-b">Guardé al menos 5 prompts personalizados con mis datos reales</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-3-c">
+              <label for="ck-3-c">Usé al menos 2 prompts en situaciones reales de mi negocio esta semana</label>
+            </div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "04",
+    titulo: "Prompts por sector",
+    lecciones: [
+      {
+        id: "4-1",
+        titulo: "Salón de belleza y estética",
+        objetivo: "Aplicar prompts específicos para recuperar clientes, llenar agenda y generar contenido para un negocio de belleza.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Prompts por sector</div>
+          </div>
+          <p>Estos prompts están pensados específicamente para negocios de belleza — salones, estéticas, nail studios, spas. Si no es tu sector, salta directamente al que te aplica.</p>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Recuperar clientes inactivos por WhatsApp</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres una experta en comunicación para negocios de belleza. Tono: cercano, cálido, sin presión.
+
+Situación: tengo clientes que vinieron hace más de 30 días y no han vuelto a reservar.
+Nombre del cliente: <span class="placeholder">[nombre]</span>
+Último servicio: <span class="placeholder">[corte, color, manicura, etc.]</span>
+
+Escribe un mensaje de WhatsApp de máximo 60 palabras que:
+- Los llame por su nombre
+- Mencione el servicio que se hicieron (sin sonar a spam)
+- Les dé una razón para volver (oferta, novedad, temporada)
+- Termine con CTA fácil: "¿Te apunto esta semana?"</pre>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Post de Instagram para promocionar un servicio</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres una experta en marketing para salones de belleza en Instagram.
+
+Servicio a promocionar: <span class="placeholder">[nombre del servicio]</span>
+Precio o promoción: <span class="placeholder">[precio habitual / descuento si hay]</span>
+Resultado visible del servicio: <span class="placeholder">[qué cambio nota la clienta]</span>
+
+Escribe un caption de Instagram de máximo 80 palabras que:
+- Empiece con una frase que haga parar el scroll
+- Destaque el resultado, no el servicio técnico
+- Incluya un CTA directo: "Reserva en el link de bio"
+- Sugiere 5 hashtags relevantes al final</pre>
+          </div>
+        `
+      },
+      {
+        id: "4-2",
+        titulo: "Tienda online y e-commerce",
+        objetivo: "Crear descripciones de producto que venden y emails de recuperación de carrito abandonado.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Prompts por sector</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Descripción de producto que vende</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres un copywriter especializado en e-commerce de <span class="placeholder">[tu categoría]</span>.
+
+Producto: <span class="placeholder">[nombre del producto]</span>
+Características técnicas: <span class="placeholder">[lista las specs]</span>
+Para quién es: <span class="placeholder">[cliente ideal]</span>
+Problema que resuelve: <span class="placeholder">[qué frustración cubre]</span>
+
+Escribe una descripción con:
+- Título con beneficio principal (no solo el nombre)
+- Párrafo de apertura que conecte con el problema del cliente (2-3 líneas)
+- 4 bullets de beneficios (qué gana el cliente, no specs técnicas)
+- Frase de cierre con CTA
+
+Máximo 150 palabras en total. Sin tecnicismos innecesarios.</pre>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Email de carrito abandonado</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres un experto en email marketing para tiendas online.
+
+Producto abandonado: <span class="placeholder">[nombre del producto y precio]</span>
+Mi tienda vende: <span class="placeholder">[descripción en 1 línea]</span>
+¿Hay descuento disponible? <span class="placeholder">[sí/no y cuál]</span>
+
+Escribe un email de carrito abandonado que:
+- Abra recordando el producto de forma visual (sin sonar a máquina)
+- Elimine la fricción principal (precio, duda, urgencia)
+- Si hay descuento, preséntalo como exclusivo y con deadline
+- CTA claro: un solo botón, un solo texto
+
+Asunto (2 opciones) + cuerpo de máximo 100 palabras.</pre>
+          </div>
+        `
+      },
+      {
+        id: "4-3",
+        titulo: "Consultoría y servicios profesionales",
+        objetivo: "Escribir propuestas de servicio que convierten y emails que posicionan tu expertise.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Prompts por sector</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Propuesta de servicio personalizada</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres un consultor senior que escribe propuestas que convierten porque van al grano.
+
+Cliente potencial: <span class="placeholder">[nombre o empresa]</span>
+Problema que mencionaron: <span class="placeholder">[lo que me dijeron en la reunión]</span>
+Lo que ofrezco: <span class="placeholder">[mi servicio específico]</span>
+Precio: <span class="placeholder">[importe o rango]</span>
+Duración: <span class="placeholder">[timeline]</span>
+
+Escribe una propuesta en formato email con:
+1. Lo que entendí de tu situación (2-3 líneas que demuestren que escuché)
+2. Lo que propongo hacer (3 puntos concretos, sin jerga)
+3. Lo que logramos juntos (resultado esperado, medible si es posible)
+4. Inversión y próximo paso
+
+Tono: profesional pero directo. Sin palabrería corporativa.</pre>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Email de posicionamiento de expertise</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres un experto en comunicación para consultores independientes.
+
+Mi especialidad: <span class="placeholder">[qué hago específicamente]</span>
+Para quién: <span class="placeholder">[tipo de cliente ideal]</span>
+Resultado concreto que logro: <span class="placeholder">[resultado medible]</span>
+Caso o ejemplo real: <span class="placeholder">[breve descripción de un cliente anterior]</span>
+
+Escribe un email de presentación fría a un prospecto que no me conoce.
+Que posicione mi expertise sin sonar a vendedor, que cuente el caso real
+como prueba y que termine con una invitación a una llamada de 20 minutos.
+Máximo 120 palabras.</pre>
+          </div>
+        `
+      },
+      {
+        id: "4-4",
+        titulo: "Formación y academia online",
+        objetivo: "Crear emails de lanzamiento de cursos y contenido educativo que convierte seguidores en alumnos.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Prompts por sector</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Email de lanzamiento de curso</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>Eres un experto en email marketing para infoproductos y cursos online.
+
+Curso: <span class="placeholder">[nombre del curso]</span>
+Precio: <span class="placeholder">[precio o gratis]</span>
+Para quién: <span class="placeholder">[perfil del estudiante ideal]</span>
+Resultado principal: <span class="placeholder">[qué logra al terminar]</span>
+Fecha de apertura / deadline: <span class="placeholder">[fecha]</span>
+
+Escribe un email de lanzamiento que:
+- Abra con el problema del lector, no con el curso
+- Presente el curso como la solución en el párrafo 2
+- Incluya 3 bullets de lo que van a lograr (concretos y medibles)
+- Termine con CTA claro y recordatorio de urgencia si aplica
+
+Asunto (2 opciones) + cuerpo de máximo 180 palabras.</pre>
+          </div>
+          <div class="next-course">
+            <div class="next-course-label">Siguiente nivel</div>
+            <div class="next-course-title">Tu Primera Automatización con Make</div>
+            <div class="next-course-desc">Ya dominas el prompting. El siguiente paso es automatizar las tareas repetitivas de tu negocio — sin código, sin instalaciones, con resultado visible en la primera sesión.</div>
+            <a href="material-automatizacion.html" class="next-course-btn">Ver curso →</a>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "05",
+    titulo: "Tu sistema de trabajo diario",
+    lecciones: [
+      {
+        id: "5-1",
+        titulo: "El flujo de trabajo de los 5 pasos",
+        objetivo: "Implementar un proceso sistemático para usar la IA en cualquier tarea de negocio en menos de 10 minutos.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 05</div>
+            <div class="module-name">Tu sistema de trabajo diario</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Sistema de trabajo productivo" onerror="this.parentElement.classList.add('broken'); this.remove()">
+          </div>
+          <p>Tener buenos prompts no es suficiente si no tienes un proceso para usarlos. Este flujo te lleva desde la tarea hasta el resultado publicable de forma sistemática:</p>
+          <div class="prompt-box">
+            <div class="prompt-box-label">
+              <span>Los 5 pasos del flujo diario</span>
+              <button class="copy-btn" onclick="copyPrompt(this)">Copiar</button>
+            </div>
+            <pre>PASO 1 — DEFINE LA TAREA (30 segundos)
+¿Qué necesito producir? ¿Para quién? ¿Cuál es el resultado exacto?
+
+PASO 2 — ELIGE O ADAPTA UN PROMPT DE TU BIBLIOTECA (1 minuto)
+¿Tengo un prompt para esto? → Úsalo.
+¿No tengo? → Construye uno con los 4 elementos: rol, contexto, tarea, formato.
+
+PASO 3 — GENERA Y LEE CRÍTICAMENTE (2 minutos)
+Lee el resultado como editor, no como autor.
+Marca qué está bien y qué cambiarías.
+
+PASO 4 — ITERA CON INSTRUCCIONES ESPECÍFICAS (1-2 minutos)
+Máximo 3 cambios concretos en el mismo mensaje.
+
+PASO 5 — EDITA CON TU VOZ (2-3 minutos)
+El último 10% siempre lo haces tú: ajusta una frase,
+añade un detalle personal, elimina lo que suene genérico.
+
+Tiempo total para un texto de negocio: 7-10 minutos.</pre>
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Aplica el flujo completo hoy</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Elige una tarea real de hoy que requiera escribir algo</li>
+              <li><span class="step-num">02</span> Aplica los 5 pasos en orden, sin saltarte ninguno</li>
+              <li><span class="step-num">03</span> Mide cuánto tardas — la primera vez serán 15 min, la décima serán 7</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "5-2",
+        titulo: "Qué no delegar a la IA nunca",
+        objetivo: "Saber exactamente dónde termina la IA y dónde empieza tu criterio para no publicar basura ni delegar lo que no se puede delegar.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 05</div>
+            <div class="module-name">Tu sistema de trabajo diario</div>
+          </div>
+          <p>La IA no reemplaza tu criterio. Hay decisiones y elementos que siempre deben salir de ti:</p>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">1</div>
+              <div class="step-content">
+                <strong>Tu posicionamiento estratégico</strong>
+                <p>La IA puede articularlo, pero tú decides a quién ayudas, qué problema resuelves y por qué eres diferente.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">2</div>
+              <div class="step-content">
+                <strong>Decisiones que afectan a personas</strong>
+                <p>Contratar, despedir, cerrar un cliente, fijar un precio. Son tuyas.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">3</div>
+              <div class="step-content">
+                <strong>La revisión final de lo que publicas</strong>
+                <p>Nunca publiques nada que no hayas leído tú primero. La IA se equivoca con datos, fechas y nombres.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">4</div>
+              <div class="step-content">
+                <strong>Tu voz en el 10% final</strong>
+                <p>Lo que hace que un texto suene a ti y no a una máquina siempre viene de ti. La IA llega al 90%, el resto es tuyo.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-warning">
+            <strong>Regla de oro</strong>
+            La IA trabaja mejor cuando tú sabes exactamente lo que quieres. Si no tienes claro el resultado, el prompt no te va a salvar.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué el "10% final" siempre lo debe hacer un humano y no la IA, aunque la IA pueda iterar infinitas veces?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No. La IA puede ser muy creativa cuando se le da contexto adecuado. El problema no es de creatividad — es de identidad: la IA no tiene una experiencia personal real de la que extraer detalles únicos.">
+                Porque la IA no tiene capacidad creativa
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, true)" data-correct="Exacto. La IA puede generar texto técnicamente perfecto pero siempre desde el promedio estadístico de lo que ya existe. Tu experiencia personal, tus opiniones, los detalles únicos de tu negocio — eso solo está en tu cabeza, y es lo que diferencia tu contenido del de cualquier otro.">
+                Porque la IA solo conoce patrones promedio — los detalles únicos de tu experiencia y opinión solo están en ti
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)" data-incorrect="No. La IA es muy precisa con la gramática. El 10% final no es para corregir errores ortográficos — es para añadir personalidad y experiencia única que la IA no puede inventar.">
+                Porque la IA comete errores gramaticales que solo tú puedes detectar
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">🎯 Actividad final — Semana 1 con el sistema completo</div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-5-a">
+              <label for="ck-5-a">Lunes: usé mi role prompt + biblioteca para producir el primer texto de la semana</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-5-b">
+              <label for="ck-5-b">Martes: apliqué Chain of Thought a una decisión real de mi negocio</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-5-c">
+              <label for="ck-5-c">Miércoles: generé y publiqué contenido de redes sin corregir más de 5 minutos</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-5-d">
+              <label for="ck-5-d">Jueves: usé prompts en cadena para producir un texto largo</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-5-e">
+              <label for="ck-5-e">Viernes: añadí 2 prompts nuevos a mi biblioteca basándome en lo que necesité esta semana</label>
+            </div>
+          </div>
+        `
+      }
+    ]
+  }
+];
+
+let currentLesson = 0;
+const allLessons = curso.flatMap(m => m.lecciones);
+const completed = new Set();
+const quizPassed = new Set();
+var BREVO_URL = 'https://0e103c7f.sibforms.com/serve/MUIFAGmWzIoIIh0eHDJKfTT7ehMXGy8JCpcL-X5Gtw1sJxl08UcgMSEJf137HAl8N_in6IHJfmX6vuvgBRDzcqYvzauP8x3EZ8IlvjbHcfPgTy0RHO1rskm4qshmUzFLEaW-Ta103zPYEauCx6uZic7oPQ5SI9jClrx_UIu5Mwd_yr9Rq6HQCETtzUcVF67ZjQM44AWmV7dDiyL-Qg==';
+var progressModalShown = false;
+
+function renderSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  curso.forEach((modulo) => {
+    const moduleEl = document.createElement('div');
+    moduleEl.className = 'nav-module';
+    const header = document.createElement('div');
+    header.className = 'nav-module-header';
+    header.innerHTML = `<span><span class="nav-module-num">${modulo.modulo}</span> ${modulo.titulo}</span>`;
+    header.onclick = () => {
+      const lessons = moduleEl.querySelector('.nav-lessons');
+      lessons.style.maxHeight = lessons.style.maxHeight ? '' : lessons.scrollHeight + 'px';
+    };
+    const lessons = document.createElement('div');
+    lessons.className = 'nav-lessons';
+    lessons.style.maxHeight = '500px';
+    modulo.lecciones.forEach((leccion) => {
+      const idx = allLessons.findIndex(l => l.id === leccion.id);
+      const item = document.createElement('div');
+      item.className = 'nav-lesson' + (idx === currentLesson ? ' active' : '') + (completed.has(idx) ? ' completed' : '');
+      item.dataset.idx = idx;
+      item.innerHTML = `<div class="lesson-dot"></div>${leccion.titulo}`;
+      item.onclick = () => goToLesson(idx);
+      lessons.appendChild(item);
+    });
+    moduleEl.appendChild(header);
+    moduleEl.appendChild(lessons);
+    nav.appendChild(moduleEl);
+  });
+}
+
+function renderLesson(idx) {
+  const area = document.getElementById('content-area');
+  const leccion = allLessons[idx];
+  const modulo = curso.find(m => m.lecciones.some(l => l.id === leccion.id));
+  area.innerHTML = `
+    <div class="lesson active">
+      <div class="lesson-breadcrumb">
+        <span>Módulo ${modulo.modulo}</span>
+        <span class="breadcrumb-sep">›</span>
+        <span>Lección ${idx + 1} de ${allLessons.length}</span>
+      </div>
+      <h1 class="lesson-title">${leccion.titulo}</h1>
+      <div class="lesson-objective">${leccion.objetivo}</div>
+      <div class="lesson-body">${leccion.contenido}</div>
+      <div class="lesson-nav">
+        <button class="nav-btn nav-btn-prev" onclick="goToLesson(${idx - 1})" ${idx === 0 ? 'disabled' : ''}>← Anterior</button>
+        <button class="nav-btn nav-btn-next" onclick="nextLesson(${idx})">
+          ${idx === allLessons.length - 1 ? '¡Completado! 🐧' : 'Siguiente →'}
+        </button>
+      </div>
+    </div>
+  `;
+  document.getElementById('main-content').scrollTop = 0;
+}
+
+function goToLesson(idx) {
+  if (idx < 0 || idx >= allLessons.length) return;
+  completed.add(currentLesson);
+  currentLesson = idx;
+  // Trigger del popup Brevo a mitad de curso (lección 10 — Prompts para email, índice 9)
+  if (idx === 9 && !progressModalShown) {
+    setTimeout(function() {
+      document.getElementById('progress-modal').classList.add('active');
+    }, 600);
+  }
+  renderLesson(idx);
+  renderSidebar();
+  updateProgress();
+  closeSidebar();
+}
+
+function nextLesson(idx) {
+  completed.add(idx);
+  if (idx < allLessons.length - 1) {
+    goToLesson(idx + 1);
+  } else {
+    updateProgress();
+    renderSidebar();
+    const lessonsWithQuizzes = allLessons
+      .map((l, i) => ({ idx: i, titulo: l.titulo, hasQuiz: l.contenido.includes('quiz-block') }))
+      .filter(l => l.hasQuiz);
+    const pending = lessonsWithQuizzes.filter(l => !quizPassed.has(l.idx));
+    if (pending.length === 0) {
+      document.getElementById('cert-overlay').classList.add('active');
+    } else {
+      const area = document.getElementById('content-area');
+      const lista = pending.map(l => `<li style="margin-bottom:8px;">${l.titulo}</li>`).join('');
+      area.innerHTML = `
+        <div class="lesson active">
+          <div class="lesson-breadcrumb"><span>Certificado</span></div>
+          <h1 class="lesson-title">Casi lo tienes 🐧</h1>
+          <div class="lesson-objective">Para descargar tu certificado necesitas responder correctamente todos los quizzes del curso.</div>
+          <div class="lesson-body">
+            <p>Tienes quizzes pendientes en las siguientes lecciones:</p>
+            <ul style="margin:16px 0 16px 20px;">${lista}</ul>
+            <p>Vuelve a esas lecciones, responde el quiz correctamente y regresa aquí para obtener tu certificado.</p>
+          </div>
+          <div class="lesson-nav">
+            <button class="nav-btn nav-btn-prev" onclick="goToLesson(${idx})">← Volver</button>
+            <button class="nav-btn nav-btn-next" onclick="
+              const lq = allLessons.map((l,i)=>({idx:i,hasQuiz:l.contenido.includes('quiz-block')})).filter(l=>l.hasQuiz).filter(l=>!quizPassed.has(l.idx));
+              if(lq.length===0){document.getElementById('cert-overlay').classList.add('active');}
+              else{goToLesson(lq[0].idx);}
+            ">Ir al quiz pendiente →</button>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
+function updateProgress() {
+  const total = allLessons.length;
+  const done = completed.size;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = done + ' / ' + total;
+}
+
+function handleQuiz(btn, isCorrect) {
+  const block = btn.closest('.quiz-block');
+  const blockId = block.id || ('quiz-' + currentLesson);
+  if (!block.id) block.id = blockId;
+  block.querySelectorAll('.quiz-option').forEach(o => { o.disabled = true; o.style.pointerEvents = 'none'; });
+  btn.classList.add(isCorrect ? 'quiz-correct' : 'quiz-incorrect');
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback ' + (isCorrect ? 'fb-correct' : 'fb-incorrect');
+  if (isCorrect) {
+    fb.textContent = btn.dataset.correct;
+    quizPassed.add(currentLesson);
+  } else {
+    fb.innerHTML = btn.dataset.incorrect + '<br><br><button onclick="resetQuiz(\'' + blockId + '\')" style="margin-top:8px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;padding:7px 18px;border-radius:6px;font-family:DM Sans,sans-serif;font-size:13px;cursor:pointer;">↩ Volver a intentar</button>';
+  }
+}
+
+function resetQuiz(blockId) {
+  const block = document.getElementById(blockId);
+  block.querySelectorAll('.quiz-option').forEach(o => {
+    o.disabled = false;
+    o.style.pointerEvents = '';
+    o.classList.remove('quiz-correct', 'quiz-incorrect');
+  });
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback';
+  fb.innerHTML = '';
+}
+
+function handleChallenge(btn, success) {
+  const block = btn.closest('.challenge-block');
+  block.querySelectorAll('button').forEach(b => {
+    b.disabled = true;
+    b.style.pointerEvents = 'none';
+    b.style.opacity = '0.5';
+  });
+  const resp = block.querySelector('.challenge-response');
+  if (success) {
+    resp.className = 'challenge-response success';
+    resp.innerHTML = '<strong>¡Increíble!</strong> Acabas de comprobar en tiempo real cómo cambian las respuestas con prompting bien hecho. Esa diferencia entre dos respuestas es exactamente el valor que vas a sacar todos los días aplicando lo que estás aprendiendo aquí.';
+  } else {
+    resp.className = 'challenge-response error';
+    resp.innerHTML = '<strong>Tranquilo.</strong> Si no notaste mucha diferencia es probable que el rol que escribiste fuera muy genérico (ej: "eres experto"). Prueba con un rol más específico: "Eres un consultor de ventas B2B con 12 años de experiencia cerrando contratos de servicio." Cuanto más concreto el rol, más clara la diferencia en el output.';
+  }
+}
+
+function saveProgress() {
+  var email = document.getElementById('progress-email').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('progress-email').style.borderColor = '#ef4444';
+    return;
+  }
+  var body = new FormData();
+  body.append('EMAIL', email);
+  body.append('email_address_check', '');
+  body.append('locale', 'es');
+  fetch(BREVO_URL, { method: 'POST', body: body, mode: 'no-cors' }).catch(function(){});
+  dismissProgress();
+}
+
+function dismissProgress() {
+  document.getElementById('progress-modal').classList.remove('active');
+  progressModalShown = true;
+}
+
+function copyPrompt(btn) {
+  const pre = btn.closest('.prompt-box').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '¡Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector('script[src="' + src + '"]')) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function certHTML(name, dateStr, auryBase64) {
+  const auryImg = auryBase64
+    ? `<img decoding="async" src="${auryBase64}" style="width:92%;object-fit:contain;object-position:bottom center;" alt="Aury">`
+    : '';
+  return `
+  <div style="width:1200px;height:848px;background:#07090F;position:relative;overflow:hidden;font-family:'DM Sans',sans-serif;">
+    <div style="position:absolute;top:-120px;right:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(196,96,48,0.13),transparent 65%);"></div>
+    <div style="position:absolute;bottom:-120px;left:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(58,100,148,0.1),transparent 65%);"></div>
+    <div style="position:absolute;inset:20px;border:1.5px solid rgba(196,96,48,0.4);pointer-events:none;"></div>
+    <div style="position:absolute;inset:26px;border:1px solid rgba(196,96,48,0.1);pointer-events:none;"></div>
+    <div style="position:absolute;top:16px;left:16px;width:14px;height:14px;border-top:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;top:16px;right:16px;width:14px;height:14px;border-top:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;left:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;right:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;top:48px;left:60px;right:60px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#7A6E60;font-weight:500;font-family:'DM Mono',monospace;">🐧 AuryOnTech</div>
+      <div style="width:38%;height:1px;background:linear-gradient(to right,transparent,rgba(196,96,48,0.25),transparent);"></div>
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(196,96,48,0.5);font-family:'DM Mono',monospace;">Certificado de Finalización</div>
+    </div>
+    <div style="position:absolute;top:0;left:0;width:760px;height:848px;display:flex;flex-direction:column;justify-content:center;padding:100px 56px 80px 60px;">
+      <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#C46030;font-family:'DM Mono',monospace;margin-bottom:18px;">Este documento certifica que</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:58px;color:#EEF4F8;line-height:1.05;letter-spacing:-1.5px;margin-bottom:22px;">${name}</div>
+      <div style="width:56px;height:3px;background:#C46030;margin-bottom:22px;border-radius:2px;"></div>
+      <div style="font-size:15px;color:#7A6E60;margin-bottom:10px;">ha completado satisfactoriamente el curso</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:24px;color:#D88050;letter-spacing:-0.3px;margin-bottom:52px;line-height:1.3;">Prompts que Trabajan: la guía que nadie te dio</div>
+      <div style="display:flex;gap:52px;align-items:flex-start;">
+        <div>
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Fecha</div>
+          <div style="font-size:13px;color:#EDE4D8;">${dateStr}</div>
+        </div>
+        <div style="width:1px;height:40px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>
+        <div>
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Emitido por</div>
+          <div style="font-size:13px;color:#EDE4D8;font-weight:600;">Cristian Lopez Garcia</div>
+          <div style="font-size:11px;color:#7A6E60;margin-top:2px;">Fundador · AuryOnTech</div>
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute;top:100px;bottom:80px;left:760px;width:1px;background:linear-gradient(to bottom,transparent,rgba(196,96,48,0.2) 30%,rgba(196,96,48,0.2) 70%,transparent);"></div>
+    <div style="position:absolute;right:0;bottom:0;width:440px;height:848px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;">${auryImg}</div>
+    <div style="position:absolute;bottom:34px;left:60px;font-size:10px;color:rgba(122,110,96,0.35);letter-spacing:2px;font-family:'DM Mono',monospace;text-transform:uppercase;">auryontech.com</div>
+  </div>`;
+}
+
+async function generateCert() {
+  const name = document.getElementById('cert-name').value.trim();
+  const certEmail = document.getElementById('cert-email').value.trim();
+  if (!name) { document.getElementById('cert-name').focus(); return; }
+  if (certEmail && certEmail.includes('@')) {
+    var bf = new FormData();
+    bf.append('EMAIL', certEmail);
+    bf.append('FIRSTNAME', name);
+    bf.append('email_address_check', '');
+    bf.append('locale', 'es');
+    fetch(BREVO_URL, { method: 'POST', body: bf, mode: 'no-cors' }).catch(function(){});
+  }
+  const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+  closeCertModal();
+  const loader = document.createElement('div');
+  loader.style.cssText = 'position:fixed;inset:0;background:rgba(7,9,15,0.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#EEF4F8;font-family:DM Sans,sans-serif;font-size:15px;gap:14px;';
+  loader.innerHTML = '<div style="font-size:36px;">🐧</div><div>Generando tu certificado...</div>';
+  document.body.appendChild(loader);
+  let auryBase64 = '';
+  try {
+    const resp = await fetch('assets/img/Aury-enfrente-de-la-Compu.png');
+    const blob = await resp.blob();
+    auryBase64 = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(blob); });
+  } catch(e) {}
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:1200px;height:848px;z-index:-1;';
+  div.innerHTML = certHTML(name, dateStr, auryBase64);
+  document.body.appendChild(div);
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 400));
+  const canvas = await html2canvas(div, { scale:2, useCORS:true, allowTaint:true, backgroundColor:'#07090F', width:1200, height:848, logging:false });
+  document.body.removeChild(div);
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 297, 210);
+  pdf.save('Certificado_AuryOnTech_' + name.replace(/ /g, '_') + '.pdf');
+  loader.remove();
+}
+
+function closeCertModal() {
+  document.getElementById('cert-overlay').classList.remove('active');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+}
+
+renderSidebar();
+renderLesson(0);
+updateProgress();
+
+(function() {
+  const dot = document.createElement('div'); dot.className = 'cursor-dot';
+  const ring = document.createElement('div'); ring.className = 'cursor-ring';
+  document.body.appendChild(dot);
+  document.body.appendChild(ring);
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+  document.addEventListener('mousedown', () => { dot.classList.add('clicking'); ring.classList.add('clicking'); });
+  document.addEventListener('mouseup', () => { dot.classList.remove('clicking'); ring.classList.remove('clicking'); });
+  (function animateRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animateRing); })();
+})();
+</script>
+</body>
+</html>
+
+
+
+<p></p>

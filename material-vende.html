@@ -1,0 +1,1399 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cierra con IA. Sin perder tu estilo. — AuryOnTech</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:#000000; --dawn:#C46030; --dawn-l:#D88050; --dawn-ll:#ECA878;
+      --sky:#3A6494; --ice:#B8D4EC; --snow:#EEF4F8; --bone:#EDE4D8;
+      --warm:#7A6E60; --ink-2:#0f1219; --ink-3:#161b26; --sidebar-w:300px;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{height:100%;background:#000000;color:var(--snow);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.7;overflow:hidden;}
+
+    #progress-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:linear-gradient(90deg,var(--dawn),var(--dawn-ll));z-index:1000;transition:width 0.4s ease;}
+
+    .app{display:flex;height:100vh;padding-top:3px;}
+    .sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--ink-2);border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;overflow:hidden;z-index:100;}
+    .sidebar-header{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.06);}
+    .sidebar-logo{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+    .logo-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+    .logo-icon img{width:40px;height:40px;object-fit:contain;display:block;}
+    .logo-text{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:15px;color:var(--snow);letter-spacing:-0.3px;}
+    .course-title{font-size:12px;color:var(--warm);line-height:1.4;font-weight:400;}
+    .progress-info{margin-top:12px;display:flex;align-items:center;justify-content:space-between;}
+    .progress-label{font-size:11px;color:var(--warm);font-family:'DM Mono',monospace;}
+    .progress-pill{font-size:11px;color:var(--dawn-ll);font-family:'DM Mono',monospace;font-weight:500;}
+    .progress-track{margin-top:8px;height:2px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
+    .progress-fill{height:100%;background:var(--dawn);border-radius:2px;transition:width 0.4s ease;}
+
+    .sidebar-nav{flex:1;overflow-y:auto;padding:12px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent;}
+    .nav-module{margin-bottom:4px;}
+    .nav-module-header{padding:8px 20px;font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--warm);font-family:'DM Mono',monospace;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;}
+    .nav-module-header:hover{color:var(--dawn-ll);}
+    .nav-module-num{color:var(--dawn);font-weight:500;}
+    .nav-lessons{overflow:hidden;transition:max-height 0.3s ease;}
+    .nav-lesson{padding:8px 20px 8px 32px;font-size:13px;color:rgba(238,244,248,0.6);cursor:pointer;display:flex;align-items:center;gap:10px;transition:all 0.2s;border-left:2px solid transparent;line-height:1.4;}
+    .nav-lesson:hover{color:var(--snow);background:rgba(255,255,255,0.03);}
+    .nav-lesson.active{color:var(--dawn-ll);border-left-color:var(--dawn);background:rgba(196,96,48,0.08);}
+    .nav-lesson.completed{color:rgba(134,239,172,0.7);}
+    .nav-lesson.completed .lesson-dot{background:#4ade80;}
+    .lesson-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.15);flex-shrink:0;transition:background 0.2s;}
+
+    .main{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent;}
+    .content{max-width:760px;margin:0 auto;padding:48px 40px 80px;}
+
+    .lesson{display:none;}
+    .lesson.active{display:block;animation:fadeIn 0.3s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+    .lesson-breadcrumb{font-size:12px;color:var(--warm);font-family:'DM Mono',monospace;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+    .breadcrumb-sep{color:var(--dawn);}
+    .lesson-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:36px;line-height:1.1;color:var(--snow);margin-bottom:12px;letter-spacing:-0.5px;}
+    .lesson-objective{font-size:15px;color:var(--dawn-ll);margin-bottom:36px;padding:14px 18px;background:rgba(196,96,48,0.08);border-left:3px solid var(--dawn);border-radius:0 6px 6px 0;font-style:italic;}
+    .lesson-body{font-size:15px;color:rgba(238,244,248,0.85);line-height:1.8;}
+    .lesson-body h3{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:20px;color:var(--snow);margin:36px 0 14px;letter-spacing:-0.3px;}
+    .lesson-body p{margin-bottom:16px;}
+    .lesson-body ul,.lesson-body ol{margin:0 0 16px 20px;}
+    .lesson-body li{margin-bottom:8px;}
+    .lesson-body strong{color:var(--snow);font-weight:600;}
+
+    .module-header{background:var(--ink-3);border-left:4px solid var(--dawn);border-radius:0 12px 12px 0;padding:20px 24px;margin-bottom:36px;}
+    .module-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--dawn);font-weight:500;letter-spacing:1px;text-transform:uppercase;}
+    .module-name{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--warm);margin-top:4px;}
+
+    .lesson-hero{width:100%;height:220px;border-radius:12px;overflow:hidden;position:relative;margin-bottom:36px;background:var(--ink-3);}
+    .lesson-hero img{width:100%;height:100%;object-fit:cover;display:block;}
+    .lesson-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:65%;background:linear-gradient(to top,rgba(7,9,15,0.85),transparent);pointer-events:none;}
+    .lesson-hero.broken{display:none;}
+
+    .prompt-box{background:#0d1117;border-radius:10px;margin:20px 0;overflow:hidden;border:1px solid rgba(58,100,148,0.3);border-left:3px solid var(--sky);}
+    .prompt-box-label{padding:10px 16px;background:rgba(58,100,148,0.08);border-bottom:1px solid rgba(58,100,148,0.15);display:flex;align-items:center;justify-content:space-between;}
+    .prompt-box-label span{font-family:'DM Mono',monospace;font-size:11px;color:var(--sky);text-transform:uppercase;letter-spacing:1px;}
+    .copy-btn{font-family:'DM Mono',monospace;font-size:11px;color:var(--dawn-ll);background:none;border:1px solid rgba(196,96,48,0.3);padding:3px 10px;border-radius:4px;cursor:pointer;transition:all 0.2s;}
+    .copy-btn:hover{background:rgba(196,96,48,0.15);border-color:var(--dawn);}
+    .copy-btn.copied{color:#4ade80;border-color:rgba(74,222,128,0.3);}
+    .prompt-box pre{padding:20px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:13px;line-height:1.7;color:var(--ice);white-space:pre-wrap;}
+    .prompt-box pre .placeholder{color:var(--dawn-ll);background:rgba(196,96,48,0.1);padding:1px 4px;border-radius:3px;}
+    .prompt-box pre .comment{color:rgba(238,244,248,0.3);}
+
+    .code-box{background:#0d1117;border-radius:10px;margin:20px 0;overflow:hidden;border:1px solid rgba(255,255,255,0.06);}
+    .code-box-header{padding:10px 16px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;}
+    .code-box-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--warm);text-transform:uppercase;letter-spacing:1px;}
+    .code-box pre{padding:20px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:13px;line-height:1.7;color:#e6edf3;white-space:pre-wrap;}
+
+    .inline-code{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:2px 7px;font-family:'DM Mono',monospace;font-size:12px;color:var(--dawn-ll);}
+
+    .callout{padding:16px 20px;border-radius:8px;margin:20px 0;font-size:14px;line-height:1.6;}
+    .callout-error{background:rgba(239,68,68,0.08);border-left:3px solid #ef4444;color:#fca5a5;}
+    .callout-tip{background:rgba(58,100,148,0.12);border-left:3px solid var(--sky);color:var(--ice);}
+    .callout-warning{background:rgba(196,96,48,0.1);border-left:3px solid var(--dawn);color:var(--dawn-ll);}
+    .callout-success{background:rgba(74,222,128,0.07);border-left:3px solid #4ade80;color:#86efac;}
+    .callout strong{display:block;margin-bottom:4px;font-weight:600;}
+
+    .action-block{background:linear-gradient(135deg,rgba(196,96,48,0.12),rgba(196,96,48,0.05));border:1px solid rgba(196,96,48,0.25);border-radius:12px;padding:24px 28px;margin-top:40px;}
+    .action-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--dawn);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .action-label::before{content:'';display:inline-block;width:16px;height:2px;background:var(--dawn);}
+    .action-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:18px;color:var(--snow);margin-bottom:12px;}
+    .action-steps{list-style:none;margin:0;padding:0;}
+    .action-steps li{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px;color:rgba(238,244,248,0.8);display:flex;align-items:flex-start;gap:12px;}
+    .action-steps li:last-child{border-bottom:none;}
+    .step-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--dawn);font-weight:500;min-width:20px;margin-top:2px;}
+
+    .step-list{display:flex;flex-direction:column;gap:6px;margin:24px 0;}
+    .step-item{display:flex;gap:16px;padding:14px 16px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid rgba(255,255,255,0.04);align-items:flex-start;transition:background 0.2s;}
+    .step-item:hover{background:rgba(255,255,255,0.04);}
+    .step-number-big{width:28px;height:28px;background:var(--dawn);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--snow);flex-shrink:0;margin-top:2px;}
+    .step-content{flex:1;}
+    .step-content strong{display:block;font-size:15px;color:var(--snow);margin-bottom:3px;}
+    .step-content p{font-size:13px;color:rgba(238,244,248,0.6);margin:0;line-height:1.5;}
+
+    .summary-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px;}
+    .summary-table th{background:rgba(196,96,48,0.08);color:var(--dawn-l);font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;padding:10px 14px;text-align:left;border-bottom:1px solid rgba(196,96,48,0.2);}
+    .summary-table td{padding:10px 14px;color:rgba(238,244,248,0.68);border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top;}
+    .summary-table tr:last-child td{border-bottom:none;}
+
+    .quiz-block{background:rgba(58,100,148,0.08);border:1px solid rgba(58,100,148,0.2);border-radius:12px;padding:24px 28px;margin:32px 0;}
+    .quiz-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--sky);margin-bottom:16px;}
+    .quiz-question{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:18px;color:var(--snow);margin-bottom:16px;line-height:1.3;}
+    .quiz-options{display:flex;flex-direction:column;gap:8px;}
+    .quiz-option{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px 16px;text-align:left;color:rgba(238,244,248,0.8);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;transition:all 0.2s;line-height:1.5;}
+    .quiz-option:hover:not(:disabled){background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.2);color:var(--snow);}
+    .quiz-option.quiz-correct{background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.4);color:#86efac;}
+    .quiz-option.quiz-incorrect{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.3);color:#fca5a5;}
+    .quiz-feedback{margin-top:16px;padding:12px 16px;border-radius:8px;font-size:14px;line-height:1.5;display:none;}
+    .quiz-feedback.fb-correct{background:rgba(74,222,128,0.08);color:#86efac;border-left:3px solid #4ade80;display:block;}
+    .quiz-feedback.fb-incorrect{background:rgba(239,68,68,0.08);color:#fca5a5;border-left:3px solid #ef4444;display:block;}
+    .quiz-retry{margin-top:14px;background:var(--dawn);color:var(--snow);border:none;border-radius:8px;padding:10px 18px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:13px;cursor:pointer;transition:background 0.2s;display:none;}
+    .quiz-retry.show{display:inline-block;}
+    .quiz-retry:hover{background:var(--dawn-l);}
+
+    .checklist-block{background:rgba(196,96,48,0.06);border:1px solid rgba(196,96,48,0.2);border-radius:12px;padding:20px 24px;margin:28px 0;}
+    .checklist-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dawn);margin-bottom:14px;font-weight:500;}
+    .checklist-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+    .checklist-item:last-child{border-bottom:none;}
+    .checklist-item input[type="checkbox"]{width:17px;height:17px;cursor:pointer;accent-color:var(--dawn);flex-shrink:0;}
+    .checklist-item label{font-size:14px;color:rgba(238,244,248,0.8);cursor:pointer;transition:all 0.2s;}
+    .checklist-item input:checked + label{color:var(--dawn-ll);text-decoration:line-through;opacity:0.6;}
+
+    .msg-bubble{background:var(--ink-3);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px 18px;margin:8px 0;font-size:14px;color:rgba(238,244,248,0.8);line-height:1.6;position:relative;}
+    .msg-bubble.sent{border-color:rgba(196,96,48,0.2);background:rgba(196,96,48,0.06);margin-left:32px;}
+    .msg-bubble.recv{margin-right:32px;}
+    .msg-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+    .msg-label.sent-l{color:var(--dawn-l);}
+    .msg-label.recv-l{color:var(--sky);}
+    .msg-thread{display:flex;flex-direction:column;gap:4px;margin:20px 0;}
+
+    .objecion-block{background:var(--ink-3);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:20px 24px;margin:12px 0;transition:border-color 0.2s;}
+    .objecion-block:hover{border-color:rgba(196,96,48,0.22);}
+    .ob-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.92rem;color:#fca5a5;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+    .ob-title::before{content:'';width:8px;height:8px;border-radius:50%;background:rgba(239,68,68,0.5);flex-shrink:0;}
+    .ob-respuesta{font-size:.83rem;color:rgba(238,244,248,0.7);line-height:1.6;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;margin-top:10px;}
+    .ob-respuesta strong{display:block;color:#86efac;font-size:.78rem;margin-bottom:6px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;}
+
+    .next-course{background:linear-gradient(135deg,var(--ink-3),rgba(196,96,48,0.08));border:1px solid rgba(196,96,48,0.2);border-radius:16px;padding:32px;margin:40px 0;}
+    .next-course-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dawn);margin-bottom:10px;}
+    .next-course-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:24px;color:var(--snow);margin-bottom:10px;letter-spacing:-0.3px;}
+    .next-course-desc{font-size:14px;color:rgba(238,244,248,0.7);margin-bottom:20px;line-height:1.6;}
+    .next-course-btn{display:inline-block;background:var(--dawn);color:var(--snow);padding:11px 24px;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:14px;text-decoration:none;transition:background 0.2s;}
+    .next-course-btn:hover{background:var(--dawn-l);}
+
+    .lesson-nav{display:flex;justify-content:space-between;margin-top:48px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06);}
+    .nav-btn{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;padding:10px 20px;border-radius:8px;cursor:pointer;border:none;transition:all 0.2s;}
+    .nav-btn-prev{background:rgba(255,255,255,0.05);color:var(--warm);}
+    .nav-btn-prev:hover{background:rgba(255,255,255,0.09);color:var(--snow);}
+    .nav-btn-next{background:var(--dawn);color:var(--snow);}
+    .nav-btn-next:hover{background:var(--dawn-l);}
+    .nav-btn:disabled{opacity:0.3;cursor:not-allowed;}
+
+    .hamburger{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--ink-2);border:1px solid rgba(255,255,255,0.1);border-radius:8px;width:40px;height:40px;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px;}
+    .hamburger span{display:block;width:18px;height:2px;background:var(--snow);border-radius:2px;}
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:90;}
+
+    /* MODALES — Brevo + Pending + Cert */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:999;display:none;align-items:center;justify-content:center;padding:20px;}
+    .modal-overlay.active{display:flex;}
+    .modal-box{background:var(--ink-2);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:36px;max-width:480px;width:100%;text-align:center;}
+    .modal-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:24px;color:var(--snow);margin-bottom:8px;}
+    .modal-sub{font-size:14px;color:var(--warm);margin-bottom:24px;line-height:1.5;}
+    .modal-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 16px;color:var(--snow);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;margin-bottom:16px;}
+    .modal-input:focus{border-color:var(--dawn);}
+    .modal-input::placeholder{color:var(--warm);}
+    .modal-btn{width:100%;background:var(--dawn);color:var(--snow);border:none;border-radius:8px;padding:13px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:15px;cursor:pointer;transition:background 0.2s;}
+    .modal-btn:hover{background:var(--dawn-l);}
+    .modal-skip{margin-top:12px;font-size:13px;color:var(--warm);cursor:pointer;text-decoration:underline;display:inline-block;}
+    .modal-skip:hover{color:var(--snow);}
+
+    /* PENDING QUIZZES SCREEN */
+    .pending-list{text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:16px 18px;margin:18px 0;max-height:200px;overflow-y:auto;}
+    .pending-item{font-size:13px;color:rgba(238,244,248,0.75);padding:6px 0;display:flex;align-items:center;gap:8px;}
+    .pending-item::before{content:'○';color:var(--dawn-l);font-size:14px;}
+    .pending-action-btn{background:var(--sky);color:var(--snow);border:none;border-radius:8px;padding:11px 22px;font-weight:600;font-size:14px;cursor:pointer;transition:background 0.2s;}
+    .pending-action-btn:hover{background:#5A84B4;}
+
+    .certificate{display:none;}
+
+    *{cursor:none !important;}
+    a,button,[onclick],label,input[type="checkbox"],.nav-lesson,.nav-module-header,.quiz-option,.copy-btn,.modal-btn,.modal-skip,.nav-btn,.next-course-btn,.quiz-retry,.pending-action-btn{cursor:pointer !important;}
+    .cursor-dot{position:fixed;width:8px;height:8px;background:#C46030;border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:transform 0.1s ease,background 0.2s;}
+    .cursor-ring{position:fixed;width:32px;height:32px;border:1.5px solid rgba(196,96,48,0.6);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:width 0.2s ease,height 0.2s ease,border-color 0.2s;}
+    .cursor-dot.clicking{transform:translate(-50%,-50%) scale(0.6);background:#ECA878;}
+    .cursor-ring.clicking{width:20px;height:20px;border-color:#C46030;}
+    @media(max-width:768px){*{cursor:auto !important;}.cursor-dot,.cursor-ring{display:none;}}
+
+    @media(max-width:768px){
+      .hamburger{display:flex;}
+      .sidebar{position:fixed;left:-310px;top:0;height:100vh;transition:left 0.3s ease;z-index:150;}
+      .sidebar.open{left:0;}
+      .overlay.active{display:block;}
+      .content{padding:60px 20px 80px;}
+      .lesson-title{font-size:26px;}
+      .lesson-hero{height:160px;}
+      .modal-box{padding:28px 22px;}
+    }
+  
+
+/* === MINIMAL ESSENTIAL OVERRIDES (auto-applied) === */
+body, .hero, .about, .services, .testi, .uc, .valor, .flow-demo, .cta, .manifesto, footer {
+  background-color: #000 !important;
+}
+.hero {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/iceberg-sunset-amber.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: scroll, fixed !important;
+}
+.eyebrow, .kicker, .nav-cta { color: #ECA878 !important; }
+.flake { opacity: .55 !important; font-size: 13px !important; }
+
+/* === ICEBERGS on sections === */
+.manifesto { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/mountains-sunset-pink.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.about, section.about { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-aerial-dark.jpeg') !important; background-size: cover, cover !important; background-position: right center !important; }
+.services { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-texture-blue.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.flow-demo { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/glacier-wall-blue.jpeg') !important; background-size: cover, cover !important; }
+.valor { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-minimal.jpeg') !important; background-size: cover, cover !important; }
+.uc { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/aerial-snow-scale.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.testi { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-ice-columns.jpeg') !important; background-size: cover, cover !important; }
+.cta { background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/icebergs-twin-massive.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+footer, .footer { background-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.98)), url('assets/img/antarctic-moon.jpeg') !important; background-size: cover, cover !important; }
+@media (max-width: 900px) { .hero, .services, .uc, .cta, .manifesto { background-attachment: scroll !important; } }
+
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- POP-UP DE PROGRESO BREVO (mid-course) -->
+<div class="modal-overlay" id="progress-overlay">
+  <div class="modal-box">
+    <div class="modal-title">🐧 Vas a la mitad. Bien hecho.</div>
+    <div class="modal-sub">Te dejamos tu email para mandarte recordatorios y los próximos cursos gratis cuando salgan. Sin spam, palabra de pingüino.</div>
+    <form id="progress-brevo-form" onsubmit="submitProgressBrevo(event)">
+      <input class="modal-input" type="email" id="progress-brevo-email" placeholder="tu@email.com" required>
+      <button class="modal-btn" type="submit">Mantenerme al día →</button>
+      <div id="progress-brevo-success" style="display:none;color:#86efac;font-size:14px;margin-top:14px;">✓ ¡Listo! Te avisamos cuando salgan los próximos cursos.</div>
+    </form>
+    <div class="modal-skip" onclick="closeProgressModal()">Seguir con la lección sin suscribirme</div>
+  </div>
+</div>
+
+<!-- PENDING QUIZZES SCREEN -->
+<div class="modal-overlay" id="pending-overlay">
+  <div class="modal-box">
+    <div class="modal-title">🐧 Casi lo tienes</div>
+    <div class="modal-sub">Para descargar tu certificado tienes que pasar todos los quizzes del curso. Te quedan estos:</div>
+    <div class="pending-list" id="pending-list"></div>
+    <button class="pending-action-btn" onclick="goToFirstPending()">Ir al primer quiz pendiente →</button>
+    <div class="modal-skip" onclick="closePendingModal()">Cerrar</div>
+  </div>
+</div>
+
+<!-- CERTIFICATE MODAL -->
+<div class="modal-overlay" id="cert-overlay">
+  <div class="modal-box">
+    <div class="modal-title">🐧 ¡Lo lograste!</div>
+    <div class="modal-sub">Terminaste el curso. Escribe tu nombre exactamente como quieres que aparezca en tu certificado, y déjanos tu email para mandártelo.</div>
+    <input class="modal-input" id="cert-name" type="text" placeholder="Tu nombre completo">
+    <input class="modal-input" id="cert-email" type="email" placeholder="tu@email.com">
+    <button class="modal-btn" onclick="generateCert()">Descargar certificado →</button>
+    <div class="modal-skip" onclick="closeCertModal()">Omitir por ahora</div>
+  </div>
+</div>
+<div class="certificate" id="certificate"></div>
+
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><img decoding="async" src="assets/img/Logo.png" alt="AuryOnTech"></div>
+        <span class="logo-text">AuryOnTech</span>
+      </div>
+      <div class="course-title">Cierra con IA. Sin perder tu estilo.</div>
+      <div class="progress-info">
+        <span class="progress-label">Progreso</span>
+        <span class="progress-pill" id="progress-text">0 / 12</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+  </nav>
+  <main class="main" id="main-content">
+    <div class="content"><div id="content-area"></div></div>
+  </main>
+</div>
+
+<button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<script>
+var BREVO_URL = 'https://0e103c7f.sibforms.com/serve/MUIFABixETnUeUB8O2BfAPIdc9KussbtMdmn8IyNBjwii4nylA4sJdjAWugglk84Nu8rHaGvXh97J3CSwU4TmExVZhmWSC30ZHd96-NGC8ppakZ9WAJV3lvaAp2jiuF8CCVk_40jXbkiyDxOwz8dBqAl16jbv4aoo_-XzVBmkf5enCedPT00-vgitBSIW7V7GcSC_1xymb_Avh2v1g==';
+var progressModalShown = false;
+const quizPassed = new Set();
+
+const curso = [
+  {
+    modulo: "01",
+    titulo: "Por qué se enfrían los leads que mostraron interés",
+    lecciones: [
+      {
+        id: "1-1",
+        titulo: "El momento exacto en que pierdes una venta",
+        objetivo: "Identificar en qué punto del proceso de venta se rompe la conversación y por qué no es lo que crees.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">Por qué se enfrían los leads que mostraron interés</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1553484771-371a605b060b?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Conversación de ventas" onerror="this.parentElement.classList.add('broken');this.remove()">
+          </div>
+          <p>Alguien te escribió, mostró interés, preguntó el precio. Y luego desapareció. No fue porque el precio fuera alto ni porque el producto fuera malo. Fue porque en algún punto del intercambio dijiste lo correcto en el momento equivocado, o lo equivocado cuando más importaba.</p>
+          <p>La mayoría de las ventas no se pierden en el cierre. Se pierden en la segunda o tercera interacción, cuando el lead todavía está evaluando y tú ya llevas tres mensajes intentando cerrar.</p>
+          <h3>Los tres momentos donde se rompe la venta</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>El primer mensaje — demasiado genérico</strong>
+                <p>Presentas tu servicio como si hablaras con todo el mundo. El lead siente que no le estás hablando a él. Responde con cortesía y desaparece.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>El seguimiento — demasiado pronto o demasiado tarde</strong>
+                <p>Si escribes al día siguiente pareces desesperado. Si esperas dos semanas, el lead ya tomó una decisión sin ti. La cadencia exacta importa más que el texto.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>La propuesta — demasiado estándar</strong>
+                <p>Mandas el mismo PDF a todos. El lead lo abre, ve que no menciona nada de lo que te dijo, y lo archiva. Una propuesta que no demuestra que escuchaste no cierra.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <strong>El dato que cambia la perspectiva</strong>
+            El 80% de las ventas requieren entre 5 y 12 contactos para cerrarse. El 44% de los vendedores abandona después del primer seguimiento. La venta no la pierde el que tiene el mejor producto. La gana el que tiene el mejor sistema de seguimiento.
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Audita tus últimas 5 ventas perdidas</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Abre tu CRM o tus conversaciones de WhatsApp y localiza los últimos 5 leads que no cerraron</li>
+              <li><span class="step-num">02</span> Para cada uno: ¿en qué mensaje paró la conversación? ¿Cuántos seguimientos hiciste?</li>
+              <li><span class="step-num">03</span> Anota el patrón — ese es tu cuello de botella real y este curso lo va a resolver</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "1-2",
+        titulo: "Los 3 errores de comunicación que enfrían cualquier conversación",
+        objetivo: "Reconocer los patrones de comunicación que alejan a los leads para eliminarlos desde hoy.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">Por qué se enfrían los leads que mostraron interés</div>
+          </div>
+          <h3>Error 1: Hablar de ti antes de escuchar al lead</h3>
+          <p>El error más frecuente. Alguien te escribe interesado y tú respondes con un resumen de tu empresa, tus años de experiencia y todo lo que ofreces. El lead no preguntó eso. Preguntó si podías ayudarle con su problema específico.</p>
+          <div class="msg-thread">
+            <div class="msg-bubble recv"><div class="msg-label recv-l">Lead</div>Hola, ¿hacéis diseño de logos para restaurantes?</div>
+            <div class="msg-bubble sent"><div class="msg-label sent-l">❌ Respuesta que enfría</div>¡Hola! Somos un estudio de diseño con más de 8 años de experiencia. Trabajamos con todo tipo de empresas, desde startups hasta grandes corporaciones. Ofrecemos logos, branding completo, webs, redes sociales... ¿Te envío nuestra presentación?</div>
+            <div class="msg-bubble sent"><div class="msg-label sent-l">✓ Respuesta que conecta</div>¡Hola! Sí, trabajamos con restaurantes. ¿Estáis abriendo uno nuevo o rediseñando la imagen de uno que ya tenéis? Así te cuento exactamente qué podemos hacer.</div>
+          </div>
+          <h3>Error 2: Dar el precio antes de dar el valor</h3>
+          <p>Cuando alguien pregunta el precio y tú respondes solo con un número, lo primero que hace es compararlo con lo más barato que conoce. Si primero entiendes lo que necesita y demuestras que puedes dárselo, el precio se evalúa de otra forma.</p>
+          <h3>Error 3: El seguimiento que suena a recordatorio</h3>
+          <p>"Solo quería saber si tuviste tiempo de pensarlo." Esta frase no aporta nada nuevo a la conversación. No hay razón para responder. Un seguimiento efectivo siempre añade algo: información nueva, una pregunta, una oferta concreta o una fecha límite real.</p>
+          <div class="callout callout-warning">
+            <strong>La regla de los seguimientos</strong>
+            Nunca hagas seguimiento sin añadir valor. Si no tienes nada nuevo que decir, espera un día más hasta que lo tengas.
+          </div>
+          <div class="quiz-block" data-quiz-id="q1">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Cuál es el problema principal de responder al precio directamente con un número?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false,'q1')" data-incorrect="El precio en sí no es el problema. El problema es el momento en que se comunica. Sin haber establecido el valor antes, cualquier número parece caro.">Que el precio siempre parece alto</button>
+              <button class="quiz-option" onclick="handleQuiz(this,true,'q1')" data-correct="Exacto. El lead compara el número con lo más barato que conoce porque no tiene contexto de valor. Si primero demuestras que entiendes su situación y puedes resolverla, el precio se evalúa de forma completamente diferente.">Que el lead lo compara sin contexto de valor y siempre pierde frente a la opción más barata</button>
+              <button class="quiz-option" onclick="handleQuiz(this,false,'q1')" data-incorrect="No es una cuestión de negociación. Aunque el precio fuera flexible, el lead ya tomó una decisión emocional antes de negociar. El orden importa más que el margen.">Que no da margen para negociar</button>
+            </div>
+            <div class="quiz-feedback"></div>
+            <button class="quiz-retry" onclick="resetQuiz('q1')">Intentar de nuevo →</button>
+          </div>
+        `
+      },
+      {
+        id: "1-3",
+        titulo: "El mapa de la conversación de venta",
+        objetivo: "Entender las 5 etapas de cualquier conversación de venta y qué objetivo tiene cada una para no saltarte pasos.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">Por qué se enfrían los leads que mostraron interés</div>
+          </div>
+          <p>Cada conversación de venta sigue el mismo mapa, independientemente del sector o el canal. Cuando sabes en qué etapa está el lead, sabes exactamente qué decirle.</p>
+          <table class="summary-table">
+            <thead><tr><th>Etapa</th><th>Objetivo</th><th>Error frecuente</th></tr></thead>
+            <tbody>
+              <tr><td><strong>1. Primer contacto</strong></td><td>Abrir la conversación y entender el contexto del lead</td><td>Presentar todo lo que ofreces sin escuchar primero</td></tr>
+              <tr><td><strong>2. Diagnóstico</strong></td><td>Entender el problema real, no el que el lead cree que tiene</td><td>Saltar al precio antes de terminar de escuchar</td></tr>
+              <tr><td><strong>3. Propuesta</strong></td><td>Presentar la solución específica para este lead concreto</td><td>Enviar el PDF estándar sin personalizar nada</td></tr>
+              <tr><td><strong>4. Seguimiento</strong></td><td>Mantener la conversación viva mientras decide</td><td>Escribir "¿lo pensaste?" sin añadir nada nuevo</td></tr>
+              <tr><td><strong>5. Cierre</strong></td><td>Facilitar la decisión final con claridad y sin presión</td><td>Esperar a que el lead tome la iniciativa</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-tip">
+            <strong>Cómo usar este mapa con la IA</strong>
+            En cada módulo de este curso vas a construir los mensajes para una de estas etapas con prompts específicos. Al terminar tendrás el sistema completo para llevar a cualquier lead de la etapa 1 al cierre.
+          </div>
+          <div class="quiz-block" data-quiz-id="q2">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">El lead te pregunta el precio justo en el primer mensaje. ¿En qué etapa del mapa estáis y qué deberías hacer antes de responder?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false,'q2')" data-incorrect="Estarías saltándote la etapa 2 (Diagnóstico). El precio sin contexto de valor casi nunca cierra. Antes de dar el número necesitas entender qué necesita el lead específicamente.">Estamos en etapa 3 (Propuesta) — responde con el precio para no perder el momento</button>
+              <button class="quiz-option" onclick="handleQuiz(this,true,'q2')" data-correct="Correcto. El primer mensaje es etapa 1, pero el lead intenta saltarse al precio sin diagnóstico. Tu trabajo es devolverle a la etapa 2 con una pregunta de contexto. Solo así el precio que des después tendrá sentido para él.">Estamos en etapa 1 — devuélvelo a etapa 2 (Diagnóstico) con una pregunta antes de dar precio</button>
+              <button class="quiz-option" onclick="handleQuiz(this,false,'q2')" data-incorrect="Ignorar la pregunta es peor que responderla mal. El lead se siente no escuchado y se va. La respuesta correcta no es esquivar — es hacer una pregunta que justifique por qué necesitas más contexto antes de dar el número.">Ignorar el tema del precio y presentar tu servicio</button>
+            </div>
+            <div class="quiz-feedback"></div>
+            <button class="quiz-retry" onclick="resetQuiz('q2')">Intentar de nuevo →</button>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Antes de pasar al Módulo 2</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-1-a"><label for="ck-1-a">Identifiqué el momento exacto donde se rompen mis conversaciones de venta</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-1-b"><label for="ck-1-b">Reconozco los 3 errores de comunicación más frecuentes</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-1-c"><label for="ck-1-c">Tengo claro el mapa de las 5 etapas y en cuál suelo atascar a mis leads</label></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "02",
+    titulo: "El primer contacto que abre puertas",
+    lecciones: [
+      {
+        id: "2-1",
+        titulo: "El mensaje de presentación que no suena a vendedor",
+        objetivo: "Construir el mensaje de primer contacto perfecto para tu negocio — uno que abre conversación en lugar de cerrarla.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">El primer contacto que abre puertas</div>
+          </div>
+          <p>El primer mensaje tiene un solo objetivo: conseguir una respuesta. No vender. No presentarte. No explicar tus servicios. Solo abrir la conversación.</p>
+          <h3>La estructura del primer mensaje que funciona</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">1</div>
+              <div class="step-content">
+                <strong>Una referencia específica — demuestra que no eres un bot</strong>
+                <p>Menciona algo concreto: dónde te encontró, qué preguntó, qué viste en su perfil. Un detalle real vale más que diez frases de presentación.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">2</div>
+              <div class="step-content">
+                <strong>Una pregunta de diagnóstico — haz que hable</strong>
+                <p>Una sola pregunta que te dé información útil y que al lead le resulte fácil responder. No preguntes todo a la vez.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">3</div>
+              <div class="step-content">
+                <strong>Sin CTA de venta — todavía no</strong>
+                <p>No pidas la reunión, no mandes el precio, no ofrezcas la demo. Eso viene después. Primero la respuesta.</p>
+              </div>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Primer mensaje de contacto</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Eres un experto en comunicación de ventas para pequeños negocios y autónomos.
+Tu objetivo: escribir mensajes que consigan respuesta, no que intenten vender.
+
+Mi negocio: <span class="placeholder">[describe qué haces en 1 línea]</span>
+El lead llegó por: <span class="placeholder">[Instagram / web / referido / WhatsApp directo / otro]</span>
+Lo que sé de él: <span class="placeholder">[lo que preguntó, lo que vi en su perfil, por qué contacta]</span>
+Canal del mensaje: <span class="placeholder">[WhatsApp / email / DM de Instagram / LinkedIn]</span>
+
+Escribe un primer mensaje que:
+1. Haga una referencia específica a cómo llegó o qué preguntó
+2. Haga UNA sola pregunta de diagnóstico — no más
+3. No mencione precios ni pida reunión todavía
+4. Suene como persona real, no como empresa
+
+Máximo 60 palabras. Tono: <span class="placeholder">[cercano / profesional / directo]</span></pre>
+          </div>
+          <div class="callout callout-success">
+            <strong>Prueba el mensaje en voz alta</strong>
+            Antes de enviarlo, léelo en voz alta. Si en algún momento no lo dirías así en una conversación real con alguien, cámbialo. La IA escribe bien — pero tú sabes cómo hablas.
+          </div>
+          <div class="quiz-block" data-quiz-id="q3">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">Estás escribiendo tu primer mensaje a un lead que pidió info por Instagram. ¿Qué elemento NO debería tener este primer mensaje?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false,'q3')" data-incorrect="Una referencia específica es exactamente lo que demuestra que no eres un bot ni copias plantillas. Es uno de los 3 elementos imprescindibles del primer mensaje.">Una referencia específica a cómo llegó o qué preguntó</button>
+              <button class="quiz-option" onclick="handleQuiz(this,false,'q3')" data-incorrect="Una pregunta de diagnóstico es justo lo que hace que el lead responda. Sin pregunta, el lead no tiene razón para volver a escribirte.">Una pregunta de diagnóstico fácil de responder</button>
+              <button class="quiz-option" onclick="handleQuiz(this,true,'q3')" data-correct="Correcto. El primer mensaje no vende. No pide la llamada, no manda el precio, no ofrece la demo. Tiene un solo objetivo: conseguir una respuesta. Si saltas a vender en el primer mensaje, el lead se cierra.">Una invitación a una llamada o un link al calendario</button>
+            </div>
+            <div class="quiz-feedback"></div>
+            <button class="quiz-retry" onclick="resetQuiz('q3')">Intentar de nuevo →</button>
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Escribe tu primer mensaje con el prompt</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Elige un lead real de tu CRM o de tus conversaciones pendientes</li>
+              <li><span class="step-num">02</span> Rellena el prompt con sus datos específicos</li>
+              <li><span class="step-num">03</span> Lee el resultado, ajusta lo que no suene a ti y envíalo hoy</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "2-2",
+        titulo: "Cómo usar IA para personalizar sin perder tu voz",
+        objetivo: "Aprender a personalizar cada mensaje con IA de forma que el lead sienta que le escribes solo a él, no que usas una plantilla.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">El primer contacto que abre puertas</div>
+          </div>
+          <p>El problema con las plantillas de venta no es que sean plantillas. Es que se notan. El lead percibe que ese mismo mensaje lo ha recibido cien personas más. La personalización con IA resuelve eso en menos de 5 minutos.</p>
+          <h3>Los 3 niveles de personalización</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Nivel básico — nombre y origen</strong>
+                <p>Incluir el nombre del lead y mencionar cómo llegó a ti. Mínimo indispensable. Sin esto, cualquier mensaje parece spam.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Nivel medio — su problema específico</strong>
+                <p>Mencionar algo concreto que dijo o que puedes inferir de su situación. Demuestra que leíste, que escuchaste, que entiendes su caso.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Nivel alto — su contexto y su objetivo</strong>
+                <p>Conectar tu solución con el objetivo específico que él tiene. No "te ayudo con X" sino "dado que quieres Y, lo que necesitas es Z".</p>
+              </div>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Personalización de mensaje con contexto del lead</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Tengo este mensaje base que quiero personalizar para un lead específico.
+
+Mensaje base:
+<span class="placeholder">[pega aquí tu mensaje genérico]</span>
+
+Datos del lead:
+- Nombre: <span class="placeholder">[nombre]</span>
+- Origen: <span class="placeholder">[cómo llegó]</span>
+- Lo que me dijo o pregunté: <span class="placeholder">[detalle de la conversación]</span>
+- Su situación: <span class="placeholder">[negocio, sector, lo que sabes de él]</span>
+- Su objetivo o problema: <span class="placeholder">[lo que quiere conseguir o resolver]</span>
+
+Personaliza el mensaje para este lead concreto.
+Que parezca escrito para él, no adaptado de una plantilla.
+Mantén mi tono. No añadas palabras de más.
+Máximo 80 palabras.</pre>
+          </div>
+          <div class="callout callout-tip">
+            <strong>La personalización que más impacta</strong>
+            Mencionar algo que el lead dijo exactamente, con sus propias palabras, tiene más efecto que cualquier técnica de cierre. "Vi que comentaste que…" demuestra atención real. La IA puede extraer y reformular eso mejor que tú si le das el contexto.
+          </div>
+        `
+      },
+      {
+        id: "2-3",
+        titulo: "El sistema de respuesta rápida",
+        objetivo: "Implementar un sistema para responder a nuevos leads en menos de 5 minutos usando plantillas inteligentes, sin sonar a bot.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">El primer contacto que abre puertas</div>
+          </div>
+          <p>Los estudios sobre velocidad de respuesta son claros: las probabilidades de cualificar un lead caen un 80% si tardas más de 5 minutos en responder. No porque el lead sea impaciente, sino porque en ese tiempo ya está mirando a la competencia.</p>
+          <h3>El sistema de las respuestas guardadas</h3>
+          <p>No puedes escribir un mensaje personalizado desde cero en 5 minutos. Pero sí puedes tener plantillas semi-completas que personalizas en 60 segundos:</p>
+          <div class="code-box">
+            <div class="code-box-header"><span class="code-box-label">Plantilla de respuesta rápida — modelo base</span></div>
+            <pre>Hola [nombre], gracias por escribir.
+
+Vi que [referencia específica a lo que preguntó o cómo llegó].
+
+Para darte la información más útil posible, ¿me puedes contar un poco más
+sobre [pregunta de diagnóstico adaptada a tu sector]?
+
+Así te puedo decir exactamente qué encaja mejor para tu caso.</pre>
+          </div>
+          <div class="callout callout-tip">
+            <strong>Dónde guardar las respuestas rápidas</strong>
+            En WhatsApp Business puedes configurarlas en Ajustes → Herramientas para la empresa → Respuestas rápidas. En email, en las plantillas de tu cliente de correo. El objetivo es que en 60 segundos puedas enviar un mensaje que parezca escrito al momento.
+          </div>
+          <div class="quiz-block" data-quiz-id="q4">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué importa tanto responder en menos de 5 minutos a un lead nuevo?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false,'q4')" data-incorrect="Aunque responder rápido transmite seriedad, esa no es la razón principal. El lead no está midiendo tu profesionalidad — está pidiendo info a varios proveedores en paralelo.">Porque transmite que eres un negocio profesional y serio</button>
+              <button class="quiz-option" onclick="handleQuiz(this,true,'q4')" data-correct="Exacto. Las probabilidades de cualificar al lead caen un 80% pasados los 5 minutos. No es que el lead sea impaciente — es que en ese tiempo ya está hablando con tu competencia y comparando opciones. Llegar segundo casi siempre significa llegar tarde.">Porque a los 5 minutos el lead ya está hablando con tu competencia</button>
+              <button class="quiz-option" onclick="handleQuiz(this,false,'q4')" data-incorrect="No tiene nada que ver con algoritmos. WhatsApp y los emails no priorizan por velocidad de respuesta. La razón es comportamiento real del lead, no técnica de plataforma.">Porque los algoritmos de WhatsApp priorizan los chats activos</button>
+            </div>
+            <div class="quiz-feedback"></div>
+            <button class="quiz-retry" onclick="resetQuiz('q4')">Intentar de nuevo →</button>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Módulo 2 completado cuando</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-a"><label for="ck-2-a">Tengo mi primer mensaje de contacto escrito y probado con el prompt</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-b"><label for="ck-2-b">Sé los 3 niveles de personalización y cómo aplicarlos con IA</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-c"><label for="ck-2-c">Tengo al menos una respuesta rápida guardada lista para usar en menos de 60 segundos</label></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "03",
+    titulo: "El seguimiento que cierra sin presionar",
+    lecciones: [
+      {
+        id: "3-1",
+        titulo: "Cuándo escribir, qué decir y cuándo parar",
+        objetivo: "Dominar la cadencia exacta de seguimiento para mantener la conversación viva sin parecer desesperado.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">El seguimiento que cierra sin presionar</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Seguimiento de ventas" onerror="this.parentElement.classList.add('broken');this.remove()">
+          </div>
+          <p>La cadencia es el ritmo de contactos. Demasiado rápido parece desesperación. Demasiado lento parece desinterés. La cadencia correcta depende de la etapa del lead y del tipo de decisión que está tomando.</p>
+          <div class="code-box">
+            <div class="code-box-header"><span class="code-box-label">Cadencia recomendada por etapa</span></div>
+            <pre>Primer contacto respondido → Propuesta enviada dentro de 24h
+
+Propuesta enviada → Seguimiento a los 3 días (no antes)
+
+Seguimiento 1 sin respuesta → Seguimiento 2 a los 5 días
+  (añade algo nuevo: caso, respuesta a posible duda, oferta limitada)
+
+Seguimiento 2 sin respuesta → Seguimiento 3 a los 7 días
+  (mensaje de cierre: "¿Sigue siendo algo que te interesa o lo dejamos para más adelante?")
+
+Seguimiento 3 sin respuesta → Para. Mueve a "En pausa" en el CRM.
+  (Reactiva en 30-60 días con algo de valor, no con otro seguimiento)</pre>
+          </div>
+          <div class="callout callout-warning">
+            <strong>La regla de los 3 seguimientos</strong>
+            Después de tres seguimientos sin respuesta, parar no es rendirse. Es respetar el tiempo del lead y preservar la relación para el futuro. El cuarto seguimiento suele cerrar la puerta para siempre.
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Seguimiento después de propuesta enviada (3 días)</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Eres un consultor de ventas que escribe seguimientos directos y sin presión.
+
+Situación:
+- Mi negocio: <span class="placeholder">[qué haces]</span>
+- Lead: <span class="placeholder">[nombre y contexto breve]</span>
+- Propuesta enviada hace 3 días: <span class="placeholder">[qué incluía la propuesta]</span>
+- No ha respondido
+
+Escribe un seguimiento que:
+- No empiece con "Solo quería saber si..." ni con "Te escribo para recordarte..."
+- Añada algo concreto: una pregunta, un dato útil o una aclaración de la propuesta
+- Facilite que responda con algo simple: sí, no, o necesito más tiempo
+- Máximo 60 palabras
+- Tono: cercano, sin presión, como si hablaras con alguien que conoces</pre>
+          </div>
+        `
+      },
+      {
+        id: "3-2",
+        titulo: "El seguimiento después del 'lo pienso'",
+        objetivo: "Tener listos los 3 mensajes de seguimiento para el momento más crítico del proceso de venta: cuando el lead pide tiempo.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">El seguimiento que cierra sin presionar</div>
+          </div>
+          <p>"Lo pienso" es la respuesta más común y la más mal gestionada en ventas. La mayoría interpreta que el lead no está interesado y deja de escribir. En realidad, la mayoría de los "lo pienso" son leads calientes que necesitan un empujón en el momento correcto.</p>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Seguimiento 1 — A los 5 días del "lo pienso"</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Eres un experto en ventas no invasivas para pequeños negocios.
+
+Lead: <span class="placeholder">[nombre]</span> dijo "lo pienso" hace 5 días.
+Lo que ofreces: <span class="placeholder">[tu servicio]</span>
+Lo que sabes de su situación: <span class="placeholder">[lo que te contó en la conversación]</span>
+
+Escribe un mensaje que:
+- No pregunte directamente si ya lo pensó
+- Aporte algo útil relacionado con su situación: un consejo, un ejemplo, una pregunta
+- Deje la puerta abierta sin presionar
+- Máximo 50 palabras</pre>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Seguimiento 2 — A los 10 días del "lo pienso"</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Lead: <span class="placeholder">[nombre]</span> no ha respondido al seguimiento anterior.
+
+Escribe un mensaje que:
+- Reconozca que está evaluando y que eso está bien
+- Ofrezca resolver cualquier duda que tenga antes de decidir
+- Haga una pregunta directa pero amable: ¿hay algo que te genere dudas que pueda aclarar?
+- Máximo 50 palabras. Tono: honesto y sin presión</pre>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Seguimiento 3 — El cierre amable</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Tercer seguimiento. Si no hay respuesta a este, muevo el lead a "En pausa".
+
+Escribe un mensaje de cierre que:
+- Sea directo: pregunta si sigue interesado o si lo dejamos para más adelante
+- No transmita molestia ni decepción
+- Deje la puerta abierta para el futuro
+- Máximo 40 palabras. Muy humano, muy corto.</pre>
+          </div>
+          <div class="quiz-block" data-quiz-id="q5">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">Un lead te dice "lo pienso" y pasan 5 días sin respuesta. ¿Qué NO deberías hacer en tu primer seguimiento?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false,'q5')" data-incorrect="Aportar algo útil es exactamente lo correcto. Un dato, un caso parecido o una observación relacionada con su situación demuestra que sigues pensando en él, no solo esperando respuesta.">Aportar algo útil relacionado con su situación</button>
+              <button class="quiz-option" onclick="handleQuiz(this,true,'q5')" data-correct="Exacto. Preguntar directamente "¿ya lo pensaste?" es justo lo que mata la conversación. No aporta nada nuevo, presiona y suena a recordatorio. El primer seguimiento del 'lo pienso' no debería preguntar por la decisión — debería abrir otra conversación lateral.">Preguntar directamente si ya lo pensó</button>
+              <button class="quiz-option" onclick="handleQuiz(this,false,'q5')" data-incorrect="Dejar la puerta abierta sin presionar es exactamente lo que un buen seguimiento del 'lo pienso' debe hacer. Esto sí es correcto.">Dejar la puerta abierta sin presionar</button>
+            </div>
+            <div class="quiz-feedback"></div>
+            <button class="quiz-retry" onclick="resetQuiz('q5')">Intentar de nuevo →</button>
+          </div>
+        `
+      },
+      {
+        id: "3-3",
+        titulo: "Cómo reactivar un lead frío sin parecer desesperado",
+        objetivo: "Recuperar leads que llevan semanas o meses en silencio con un mensaje que no parezca un recordatorio de factura.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">El seguimiento que cierra sin presionar</div>
+          </div>
+          <p>Un lead frío no es un lead muerto. Es alguien que en su momento no estaba listo. Las circunstancias cambian. Un negocio que en marzo no tenía presupuesto puede tenerlo en septiembre. La clave es reaparecer con algo de valor, no con otro recordatorio.</p>
+          <h3>Las 3 razones para reactivar que funcionan</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Una novedad real en tu oferta</strong>
+                <p>Nuevo servicio, nueva modalidad, nueva tarifa, nuevo caso de éxito relevante para su sector. Algo que no existía cuando habló contigo.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Un contenido útil para su situación</strong>
+                <p>Un artículo, una herramienta, una tendencia de su sector. "Vi esto y pensé en ti" — si es genuino, siempre funciona.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Una pregunta sobre cómo le fue</strong>
+                <p>Si recuerdas qué estaba evaluando, preguntar si lo resolvió demuestra que lo escuchaste. Y si no lo resolvió, acaba de volver a ser un lead activo.</p>
+              </div>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Reactivación de lead frío</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Lead inactivo desde hace <span class="placeholder">[X semanas/meses]</span>.
+Nombre: <span class="placeholder">[nombre]</span>
+Último contacto: <span class="placeholder">[de qué hablasteis]</span>
+Lo que ofreces: <span class="placeholder">[tu servicio]</span>
+Razón para escribir ahora: <span class="placeholder">[novedad / contenido útil / pregunta sobre cómo le fue]</span>
+
+Escribe un mensaje de reactivación que:
+- Reconozca el tiempo que ha pasado sin artificios ("¡Espero que estés bien!")
+- Vaya al grano con la razón real para escribir
+- No pida nada — solo abre la conversación
+- Máximo 60 palabras. Tono directo y natural</pre>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Módulo 3 completado cuando</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-a"><label for="ck-3-a">Tengo mi cadencia de seguimiento definida (3 contactos con sus intervalos)</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-b"><label for="ck-3-b">Tengo los 3 mensajes de seguimiento del "lo pienso" escritos para mi negocio</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-c"><label for="ck-3-c">Identifiqué al menos 2 leads fríos en mi CRM y les mandé un mensaje de reactivación</label></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "04",
+    titulo: "La propuesta que dice sí",
+    lecciones: [
+      {
+        id: "4-1",
+        titulo: "Estructura de una propuesta que convierte",
+        objetivo: "Construir la propuesta perfecta con los 5 bloques que hacen que el lead sienta que la escribiste solo para él.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">La propuesta que dice sí</div>
+          </div>
+          <p>Una propuesta que no convierte casi nunca tiene un problema de precio. Tiene un problema de estructura. El lead la abre, no se reconoce en ella, no entiende exactamente qué va a recibir, y la archiva sin responder.</p>
+          <h3>Los 5 bloques de una propuesta que convierte</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">1</div>
+              <div class="step-content">
+                <strong>Lo que entendí de tu situación</strong>
+                <p>2-3 líneas que demuestran que escuchaste. Usa sus palabras, no las tuyas. "Me comentaste que…" tiene más poder que cualquier argumento de venta.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">2</div>
+              <div class="step-content">
+                <strong>Lo que propongo hacer — y por qué</strong>
+                <p>3 puntos concretos. Sin jerga. Qué vas a hacer, cómo y por qué eso resuelve su problema específico.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">3</div>
+              <div class="step-content">
+                <strong>Lo que consigue — el resultado esperado</strong>
+                <p>No características. Resultados. No "te hago el logo" sino "al terminar tendrás una identidad visual que puedas usar en todos tus canales desde el primer día".</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--dawn);">4</div>
+              <div class="step-content">
+                <strong>La inversión y lo que incluye</strong>
+                <p>Precio claro, sin ambigüedad, con lo que incluye y lo que no. La ambigüedad genera desconfianza.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--dawn);">5</div>
+              <div class="step-content">
+                <strong>El próximo paso — uno solo</strong>
+                <p>Una sola acción para avanzar. No dos opciones, no "cuéntame qué te parece". Un paso concreto: "Si te parece bien, me dices y te mando el contrato."</p>
+              </div>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Propuesta completa con los 5 bloques</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Eres un consultor senior que escribe propuestas directas que convierten.
+
+Lead: <span class="placeholder">[nombre o empresa]</span>
+Lo que me contó: <span class="placeholder">[lo más importante de la conversación — sus palabras, su situación]</span>
+Lo que propongo: <span class="placeholder">[tu servicio específico para este caso]</span>
+Resultado que puede esperar: <span class="placeholder">[qué consigue de forma concreta y medible]</span>
+Precio: <span class="placeholder">[importe]</span> — incluye: <span class="placeholder">[qué va incluido]</span>
+Plazo: <span class="placeholder">[tiempo de entrega o duración]</span>
+
+Escribe la propuesta en formato email con los 5 bloques:
+1. Lo que entendí de tu situación (sus palabras, su problema)
+2. Lo que propongo hacer (3 puntos sin jerga)
+3. Lo que consigue (resultados, no características)
+4. Inversión y qué incluye (claro, sin ambigüedad)
+5. Próximo paso (uno solo, concreto)
+
+Tono: profesional pero directo. Sin palabrería corporativa. Sin "es un placer".</pre>
+          </div>
+          <div class="quiz-block" data-quiz-id="q6">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Cuál es el bloque más importante de los 5 — el que hace que el lead se reconozca en la propuesta?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false,'q6')" data-incorrect="El precio claro evita malentendidos pero no es lo que hace que el lead se reconozca. Si la propuesta no demuestra que escuchaste, ningún precio cierra.">El bloque 4 — la inversión clara y sin ambigüedad</button>
+              <button class="quiz-option" onclick="handleQuiz(this,true,'q6')" data-correct="Exacto. El bloque 1 es el que cambia la dinámica. Cuando el lead lee sus propias palabras de vuelta, siente que escuchaste de verdad. Es la diferencia entre una propuesta personalizada y una plantilla disfrazada — y casi nadie lo hace.">El bloque 1 — lo que entendí de tu situación, usando sus palabras</button>
+              <button class="quiz-option" onclick="handleQuiz(this,false,'q6')" data-incorrect="El próximo paso facilita la decisión, pero llegas a este bloque solo si los anteriores funcionaron. Sin reconocimiento del problema, no hay próximo paso que valga.">El bloque 5 — el próximo paso concreto</button>
+            </div>
+            <div class="quiz-feedback"></div>
+            <button class="quiz-retry" onclick="resetQuiz('q6')">Intentar de nuevo →</button>
+          </div>
+        `
+      },
+      {
+        id: "4-2",
+        titulo: "Las 7 objeciones más frecuentes y cómo responderlas",
+        objetivo: "Tener preparada una respuesta específica para cada objeción antes de que aparezca, para no improvisar en el momento de más tensión.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">La propuesta que dice sí</div>
+          </div>
+          <p>Las objeciones no son rechazos. Son peticiones de más información. El lead que objeta todavía está considerando — el que rechaza directamente no dice nada. Tener las respuestas preparadas antes de que aparezcan cambia completamente la dinámica.</p>
+
+          <div class="objecion-block">
+            <div class="ob-title">1. Es demasiado caro</div>
+            <div class="ob-respuesta"><strong>Respuesta</strong>Entiendo. ¿Puedo preguntarte con qué lo estás comparando? A veces ayuda saber qué referencia tienes para ver si lo que incluyo justifica la diferencia o si hay una versión más ajustada que te funcione igual.</div>
+          </div>
+          <div class="objecion-block">
+            <div class="ob-title">2. Lo tengo que pensar / consultar con mi socio</div>
+            <div class="ob-respuesta"><strong>Respuesta</strong>Claro, tiene todo el sentido. ¿Hay algo concreto que pueda aclarar antes de que lo habléis? A veces una duda pequeña puede frenar la decisión y prefiero resolverla ya.</div>
+          </div>
+          <div class="objecion-block">
+            <div class="ob-title">3. Ahora mismo no es el momento</div>
+            <div class="ob-respuesta"><strong>Respuesta</strong>Entendido. ¿Cuándo crees que sería mejor momento? Lo anoto y me pongo en contacto entonces para no molestarte ahora.</div>
+          </div>
+          <div class="objecion-block">
+            <div class="ob-title">4. Ya estoy trabajando con alguien</div>
+            <div class="ob-respuesta"><strong>Respuesta</strong>Perfecto, me alegra saberlo. Si en algún momento cambias de proveedor o necesitas algo adicional, aquí estoy. ¿Te puedo preguntar qué es lo que más valoras de quien lo hace ahora?</div>
+          </div>
+          <div class="objecion-block">
+            <div class="ob-title">5. No sé si esto funcionará para mi caso</div>
+            <div class="ob-respuesta"><strong>Respuesta</strong>Es una duda razonable. ¿Qué es lo que más te preocupa que no funcione? Así te puedo decir si lo he resuelto en otros casos parecidos o si hay algo que ajustar.</div>
+          </div>
+          <div class="objecion-block">
+            <div class="ob-title">6. Mándame todo por email y lo reviso</div>
+            <div class="ob-respuesta"><strong>Respuesta</strong>Sin problema, te lo paso ahora. Para que lo encuentres ágil de leer, ¿hay algo concreto que quieras que destaque? Así te ahorro tener que rebuscar entre la info general lo que más importa para tu caso.</div>
+          </div>
+          <div class="objecion-block">
+            <div class="ob-title">7. Tu competencia me ofrece más barato</div>
+            <div class="ob-respuesta"><strong>Respuesta</strong>Tiene sentido que compares — yo haría lo mismo. ¿Estáis comparando exactamente lo mismo en alcance y entregables? A veces lo que parece la misma propuesta cubre cosas distintas. Si me dices qué incluye la otra, te lo pongo en contexto sin venderte nada.</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Respuesta personalizada a cualquier objeción</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Mi negocio: <span class="placeholder">[qué haces]</span>
+El lead dijo: "<span class="placeholder">[objeción exacta con sus palabras]</span>"
+Contexto de la conversación: <span class="placeholder">[en qué punto estáis, qué propuesta habías enviado]</span>
+
+Escribe una respuesta que:
+- No defienda ni argumente de forma agresiva
+- Haga una pregunta que entienda mejor la objeción antes de responderla
+- Deje la conversación abierta
+- Máximo 50 palabras. Tono: tranquilo, sin ansiedad</pre>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Módulo 4 completado cuando</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-4-a"><label for="ck-4-a">Tengo una propuesta real escrita con los 5 bloques para un lead actual</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-4-b"><label for="ck-4-b">Tengo respuestas preparadas para las 3 objeciones que más escucho en mi negocio</label></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "05",
+    titulo: "El sistema semanal de cierre",
+    lecciones: [
+      {
+        id: "5-1",
+        titulo: "La revisión del miércoles",
+        objetivo: "Implementar una rutina semanal de 15 minutos que garantiza que ninguna conversación de venta se enfría por olvido.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 05</div>
+            <div class="module-name">El sistema semanal de cierre</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Sistema de ventas semanal" onerror="this.parentElement.classList.add('broken');this.remove()">
+          </div>
+          <p>La diferencia entre quien cierra de forma consistente y quien cierra de forma esporádica no es el talento ni el producto. Es el sistema de revisión. Quien revisa su pipeline una vez a la semana cierra más que quien lo revisa cuando se acuerda.</p>
+          <div class="code-box">
+            <div class="code-box-header"><span class="code-box-label">El proceso de revisión del miércoles — 15 minutos</span></div>
+            <pre>MIN 0-3   Abre tu CRM y filtra por estado
+          Prioridad: "Propuesta enviada" + "En conversación"
+          ¿Cuántos días llevan sin contacto?
+
+MIN 3-8   Revisa los urgentes (más de 3 días sin respuesta)
+          Para cada uno decide: ¿seguimiento ahora, pausa o cierre?
+          Usa los prompts del Módulo 3 para escribir el mensaje
+
+MIN 8-12  Revisa "Nuevo" y "Contactado"
+          ¿Hay alguno que debería tener ya propuesta?
+          ¿Alguno al que no has respondido en más de 24h?
+
+MIN 12-15 Actualiza los estados en el CRM
+          Mueve a "En pausa" lo que no avanza
+          Anota el próximo contacto en el campo de notas</pre>
+          </div>
+          <div class="callout callout-success">
+            <strong>Conecta con tu CRM de Sheets</strong>
+            Si hiciste el curso de Mini CRM, la revisión del miércoles es exactamente el mismo proceso que la revisión de los lunes — solo que enfocada en cerrar, no solo en seguir. Usa la columna de días sin contacto para identificar los urgentes en segundos.
+          </div>
+          <div class="quiz-block" data-quiz-id="q7">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué la revisión del miércoles funciona mejor cuando es semanal y de 15 minutos, en vez de "cuando me acuerde"?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false,'q7')" data-incorrect="No es por velocidad. Hacerlo más rápido sin un proceso claro lleva a olvidar leads igual. La clave no es el cronómetro — es la consistencia y la estructura.">Porque hacerlo en 15 minutos te obliga a ser más rápido y eficiente</button>
+              <button class="quiz-option" onclick="handleQuiz(this,true,'q7')" data-correct="Exacto. La consistencia es lo que evita que ningún lead se enfríe por olvido. Y los 15 minutos son justo el tiempo en que la revisión es factible cada semana sin sentirla pesada — si fuera 1 hora, dejarías de hacerla en 3 semanas. La cita corta y recurrente gana a la sesión larga ocasional.">Porque la consistencia evita olvidos y 15 min es tiempo factible cada semana sin saltársela</button>
+              <button class="quiz-option" onclick="handleQuiz(this,false,'q7')" data-incorrect="El miércoles no tiene nada especial. Lo importante es que sea un día fijo y semanal. Podría ser martes o jueves — el mecanismo es la cita recurrente, no el día concreto.">Porque el miércoles los leads están más receptivos que otros días</button>
+            </div>
+            <div class="quiz-feedback"></div>
+            <button class="quiz-retry" onclick="resetQuiz('q7')">Intentar de nuevo →</button>
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Pon el recordatorio del miércoles</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Abre tu calendario y crea un evento recurrente: "Revisión de ventas", miércoles, 15 minutos</li>
+              <li><span class="step-num">02</span> En la descripción pega el proceso de los 4 bloques de arriba</li>
+              <li><span class="step-num">03</span> La primera semana tardará 25 minutos. La cuarta, 10.</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "5-2",
+        titulo: "Conecta este sistema con tu CRM y cierra la semana",
+        objetivo: "Integrar todos los elementos del curso en un sistema semanal funcionando y completar la actividad final con 5 conversaciones activas.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 05</div>
+            <div class="module-name">El sistema semanal de cierre</div>
+          </div>
+          <p>Este curso te ha dado las piezas. Esta lección las conecta todas en un sistema que funciona solo cuando lo usas de forma consistente.</p>
+          <div class="code-box">
+            <div class="code-box-header"><span class="code-box-label">El sistema completo — cómo encaja todo</span></div>
+            <pre>LEAD NUEVO
+→ Primer contacto en menos de 5 min (prompt M2.1 + respuesta rápida)
+→ Personalización con contexto del lead (prompt M2.2)
+→ Actualiza el CRM: estado "Contactado", fecha de hoy
+
+CONVERSACIÓN ACTIVA
+→ Diagnóstico en 1-2 mensajes (pregunta de la etapa correcta)
+→ Propuesta con los 5 bloques (prompt M4.1) en menos de 24h
+→ Actualiza el CRM: estado "Propuesta enviada"
+
+SEGUIMIENTO
+→ Día 3: seguimiento con valor añadido (prompt M3.1)
+→ Día 8: seguimiento del "lo pienso" (prompt M3.2)
+→ Día 15: cierre amable (prompt M3.2 — mensaje 3)
+→ Sin respuesta: mueve a "En pausa"
+
+OBJECIÓN
+→ Respuesta sin defender — pregunta que entiende la objeción (prompt M4.2)
+→ Si superas la objeción: vuelve a propuesta o cierre
+
+MIÉRCOLES
+→ 15 minutos de revisión del pipeline
+→ Actúas sobre los urgentes, actualizas estados, preparas la semana</pre>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">🎯 Actividad final — 5 conversaciones activas con seguimiento</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-a"><label for="ck-5-a">Identifiqué 5 leads reales en mi CRM o conversaciones pendientes</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-b"><label for="ck-5-b">Mandé el primer contacto o seguimiento a cada uno usando los prompts del curso</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-c"><label for="ck-5-c">Actualicé el estado de cada lead en el CRM</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-d"><label for="ck-5-d">Tengo el recordatorio del miércoles en el calendario</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-e"><label for="ck-5-e">Al menos una propuesta enviada con los 5 bloques esta semana</label></div>
+          </div>
+          <div class="next-course">
+            <div class="next-course-label">Siguiente paso recomendado</div>
+            <div class="next-course-title">Tu Mini CRM Gratis en Google Sheets</div>
+            <div class="next-course-desc">Ya tienes el sistema de cierre. Ahora dale una casa: organiza todos tus leads y conversaciones en un CRM que conecta directamente con la revisión del miércoles. Sin pagar suscripciones, sin instalar nada nuevo.</div>
+            <a href="curso-minicrm.html" class="next-course-btn">Empezar el curso del CRM →</a>
+          </div>
+        `
+      }
+    ]
+  }
+];
+
+let currentLesson = 0;
+const allLessons = curso.flatMap(m => m.lecciones);
+const completed = new Set();
+
+function renderSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  curso.forEach(modulo => {
+    const moduleEl = document.createElement('div');
+    moduleEl.className = 'nav-module';
+    const header = document.createElement('div');
+    header.className = 'nav-module-header';
+    header.innerHTML = `<span><span class="nav-module-num">${modulo.modulo}</span> ${modulo.titulo}</span>`;
+    header.onclick = () => {
+      const l = moduleEl.querySelector('.nav-lessons');
+      l.style.maxHeight = l.style.maxHeight ? '' : l.scrollHeight + 'px';
+    };
+    const lessons = document.createElement('div');
+    lessons.className = 'nav-lessons';
+    lessons.style.maxHeight = '500px';
+    modulo.lecciones.forEach(leccion => {
+      const idx = allLessons.findIndex(l => l.id === leccion.id);
+      const item = document.createElement('div');
+      item.className = 'nav-lesson' + (idx === currentLesson ? ' active' : '') + (completed.has(idx) ? ' completed' : '');
+      item.innerHTML = `<div class="lesson-dot"></div>${leccion.titulo}`;
+      item.onclick = () => goToLesson(idx);
+      lessons.appendChild(item);
+    });
+    moduleEl.appendChild(header);
+    moduleEl.appendChild(lessons);
+    nav.appendChild(moduleEl);
+  });
+}
+
+function renderLesson(idx) {
+  const area = document.getElementById('content-area');
+  const leccion = allLessons[idx];
+  const modulo = curso.find(m => m.lecciones.some(l => l.id === leccion.id));
+  area.innerHTML = `
+    <div class="lesson active">
+      <div class="lesson-breadcrumb">
+        <span>Módulo ${modulo.modulo}</span>
+        <span class="breadcrumb-sep">›</span>
+        <span>Lección ${idx + 1} de ${allLessons.length}</span>
+      </div>
+      <h1 class="lesson-title">${leccion.titulo}</h1>
+      <div class="lesson-objective">${leccion.objetivo}</div>
+      <div class="lesson-body">${leccion.contenido}</div>
+      <div class="lesson-nav">
+        <button class="nav-btn nav-btn-prev" onclick="goToLesson(${idx-1})" ${idx===0?'disabled':''}>← Anterior</button>
+        <button class="nav-btn nav-btn-next" onclick="nextLesson(${idx})">
+          ${idx === allLessons.length-1 ? '¡Completado! 🐧' : 'Siguiente →'}
+        </button>
+      </div>
+    </div>`;
+  document.getElementById('main-content').scrollTop = 0;
+}
+
+function goToLesson(idx) {
+  if (idx < 0 || idx >= allLessons.length) return;
+  completed.add(currentLesson);
+  currentLesson = idx;
+  renderLesson(idx);
+  renderSidebar();
+  updateProgress();
+  closeSidebar();
+
+  // Pop-up de Brevo a mitad del curso (lección 7 de 12 = índice 6)
+  if (idx === 6 && !progressModalShown) {
+    progressModalShown = true;
+    setTimeout(() => {
+      document.getElementById('progress-overlay').classList.add('active');
+    }, 800);
+  }
+}
+
+function nextLesson(idx) {
+  completed.add(idx);
+  if (idx < allLessons.length - 1) {
+    goToLesson(idx + 1);
+  } else {
+    updateProgress();
+    renderSidebar();
+    // Verificar quizzes pendientes antes de mostrar el certificado
+    showCertOrPending();
+  }
+}
+
+function updateProgress() {
+  const done = completed.size;
+  const total = allLessons.length;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = done + ' / ' + total;
+}
+
+// QUIZ-GATING
+function showCertOrPending() {
+  // Buscar todos los quizzes en allLessons
+  const allQuizIds = [];
+  allLessons.forEach((l, idx) => {
+    const matches = l.contenido.match(/data-quiz-id="(q\d+)"/g);
+    if (matches) {
+      matches.forEach(m => {
+        const id = m.match(/q\d+/)[0];
+        // Encontrar el título de la lección correspondiente
+        allQuizIds.push({ id: id, lessonIdx: idx, lessonTitle: l.titulo });
+      });
+    }
+  });
+
+  const pending = allQuizIds.filter(q => !quizPassed.has(q.id));
+
+  if (pending.length === 0) {
+    document.getElementById('cert-overlay').classList.add('active');
+  } else {
+    // Mostrar pantalla "Casi lo tienes"
+    const list = document.getElementById('pending-list');
+    list.innerHTML = '';
+    pending.forEach(q => {
+      const item = document.createElement('div');
+      item.className = 'pending-item';
+      item.textContent = `Lección: ${q.lessonTitle}`;
+      list.appendChild(item);
+    });
+    window._firstPendingLesson = pending[0].lessonIdx;
+    document.getElementById('pending-overlay').classList.add('active');
+  }
+}
+
+function goToFirstPending() {
+  closePendingModal();
+  if (typeof window._firstPendingLesson === 'number') {
+    goToLesson(window._firstPendingLesson);
+  }
+}
+
+function handleQuiz(btn, isCorrect, quizId) {
+  const block = btn.closest('.quiz-block');
+  block.querySelectorAll('.quiz-option').forEach(o => { o.disabled = true; o.style.pointerEvents = 'none'; });
+  btn.classList.add(isCorrect ? 'quiz-correct' : 'quiz-incorrect');
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback ' + (isCorrect ? 'fb-correct' : 'fb-incorrect');
+  fb.textContent = isCorrect ? btn.dataset.correct : btn.dataset.incorrect;
+
+  if (isCorrect) {
+    quizPassed.add(quizId);
+  } else {
+    // Mostrar botón retry si fallaron
+    const retryBtn = block.querySelector('.quiz-retry');
+    if (retryBtn) retryBtn.classList.add('show');
+  }
+}
+
+function resetQuiz(quizId) {
+  const block = document.querySelector(`[data-quiz-id="${quizId}"]`);
+  if (!block) return;
+  block.querySelectorAll('.quiz-option').forEach(o => {
+    o.disabled = false;
+    o.style.pointerEvents = '';
+    o.classList.remove('quiz-correct', 'quiz-incorrect');
+  });
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback';
+  fb.textContent = '';
+  const retryBtn = block.querySelector('.quiz-retry');
+  if (retryBtn) retryBtn.classList.remove('show');
+}
+
+function copyPrompt(btn) {
+  const pre = btn.closest('.prompt-box').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '¡Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector('script[src="' + src + '"]')) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+// Envío silencioso a Brevo cuando se descarga el certificado
+function submitEmailToBrevo(email) {
+  if (!email) return;
+  try {
+    const fd = new FormData();
+    fd.append('EMAIL', email);
+    fd.append('email_address_check', '');
+    fd.append('locale', 'es');
+    fetch(BREVO_URL, { method: 'POST', body: fd, mode: 'no-cors' });
+  } catch(e) { /* falla silenciosa, no bloquear el cert */ }
+}
+
+// Envío silencioso del modal de progreso a mitad del curso
+function submitProgressBrevo(e) {
+  e.preventDefault();
+  const email = document.getElementById('progress-brevo-email').value.trim();
+  if (!email) return;
+  submitEmailToBrevo(email);
+  // Mostrar mensaje de éxito en el mismo modal y cerrar a los 1.8s
+  document.getElementById('progress-brevo-form').querySelector('button[type="submit"]').style.display = 'none';
+  document.getElementById('progress-brevo-email').style.display = 'none';
+  document.getElementById('progress-brevo-success').style.display = 'block';
+  setTimeout(() => closeProgressModal(), 1800);
+}
+
+function certHTML(name, dateStr, auryBase64) {
+  const auryImg = auryBase64 ? `<img decoding="async" src="${auryBase64}" style="width:92%;object-fit:contain;object-position:bottom center;" alt="Aury">` : '';
+  return `<div style="width:1200px;height:848px;background:#07090F;position:relative;overflow:hidden;font-family:'DM Sans',sans-serif;">
+    <div style="position:absolute;top:-120px;right:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(196,96,48,0.13),transparent 65%);"></div>
+    <div style="position:absolute;bottom:-120px;left:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(58,100,148,0.1),transparent 65%);"></div>
+    <div style="position:absolute;inset:20px;border:1.5px solid rgba(196,96,48,0.4);pointer-events:none;"></div>
+    <div style="position:absolute;inset:26px;border:1px solid rgba(196,96,48,0.1);pointer-events:none;"></div>
+    <div style="position:absolute;top:16px;left:16px;width:14px;height:14px;border-top:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;top:16px;right:16px;width:14px;height:14px;border-top:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;left:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;right:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;top:48px;left:60px;right:60px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#7A6E60;font-weight:500;font-family:'DM Mono',monospace;">🐧 AuryOnTech</div>
+      <div style="width:38%;height:1px;background:linear-gradient(to right,transparent,rgba(196,96,48,0.25),transparent);"></div>
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(196,96,48,0.5);font-family:'DM Mono',monospace;">Certificado de Finalización</div>
+    </div>
+    <div style="position:absolute;top:0;left:0;width:760px;height:848px;display:flex;flex-direction:column;justify-content:center;padding:100px 56px 80px 60px;">
+      <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#C46030;font-family:'DM Mono',monospace;margin-bottom:18px;">Este documento certifica que</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:58px;color:#EEF4F8;line-height:1.05;letter-spacing:-1.5px;margin-bottom:22px;">${name}</div>
+      <div style="width:56px;height:3px;background:#C46030;margin-bottom:22px;border-radius:2px;"></div>
+      <div style="font-size:15px;color:#7A6E60;margin-bottom:10px;">ha completado satisfactoriamente el curso</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:24px;color:#D88050;letter-spacing:-0.3px;margin-bottom:52px;line-height:1.3;">Cierra con IA. Sin perder tu estilo.</div>
+      <div style="display:flex;gap:52px;align-items:flex-start;">
+        <div>
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Fecha</div>
+          <div style="font-size:13px;color:#EDE4D8;">${dateStr}</div>
+        </div>
+        <div style="width:1px;height:40px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>
+        <div>
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Emitido por</div>
+          <div style="font-size:13px;color:#EDE4D8;font-weight:600;">Cristian Lopez Garcia</div>
+          <div style="font-size:11px;color:#7A6E60;margin-top:2px;">Fundador · AuryOnTech</div>
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute;top:100px;bottom:80px;left:760px;width:1px;background:linear-gradient(to bottom,transparent,rgba(196,96,48,0.2) 30%,rgba(196,96,48,0.2) 70%,transparent);"></div>
+    <div style="position:absolute;right:0;bottom:0;width:440px;height:848px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;">${auryImg}</div>
+    <div style="position:absolute;bottom:34px;left:60px;font-size:10px;color:rgba(122,110,96,0.35);letter-spacing:2px;font-family:'DM Mono',monospace;text-transform:uppercase;">auryontech.com</div>
+  </div>`;
+}
+
+async function generateCert() {
+  const name = document.getElementById('cert-name').value.trim();
+  const email = document.getElementById('cert-email').value.trim();
+  if (!name) { document.getElementById('cert-name').focus(); return; }
+  if (!email) { document.getElementById('cert-email').focus(); return; }
+
+  // Enviar el email a Brevo silenciosamente
+  submitEmailToBrevo(email);
+
+  const dateStr = new Date().toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
+  closeCertModal();
+  const loader = document.createElement('div');
+  loader.style.cssText = 'position:fixed;inset:0;background:rgba(7,9,15,0.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#EEF4F8;font-family:DM Sans,sans-serif;font-size:15px;gap:14px;';
+  loader.innerHTML = '<div style="font-size:36px;">🐧</div><div>Generando tu certificado...</div>';
+  document.body.appendChild(loader);
+  let auryBase64 = '';
+  try {
+    const resp = await fetch('assets/img/Aury-enfrente-de-la-Compu.png');
+    const blob = await resp.blob();
+    auryBase64 = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(blob); });
+  } catch(e) {}
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:1200px;height:848px;z-index:-1;';
+  div.innerHTML = certHTML(name, dateStr, auryBase64);
+  document.body.appendChild(div);
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 400));
+  const canvas = await html2canvas(div, { scale:2, useCORS:true, allowTaint:true, backgroundColor:'#07090F', width:1200, height:848, logging:false });
+  document.body.removeChild(div);
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 297, 210);
+  pdf.save('Certificado_AuryOnTech_' + name.replace(/ /g,'_') + '.pdf');
+  loader.remove();
+}
+
+function closeCertModal() { document.getElementById('cert-overlay').classList.remove('active'); }
+function closeProgressModal() { document.getElementById('progress-overlay').classList.remove('active'); }
+function closePendingModal() { document.getElementById('pending-overlay').classList.remove('active'); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); }
+
+renderSidebar();
+renderLesson(0);
+updateProgress();
+
+(function() {
+  const dot = document.createElement('div'); dot.className = 'cursor-dot';
+  const ring = document.createElement('div'); ring.className = 'cursor-ring';
+  document.body.appendChild(dot);
+  document.body.appendChild(ring);
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+  document.addEventListener('mousedown', () => { dot.classList.add('clicking'); ring.classList.add('clicking'); });
+  document.addEventListener('mouseup', () => { dot.classList.remove('clicking'); ring.classList.remove('clicking'); });
+  (function animateRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animateRing); })();
+})();
+</script>
+</body>
+</html>
+
+
+
+<p></p>

@@ -572,6 +572,7 @@ function toggleFaq(btn){
   update();
 })();
 </script>
+<script>(function(){const els=Array.from(document.querySelectorAll('.ant-element'));if(!els.length)return;const speeds=els.map(()=>0.1+Math.random()*0.25);let tk=false;function up(){const y=window.scrollY;els.forEach((el,i)=>{el.style.transform=(el.dataset.bt||'')+' translate3d(0,'+(-y*speeds[i]).toFixed(1)+'px,0)';});tk=false;}els.forEach(el=>{el.dataset.bt=el.style.transform||'';});addEventListener('scroll',()=>{if(!tk){requestAnimationFrame(up);tk=true;}},{passive:true});up();})();</script>
 </body>
 </html>
 

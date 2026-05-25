@@ -1,0 +1,1308 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tu primer producto digital con IA — AuryOnTech</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:#000000; --dawn:#C46030; --dawn-l:#D88050; --dawn-ll:#ECA878;
+      --sky:#3A6494; --ice:#B8D4EC; --snow:#EEF4F8; --bone:#EDE4D8;
+      --warm:#7A6E60; --warm-l:#9C9082; --ink-2:#0f1219; --ink-3:#161b26; --sidebar-w:300px;
+      --green:#2D9E6B; --green-l:#3DBE88;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{height:100%;background:#000000;color:var(--snow);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.7;overflow:hidden;}
+
+    #progress-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:linear-gradient(90deg,var(--dawn),var(--dawn-ll));z-index:1000;transition:width 0.4s ease;}
+
+    .app{display:flex;height:100vh;padding-top:3px;}
+    .sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--ink-2);border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;overflow:hidden;z-index:100;}
+    .sidebar-header{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.06);}
+    .sidebar-logo{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+    .logo-icon{width:40px;height:40px;border-radius:8px;}
+    .logo-icon img{width:40px;height:40px;object-fit:contain;}
+    .logo-text{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:15px;color:var(--snow);letter-spacing:-0.3px;}
+    .course-title{font-size:12px;color:var(--warm);line-height:1.4;}
+    .progress-info{margin-top:12px;display:flex;align-items:center;justify-content:space-between;}
+    .progress-label{font-size:11px;color:var(--warm);font-family:'DM Mono',monospace;}
+    .progress-pill{font-size:11px;color:var(--dawn-ll);font-family:'DM Mono',monospace;}
+    .progress-track{margin-top:8px;height:2px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
+    .progress-fill{height:100%;background:var(--dawn);border-radius:2px;transition:width 0.4s ease;}
+
+    .sidebar-nav{flex:1;overflow-y:auto;padding:12px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent;}
+    .nav-module{margin-bottom:4px;}
+    .nav-module-header{padding:8px 20px;font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--warm);font-family:'DM Mono',monospace;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;}
+    .nav-module-header:hover{color:var(--dawn-ll);}
+    .nav-module-num{color:var(--dawn);}
+    .nav-lessons{overflow:hidden;transition:max-height 0.3s ease;}
+    .nav-lesson{padding:8px 20px 8px 32px;font-size:13px;color:rgba(238,244,248,0.6);cursor:pointer;display:flex;align-items:center;gap:10px;transition:all 0.2s;border-left:2px solid transparent;line-height:1.4;}
+    .nav-lesson:hover{color:var(--snow);background:rgba(255,255,255,0.03);}
+    .nav-lesson.active{color:var(--dawn-ll);border-left-color:var(--dawn);background:rgba(196,96,48,0.08);}
+    .nav-lesson.completed{color:rgba(134,239,172,0.7);}
+    .nav-lesson.completed .lesson-dot{background:#4ade80;}
+    .nav-lesson.active .lesson-dot{background:var(--dawn);}
+    .lesson-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.15);flex-shrink:0;transition:background 0.2s;}
+
+    .main{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent;}
+    .content{max-width:760px;margin:0 auto;padding:48px 40px 80px;}
+
+    .lesson{display:none;}
+    .lesson.active{display:block;animation:fadeIn 0.3s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+    .lesson-breadcrumb{font-size:12px;color:var(--warm);font-family:'DM Mono',monospace;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+    .breadcrumb-sep{color:var(--dawn);}
+    .lesson-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:36px;line-height:1.1;color:var(--snow);margin-bottom:12px;letter-spacing:-0.5px;}
+    .lesson-objective{font-size:15px;color:var(--dawn-ll);margin-bottom:36px;padding:14px 18px;background:rgba(196,96,48,0.08);border-left:3px solid var(--dawn);border-radius:0 6px 6px 0;font-style:italic;}
+    .lesson-body{font-size:15px;color:rgba(238,244,248,0.85);line-height:1.8;}
+    .lesson-body h3{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:20px;color:var(--snow);margin:36px 0 14px;letter-spacing:-0.3px;}
+    .lesson-body p{margin-bottom:16px;}
+    .lesson-body strong{color:var(--snow);font-weight:600;}
+
+    .module-header{background:var(--ink-3);border-left:4px solid var(--dawn);border-radius:0 12px 12px 0;padding:20px 24px;margin-bottom:36px;}
+    .module-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--dawn);font-weight:500;letter-spacing:1px;text-transform:uppercase;}
+    .module-name{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--warm);margin-top:4px;}
+
+    .lesson-hero{width:100%;height:220px;border-radius:12px;overflow:hidden;position:relative;margin-bottom:36px;background:var(--ink-3);}
+    .lesson-hero img{width:100%;height:100%;object-fit:cover;}
+    .lesson-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:65%;background:linear-gradient(to top,rgba(7,9,15,0.85),transparent);}
+    .lesson-hero.broken{display:none;}
+
+    .prompt-box{background:#0d1117;border-radius:10px;margin:20px 0;overflow:hidden;border:1px solid rgba(58,100,148,0.3);border-left:3px solid var(--sky);}
+    .prompt-box-label{padding:10px 16px;background:rgba(58,100,148,0.08);border-bottom:1px solid rgba(58,100,148,0.15);display:flex;align-items:center;justify-content:space-between;}
+    .prompt-box-label span{font-family:'DM Mono',monospace;font-size:11px;color:var(--sky);text-transform:uppercase;letter-spacing:1px;}
+    .copy-btn{font-family:'DM Mono',monospace;font-size:11px;color:var(--dawn-ll);background:none;border:1px solid rgba(196,96,48,0.3);padding:3px 10px;border-radius:4px;cursor:pointer;transition:all 0.2s;}
+    .copy-btn:hover{background:rgba(196,96,48,0.15);}
+    .copy-btn.copied{color:#4ade80;border-color:rgba(74,222,128,0.3);}
+    .prompt-box pre{padding:20px;font-family:'DM Mono',monospace;font-size:13px;line-height:1.7;color:var(--ice);white-space:pre-wrap;}
+    .prompt-box pre .placeholder{color:var(--dawn-ll);background:rgba(196,96,48,0.1);padding:1px 4px;border-radius:3px;}
+
+    .callout{padding:16px 20px;border-radius:8px;margin:20px 0;font-size:14px;line-height:1.6;}
+    .callout-tip{background:rgba(58,100,148,0.12);border-left:3px solid var(--sky);color:var(--ice);}
+    .callout-warning{background:rgba(196,96,48,0.1);border-left:3px solid var(--dawn);color:var(--dawn-ll);}
+    .callout-success{background:rgba(74,222,128,0.07);border-left:3px solid #4ade80;color:#86efac;}
+    .callout-money{background:rgba(45,158,107,0.1);border-left:3px solid var(--green-l);color:#86efac;}
+    .callout strong{display:block;margin-bottom:4px;font-weight:600;}
+
+    .step-list{display:flex;flex-direction:column;gap:6px;margin:24px 0;}
+    .step-item{display:flex;gap:16px;padding:14px 16px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid rgba(255,255,255,0.04);align-items:flex-start;}
+    .step-item:hover{background:rgba(255,255,255,0.04);}
+    .step-number-big{width:28px;height:28px;background:var(--dawn);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--snow);flex-shrink:0;margin-top:2px;}
+    .step-content strong{display:block;font-size:15px;color:var(--snow);margin-bottom:3px;}
+    .step-content p{font-size:13px;color:rgba(238,244,248,0.6);margin:0;line-height:1.5;}
+
+    .producto-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0;}
+    .producto-card{background:var(--ink-3);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px;transition:border-color 0.2s;}
+    .producto-card:hover{border-color:rgba(196,96,48,0.3);}
+    .producto-card.highlight{border-color:rgba(196,96,48,0.3);background:rgba(196,96,48,0.05);}
+    .pc-tipo{font-family:'DM Mono',monospace;font-size:10px;color:var(--dawn-l);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
+    .pc-nombre{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.9rem;color:var(--snow);margin-bottom:6px;}
+    .pc-desc{font-size:.78rem;color:var(--warm-l);line-height:1.5;}
+    .pc-precio{margin-top:8px;font-family:'DM Mono',monospace;font-size:.8rem;color:var(--green-l);font-weight:500;}
+
+    .precio-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px;}
+    .precio-table th{background:rgba(196,96,48,0.08);color:var(--dawn-l);font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;padding:10px 14px;text-align:left;border-bottom:1px solid rgba(196,96,48,0.2);}
+    .precio-table td{padding:10px 14px;color:rgba(238,244,248,0.75);border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top;}
+    .precio-table tr:last-child td{border-bottom:none;}
+    .precio-badge{background:rgba(45,158,107,0.12);color:var(--green-l);border-radius:4px;padding:2px 8px;font-family:'DM Mono',monospace;font-size:11px;}
+
+    .config-block{background:var(--ink-3);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:20px 24px;margin:16px 0;}
+    .config-block-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.9rem;color:var(--dawn-ll);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+    .config-block-title::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--dawn);flex-shrink:0;}
+    .config-row{display:flex;gap:16px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);align-items:flex-start;}
+    .config-row:last-child{border-bottom:none;}
+    .config-key{font-family:'DM Mono',monospace;font-size:11px;color:var(--warm-l);min-width:140px;flex-shrink:0;padding-top:2px;}
+    .config-val{font-size:13px;color:rgba(238,244,248,0.8);line-height:1.5;}
+
+    .dinero-block{background:linear-gradient(135deg,rgba(45,158,107,0.1),rgba(45,158,107,0.04));border:1px solid rgba(45,158,107,0.25);border-radius:12px;padding:24px 28px;margin:24px 0;}
+    .dinero-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--green-l);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+    .dinero-num{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:2.4rem;color:#86efac;letter-spacing:-0.04em;margin-bottom:4px;}
+    .dinero-desc{font-size:.85rem;color:rgba(134,239,172,0.7);line-height:1.5;}
+    .dinero-math{margin-top:14px;font-family:'DM Mono',monospace;font-size:.78rem;color:rgba(45,158,107,0.7);padding-top:12px;border-top:1px solid rgba(45,158,107,0.15);}
+
+    .quiz-block{background:rgba(58,100,148,0.08);border:1px solid rgba(58,100,148,0.2);border-radius:12px;padding:24px 28px;margin:32px 0;}
+    .quiz-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--sky);margin-bottom:16px;}
+    .quiz-question{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:18px;color:var(--snow);margin-bottom:16px;line-height:1.3;}
+    .quiz-options{display:flex;flex-direction:column;gap:8px;}
+    .quiz-option{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px 16px;text-align:left;color:rgba(238,244,248,0.8);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;transition:all 0.2s;line-height:1.5;}
+    .quiz-option:hover:not(:disabled){background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.2);}
+    .quiz-option.quiz-correct{background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.4);color:#86efac;}
+    .quiz-option.quiz-incorrect{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.3);color:#fca5a5;}
+    .quiz-feedback{margin-top:16px;padding:12px 16px;border-radius:8px;font-size:14px;line-height:1.5;display:none;}
+    .quiz-feedback.fb-correct{background:rgba(74,222,128,0.08);color:#86efac;border-left:3px solid #4ade80;display:block;}
+    .quiz-feedback.fb-incorrect{background:rgba(239,68,68,0.08);color:#fca5a5;border-left:3px solid #ef4444;display:block;}
+
+    .challenge-block{background:linear-gradient(135deg,rgba(196,96,48,0.08),rgba(58,100,148,0.05));border:1px solid rgba(196,96,48,0.15);border-radius:12px;padding:22px;margin:24px 0;}
+    .challenge-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--dawn-ll);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+    .challenge-question{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:16px;color:var(--snow);margin-bottom:14px;line-height:1.4;}
+    .challenge-btns{display:flex;gap:10px;flex-wrap:wrap;}
+    .challenge-yes,.challenge-no{padding:10px 20px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;border:1px solid;transition:all 0.15s;cursor:pointer;}
+    .challenge-yes{background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.4);color:#86efac;}
+    .challenge-yes:hover:not(:disabled){background:rgba(74,222,128,0.2);}
+    .challenge-no{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.4);color:#fca5a5;}
+    .challenge-no:hover:not(:disabled){background:rgba(239,68,68,0.2);}
+    .challenge-response{margin-top:14px;padding:12px 14px;border-radius:8px;font-size:13.5px;line-height:1.55;display:none;}
+    .challenge-response.success{display:block;background:rgba(74,222,128,0.08);border-left:3px solid #4ade80;color:rgba(238,244,248,0.85);}
+    .challenge-response.error{display:block;background:rgba(239,68,68,0.08);border-left:3px solid #ef4444;color:rgba(238,244,248,0.85);}
+
+    .checklist-block{background:rgba(196,96,48,0.06);border:1px solid rgba(196,96,48,0.2);border-radius:12px;padding:20px 24px;margin:28px 0;}
+    .checklist-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dawn);margin-bottom:14px;}
+    .checklist-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+    .checklist-item:last-child{border-bottom:none;}
+    .checklist-item input[type="checkbox"]{width:17px;height:17px;cursor:pointer;accent-color:var(--dawn);flex-shrink:0;}
+    .checklist-item label{font-size:14px;color:rgba(238,244,248,0.8);cursor:pointer;}
+    .checklist-item input:checked + label{color:var(--dawn-ll);text-decoration:line-through;opacity:0.6;}
+
+    .action-block{background:linear-gradient(135deg,rgba(196,96,48,0.12),rgba(196,96,48,0.05));border:1px solid rgba(196,96,48,0.25);border-radius:12px;padding:24px 28px;margin-top:40px;}
+    .action-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--dawn);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .action-label::before{content:'';display:inline-block;width:16px;height:2px;background:var(--dawn);}
+    .action-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:18px;color:var(--snow);margin-bottom:12px;}
+    .action-steps{list-style:none;margin:0;padding:0;}
+    .action-steps li{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px;color:rgba(238,244,248,0.8);display:flex;align-items:flex-start;gap:12px;}
+    .action-steps li:last-child{border-bottom:none;}
+    .step-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--dawn);min-width:20px;margin-top:2px;}
+
+    .next-course{background:linear-gradient(135deg,var(--ink-3),rgba(196,96,48,0.08));border:1px solid rgba(196,96,48,0.2);border-radius:16px;padding:32px;margin:40px 0;}
+    .next-course-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dawn);margin-bottom:10px;}
+    .next-course-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:24px;color:var(--snow);margin-bottom:10px;}
+    .next-course-desc{font-size:14px;color:rgba(238,244,248,0.7);margin-bottom:20px;line-height:1.6;}
+    .next-course-btn{display:inline-block;background:var(--dawn);color:var(--snow);padding:11px 24px;border-radius:8px;font-weight:500;font-size:14px;text-decoration:none;transition:background 0.2s;}
+    .next-course-btn:hover{background:var(--dawn-l);}
+
+    .lesson-nav{display:flex;justify-content:space-between;margin-top:48px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06);}
+    .nav-btn{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;padding:10px 20px;border-radius:8px;cursor:pointer;border:none;transition:all 0.2s;}
+    .nav-btn-prev{background:rgba(255,255,255,0.05);color:var(--warm);}
+    .nav-btn-prev:hover{background:rgba(255,255,255,0.09);color:var(--snow);}
+    .nav-btn-next{background:var(--dawn);color:var(--snow);}
+    .nav-btn-next:hover{background:var(--dawn-l);}
+    .nav-btn:disabled{opacity:0.3;cursor:not-allowed;}
+
+    .hamburger{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--ink-2);border:1px solid rgba(255,255,255,0.1);border-radius:8px;width:40px;height:40px;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px;}
+    .hamburger span{display:block;width:18px;height:2px;background:var(--snow);border-radius:2px;}
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:90;}
+
+    .cert-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:999;display:none;align-items:center;justify-content:center;}
+    .cert-overlay.active{display:flex;}
+    .cert-modal{background:var(--ink-2);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:36px;max-width:440px;width:90%;text-align:center;}
+    .cert-modal-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:24px;color:var(--snow);margin-bottom:8px;}
+    .cert-modal-sub{font-size:14px;color:var(--warm);margin-bottom:24px;line-height:1.5;}
+    .cert-name-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 16px;color:var(--snow);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;margin-bottom:16px;}
+    .cert-name-input:focus{border-color:var(--dawn);}
+    .cert-name-input::placeholder{color:var(--warm);}
+    .cert-generate-btn{width:100%;background:var(--dawn);color:var(--snow);border:none;border-radius:8px;padding:13px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:15px;cursor:pointer;transition:background 0.2s;}
+    .cert-generate-btn:hover{background:var(--dawn-l);}
+    .cert-skip{margin-top:12px;font-size:13px;color:var(--warm);cursor:pointer;text-decoration:underline;}
+    .cert-skip:hover{color:var(--snow);}
+    .certificate{display:none;}
+
+    *{cursor:none !important;}
+    a,button,[onclick],label,input[type="checkbox"],.nav-lesson,.nav-module-header,.quiz-option,.copy-btn,.cert-generate-btn,.cert-skip,.nav-btn,.next-course-btn,.challenge-yes,.challenge-no{cursor:pointer !important;}
+    .cursor-dot{position:fixed;width:8px;height:8px;background:#C46030;border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:transform 0.1s ease;}
+    .cursor-ring{position:fixed;width:32px;height:32px;border:1.5px solid rgba(196,96,48,0.6);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:width 0.2s ease,height 0.2s ease;}
+    .cursor-dot.clicking{transform:translate(-50%,-50%) scale(0.6);}
+    .cursor-ring.clicking{width:20px;height:20px;}
+    @media(max-width:768px){*{cursor:auto !important;}.cursor-dot,.cursor-ring{display:none;}.producto-grid{grid-template-columns:1fr;}}
+
+    @media(max-width:768px){
+      .hamburger{display:flex;}
+      .sidebar{position:fixed;left:-310px;top:0;height:100vh;transition:left 0.3s ease;z-index:150;}
+      .sidebar.open{left:0;}
+      .overlay.active{display:block;}
+      .content{padding:60px 20px 80px;}
+      .lesson-title{font-size:26px;}
+      .lesson-hero{height:160px;}
+    }
+  
+
+/* === MINIMAL ESSENTIAL OVERRIDES (auto-applied) === */
+body, .hero, .about, .services, .testi, .uc, .valor, .flow-demo, .cta, .manifesto, footer {
+  background-color: #000 !important;
+}
+.hero {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/iceberg-sunset-amber.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: scroll, fixed !important;
+}
+.eyebrow, .kicker, .nav-cta { color: #ECA878 !important; }
+.flake { opacity: .55 !important; font-size: 13px !important; }
+
+/* === ICEBERGS on sections === */
+.manifesto { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/mountains-sunset-pink.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.about, section.about { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-aerial-dark.jpeg') !important; background-size: cover, cover !important; background-position: right center !important; }
+.services { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-texture-blue.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.flow-demo { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/glacier-wall-blue.jpeg') !important; background-size: cover, cover !important; }
+.valor { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-minimal.jpeg') !important; background-size: cover, cover !important; }
+.uc { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/aerial-snow-scale.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.testi { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-ice-columns.jpeg') !important; background-size: cover, cover !important; }
+.cta { background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/icebergs-twin-massive.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+footer, .footer { background-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.98)), url('assets/img/antarctic-moon.jpeg') !important; background-size: cover, cover !important; }
+@media (max-width: 900px) { .hero, .services, .uc, .cta, .manifesto { background-attachment: scroll !important; } }
+
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div class="cert-overlay" id="progress-modal">
+  <div class="cert-modal">
+    <div class="cert-modal-title">🐧 ¿Guardamos tu progreso?</div>
+    <div class="cert-modal-sub">Déjame tu email y te aviso cuando publique nuevos cursos. Sin spam, solo lo útil.</div>
+    <input class="cert-name-input" id="progress-email" type="email" placeholder="tu@correo.com">
+    <button class="cert-generate-btn" onclick="saveProgress()">Guardar →</button>
+    <div class="cert-skip" onclick="dismissProgress()">Ahora no</div>
+  </div>
+</div>
+
+<div class="cert-overlay" id="cert-overlay">
+  <div class="cert-modal">
+    <div class="cert-modal-title">🐧 ¡Lo lograste!</div>
+    <div class="cert-modal-sub">Terminaste el curso. Escribe tu nombre y correo para generar tu certificado.</div>
+    <input class="cert-name-input" id="cert-name" type="text" placeholder="Tu nombre completo">
+    <input class="cert-name-input" id="cert-email" type="email" placeholder="tu@correo.com" style="margin-top:8px;">
+    <button class="cert-generate-btn" onclick="generateCert()">Descargar certificado →</button>
+    <div class="cert-skip" onclick="closeCertModal()">Omitir por ahora</div>
+  </div>
+</div>
+<div class="certificate" id="certificate"></div>
+
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><img decoding="async" src="assets/img/Logo.png" alt="AuryOnTech"></div>
+        <span class="logo-text">AuryOnTech</span>
+      </div>
+      <div class="course-title">Tu primer producto digital con IA — De la idea a la página de venta</div>
+      <div class="progress-info">
+        <span class="progress-label">Progreso</span>
+        <span class="progress-pill" id="progress-text">0 / 10</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+  </nav>
+  <main class="main" id="main-content">
+    <div class="content"><div id="content-area"></div></div>
+  </main>
+</div>
+
+<button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<script>
+const curso = [
+  {
+    modulo: "01",
+    titulo: "Qué puedes vender ya mismo",
+    lecciones: [
+      {
+        id: "1-1",
+        titulo: "El error que comete todo el mundo",
+        objetivo: "Entender por qué buscar el producto perfecto es lo que paraliza a la mayoría — y qué hacer en su lugar.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">Qué puedes vender ya mismo</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Empezar con lo que tienes" onerror="this.parentElement.classList.add('broken');this.remove()">
+          </div>
+          <p>La mayoría de las personas que quieren vender un producto digital cometen el mismo error: pasan semanas buscando la idea perfecta. El nicho ideal. El producto que nadie haya hecho. El momento perfecto para lanzar.</p>
+          <p>Y mientras buscan la idea perfecta, otros con ideas mediocres ya están vendiendo.</p>
+          <h3>El producto posible vs. el producto perfecto</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:rgba(239,68,68,0.6);">✕</div>
+              <div class="step-content">
+                <strong>El producto perfecto</strong>
+                <p>Nadie lo ha hecho antes. Resuelve un problema único. Tiene el branding perfecto. Está completamente terminado antes de lanzar. Resultado: nunca se lanza.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--green);">✓</div>
+              <div class="step-content">
+                <strong>El producto posible</strong>
+                <p>Resuelve un problema que ya existe. Lo puedes crear esta semana. No es el mejor del mercado — pero es tuyo y está disponible hoy. Resultado: primeras ventas reales y feedback que mejora la versión 2.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-money">
+            <strong>La verdad sobre tu primer producto digital</strong>
+            No tiene que ser revolucionario. Tiene que resolver un problema concreto para personas concretas que ya buscan esa solución. La IA te ayuda a hacerlo más rápido — pero la idea tiene que salir de lo que ya sabes.
+          </div>
+          <div class="dinero-block">
+            <div class="dinero-label">La meta del curso</div>
+            <div class="dinero-num">Tu producto vivo</div>
+            <div class="dinero-desc">No es un sueño abstracto. Al terminar este curso tienes un producto digital publicado, una página de venta funcional y un sistema que entrega y cobra solo cada vez que alguien compra.</div>
+            <div class="dinero-math">Idea validada · Producto creado · Página de venta · Sistema de cobro · Primeras ventas</div>
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué el "producto posible" gana al "producto perfecto" para tu primer lanzamiento?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. La calidad importa, pero ese no es el factor decisivo. Un producto perfecto que nunca se lanza vale cero — uno posible que sale al mundo, aunque sea imperfecto, genera datos reales que la teoría nunca podrá darte.">
+                Porque al ser más simple, los compradores lo perciben como mejor calidad
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. El producto perfecto solo existe en tu cabeza. El posible existe en el mundo: genera ventas, recibe feedback real y te dice qué mejorar. Sin lanzar nunca aprendes lo que importa — solo acumulas suposiciones.">
+                Porque solo el producto que existe en el mundo genera ventas reales y feedback que mejora la versión 2
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. La velocidad por sí sola no es la clave — un producto rápido pero que no resuelve un problema no se vende. La ventaja del producto posible es que existe y produce datos reales, no solo que se hizo rápido.">
+                Porque cuanto más rápido lo creas, más tiempo tienes para hacer marketing
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Para en la búsqueda de la idea perfecta</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Cierra cualquier pestaña con "ideas de negocio con IA"</li>
+              <li><span class="step-num">02</span> Abre un documento en blanco</li>
+              <li><span class="step-num">03</span> Escribe 3 cosas que sabes hacer y que alguien te ha pedido ayuda alguna vez</li>
+              <li><span class="step-num">04</span> Eso es tu lista de productos posibles — la usamos en la siguiente lección</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "1-2",
+        titulo: "Los 5 tipos de productos que se venden sin seguidores",
+        objetivo: "Identificar los formatos de producto digital que generan ventas sin audiencia previa y decidir cuál encaja con lo que ya sabes.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">Qué puedes vender ya mismo</div>
+          </div>
+          <p>No necesitas seguidores para vender. Lo que necesitas es un producto que resuelva un problema específico y acceso a las personas que tienen ese problema. La IA te ayuda a crear el producto en horas — la distribución la vemos en el Módulo 4.</p>
+          <h3>Los 5 tipos de productos</h3>
+          <div class="producto-grid">
+            <div class="producto-card highlight">
+              <div class="pc-tipo">Más fácil de crear</div>
+              <div class="pc-nombre">Plantilla</div>
+              <div class="pc-desc">Un documento, hoja de cálculo o diseño que el comprador puede rellenar con sus datos. Ejemplos: plantilla de presupuesto, calendario de contenidos, tracker de gastos.</div>
+              <div class="pc-precio">Precio: 9€ - 29€</div>
+            </div>
+            <div class="producto-card highlight">
+              <div class="pc-tipo">Mayor percepción de valor</div>
+              <div class="pc-nombre">Guía o ebook</div>
+              <div class="pc-desc">Un PDF de 10-30 páginas que explica cómo hacer algo paso a paso. No tiene que ser un libro — solo tiene que resolver una duda concreta de forma completa.</div>
+              <div class="pc-precio">Precio: 17€ - 47€</div>
+            </div>
+            <div class="producto-card">
+              <div class="pc-tipo">Alta conversión</div>
+              <div class="pc-nombre">Pack de prompts</div>
+              <div class="pc-desc">Una colección de prompts listos para usar en un área específica. Ejemplos: 50 prompts para Instagram, 30 prompts para responder emails de clientes.</div>
+              <div class="pc-precio">Precio: 9€ - 25€</div>
+            </div>
+            <div class="producto-card">
+              <div class="pc-tipo">Ticket más alto</div>
+              <div class="pc-nombre">Mini-curso</div>
+              <div class="pc-desc">3-5 lecciones en vídeo o texto que enseñan una habilidad específica. No tiene que durar horas — tiene que llevar de A a B de forma clara.</div>
+              <div class="pc-precio">Precio: 37€ - 97€</div>
+            </div>
+          </div>
+          <div class="producto-card" style="margin-top:10px;">
+            <div class="pc-tipo">Recurrente</div>
+            <div class="pc-nombre">Servicio puntual con IA</div>
+            <div class="pc-desc">Ofrecer algo que haces tú usando IA: auditoría de redes, estrategia de contenido, copy para una semana, análisis de negocio. El cliente paga por el resultado, no por la herramienta.</div>
+            <div class="pc-precio">Precio: 50€ - 300€ por proyecto</div>
+          </div>
+          <div class="callout callout-tip">
+            <strong>¿Cuál elegir para empezar?</strong>
+            Para tu primer producto: guía o plantilla. Son los más rápidos de crear con IA, tienen precio suficiente para que valga la pena el esfuerzo y son los más fáciles de describir en una página de ventas.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Cuál es la ventaja principal de una guía o ebook frente a un pack de prompts para tu primer producto?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="Las guías no son necesariamente más fáciles de distribuir — de hecho los packs de prompts comparten muy bien. La diferencia está en el precio.">Es más fácil de distribuir en redes sociales</button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. Con un precio entre 17€ y 47€, necesitas pocas ventas para validar el producto. Una guía a 50€ son solo unas pocas ventas para tener feedback real. Un pack de prompts a 10€ son 5 veces más ventas para el mismo número de revenue — y eso se traduce en 5 veces más esfuerzo de marketing.">Tiene un precio más alto, lo que significa que necesitas menos ventas para validar el producto</button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No — las guías requieren más trabajo que los packs de prompts porque hay que redactar contenido. La ventaja no es el esfuerzo de creación sino el precio de venta.">Requiere menos trabajo para crearla con IA</button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        `
+      },
+      {
+        id: "1-3",
+        titulo: "Tu idea validada en 20 minutos con IA",
+        objetivo: "Usar IA para validar tu idea de producto antes de crearla — confirmar que hay demanda real sin invertir tiempo ni dinero.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">Qué puedes vender ya mismo</div>
+          </div>
+          <p>Validar no es hacer una encuesta a tus amigos. Es confirmar que gente real busca una solución a ese problema y que estarían dispuestos a pagar por ella. Con IA puedes hacerlo en 20 minutos sin salir de casa.</p>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Valida tu idea de producto</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Actúa como un experto en productos digitales y validación de mercado.
+
+Mi idea de producto: <span class="placeholder">[describe tu idea en 2-3 líneas]</span>
+Mi público objetivo: <span class="placeholder">[quién es, qué problema tiene]</span>
+Precio que tengo en mente: <span class="placeholder">[cuánto cobrarías]</span>
+
+Analiza esta idea y dime:
+1. ¿Hay demanda real para esto? ¿Qué señales lo indican?
+2. ¿Quiénes son exactamente las personas que pagarían por esto?
+3. ¿Cuál es el mayor riesgo de que no funcione?
+4. ¿Cómo ajustarías la idea para que sea más fácil de vender?
+5. Dame 3 títulos alternativos más atractivos para este producto
+
+Sé directo. Si la idea no funciona, dímelo con claridad y propón una alternativa mejor.</pre>
+          </div>
+          <h3>Las 3 señales de que una idea tiene demanda</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Alguien ya lo vende</strong>
+                <p>Si existe competencia es buena señal — significa que hay mercado. El error es pensar que si ya existe no hay espacio. Al contrario: si nadie lo vende, puede que no haya demanda.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>La gente pregunta sobre eso en internet</strong>
+                <p>Busca el problema en Reddit, Facebook grupos, Twitter. Si hay preguntas, hay necesidad sin resolver. Esas preguntas son también tu copy de venta.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Tú mismo lo has necesitado</strong>
+                <p>Si en algún momento buscaste algo así y no lo encontraste — o lo encontraste mal hecho — tienes un hueco real que llenar.</p>
+              </div>
+            </div>
+          </div>
+          <div class="challenge-block">
+            <div class="challenge-label">🎯 Reto · El filtro de validación</div>
+            <div class="challenge-question">Aplica las 3 señales a tu idea ahora mismo. ¿Pasa al menos 2 de las 3 (alguien ya lo vende, la gente pregunta sobre esto, tú mismo lo necesitaste)?</div>
+            <div class="challenge-btns">
+              <button class="challenge-yes" onclick="handleChallenge(this,true)">Sí, pasa 2 o más ✓</button>
+              <button class="challenge-no" onclick="handleChallenge(this,false)">No, solo pasa 1 o ninguna</button>
+            </div>
+            <div class="challenge-response"></div>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Módulo 1 completado cuando</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-1-a"><label for="ck-1-a">Tengo al menos 1 idea de producto posible basada en lo que ya sé hacer</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-1-b"><label for="ck-1-b">Elegí el tipo de producto — guía, plantilla, pack de prompts, mini-curso o servicio</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-1-c"><label for="ck-1-c">Usé el prompt de validación y tengo feedback concreto de la IA sobre mi idea</label></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "02",
+    titulo: "Crea tu producto en una tarde",
+    lecciones: [
+      {
+        id: "2-1",
+        titulo: "De idea a producto terminado con IA",
+        objetivo: "Usar IA para crear el contenido completo de tu producto digital en menos de 2 horas, sin empezar desde cero.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Crea tu producto en una tarde</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Crear con IA" onerror="this.parentElement.classList.add('broken');this.remove()">
+          </div>
+          <p>La IA no crea el producto por ti. Te da una base sólida que tú completas con tu experiencia. El resultado es tuyo — la IA solo acelera el proceso de 2 semanas a 2 horas.</p>
+          <h3>El proceso en 3 pasos</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">1</div>
+              <div class="step-content">
+                <strong>Genera la estructura con IA</strong>
+                <p>Índice, secciones, puntos clave. La IA organiza lo que vas a decir para que no empieces con una página en blanco.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">2</div>
+              <div class="step-content">
+                <strong>Desarrolla el contenido con IA + tu voz</strong>
+                <p>Sección por sección. La IA redacta el borrador, tú añades tu experiencia, tus ejemplos, tu forma de explicar. Esto es lo que diferencia tu producto de los genéricos.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">3</div>
+              <div class="step-content">
+                <strong>Da formato con Canva</strong>
+                <p>Una plantilla de Canva convierte el texto en un PDF profesional en 45 minutos. Gratis, sin diseño, sin experiencia.</p>
+              </div>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Estructura de tu producto</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Eres un experto en productos digitales para pequeños negocios y autónomos.
+
+Voy a crear: <span class="placeholder">[guía / plantilla / pack de prompts / mini-curso]</span>
+Tema: <span class="placeholder">[describe el tema exacto]</span>
+Para quién: <span class="placeholder">[quién es tu comprador ideal]</span>
+Su problema: <span class="placeholder">[qué dolor resuelve]</span>
+Precio objetivo: <span class="placeholder">[cuánto vas a cobrar]</span>
+
+Crea la estructura completa del producto:
+1. Título definitivo (que transmita el resultado, no el proceso)
+2. Subtítulo que explica para quién es y qué consiguen
+3. Índice completo — secciones y subsecciones
+4. Para cada sección: los 3 puntos clave que debe incluir
+5. Qué entregables o recursos adicionales incluirías
+
+El producto debe poder completarse por el comprador en menos de 1 hora.</pre>
+          </div>
+          <div class="callout callout-tip">
+            <strong>El secreto que diferencia tu producto</strong>
+            Después de que la IA genere el borrador, añade esto en cada sección: un ejemplo real de tu experiencia, un error que cometiste, o una forma concreta de aplicarlo en tu contexto. Eso es lo que nadie más puede copiar.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué añadir tu experiencia personal a un borrador generado por IA es lo que separa tu producto de los genéricos?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. La IA puede generar texto perfectamente correcto en gramática y estructura — el problema no es de calidad técnica del texto. Es de origen: la IA solo conoce patrones promedio del internet, no tus casos reales.">
+                Porque la IA comete errores gramaticales que solo tú puedes detectar
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. La IA solo conoce patrones promedio extraídos de millones de fuentes públicas. Tus errores reales, los casos específicos de tus clientes, las anécdotas de tu negocio — todo eso solo está en tu cabeza. Y es exactamente eso lo que el comprador no encuentra en otros productos similares.">
+                Porque tu experiencia real son datos únicos que la IA no tiene acceso — y eso es lo que el comprador no encuentra en otros productos
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. La extensión no es lo que diferencia un producto. Un producto corto con experiencia real vale más que uno largo lleno de generalidades. Lo que añade valor es la singularidad del contenido, no la cantidad.">
+                Porque hace el producto más largo y eso justifica un precio más alto
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        `
+      },
+      {
+        id: "2-2",
+        titulo: "Diseño con Canva en 45 minutos",
+        objetivo: "Convertir el contenido de tu producto en un PDF profesional con Canva sin saber de diseño.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Crea tu producto en una tarde</div>
+          </div>
+          <p>El diseño importa porque la percepción de valor importa. Un PDF bien maquetado se vende a 47€. El mismo contenido en un Word de Times New Roman se vende a 7€ — si se vende.</p>
+          <h3>El proceso en Canva</h3>
+          <div class="config-block">
+            <div class="config-block-title">Paso a paso — PDF profesional en Canva</div>
+            <div class="config-row"><div class="config-key">1. Plantilla</div><div class="config-val">Busca "ebook" o "guía" en Canva. Filtra por estilo — elige una con fondo oscuro o claro y tipografía limpia. No uses las más recargadas.</div></div>
+            <div class="config-row"><div class="config-key">2. Portada</div><div class="config-val">Título + subtítulo + tu nombre o marca. Añade un elemento visual simple — un icono, una forma, una imagen de Unsplash. Menos es más.</div></div>
+            <div class="config-row"><div class="config-key">3. Interior</div><div class="config-val">Una página por sección principal. Cuerpo de texto + títulos en color de marca + márgenes amplios. Usa el mismo estilo en todas las páginas.</div></div>
+            <div class="config-row"><div class="config-key">4. Elementos visuales</div><div class="config-val">Iconos de la librería de Canva para separar secciones. Cajas de destacado para los puntos más importantes. Nada más.</div></div>
+            <div class="config-row"><div class="config-key">5. Exportar</div><div class="config-val">Compartir → Descargar → PDF estándar. Activa "compresión de calidad" si pesa demasiado.</div></div>
+          </div>
+          <div class="callout callout-warning">
+            <strong>El error más frecuente en Canva</strong>
+            Cambiar de plantilla a mitad de proceso. Elige una al principio y mantenla hasta el final. La consistencia visual es lo que hace que algo parezca profesional — no el estilo en sí.
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Descripción para la portada</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Para la portada de mi producto necesito:
+
+Producto: <span class="placeholder">[describe tu producto]</span>
+Para quién: <span class="placeholder">[tu comprador]</span>
+Resultado principal: <span class="placeholder">[qué consiguen al usarlo]</span>
+
+Escríbeme:
+1. Título definitivo — máximo 8 palabras, orientado al resultado
+2. Subtítulo — 1 línea que diga para quién es y qué resuelve
+3. 3 bullets de lo que incluye — formato "Lo que vas a conseguir"
+4. Una frase corta de credibilidad sin sonar arrogante</pre>
+          </div>
+        `
+      },
+      {
+        id: "2-3",
+        titulo: "El precio exacto para tu primer producto",
+        objetivo: "Calcular el precio correcto para tu producto — ni tan bajo que no valga la pena ni tan alto que espante a los primeros compradores.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Crea tu producto en una tarde</div>
+          </div>
+          <p>El precio no es lo que te cuesta crearlo. Es lo que vale el resultado para quien lo compra. Y el resultado siempre vale más que el producto en sí.</p>
+          <h3>La tabla de precios por tipo de producto</h3>
+          <table class="precio-table">
+            <thead><tr><th>Tipo de producto</th><th>Precio de entrada</th><th>Precio óptimo</th><th>Validar con</th></tr></thead>
+            <tbody>
+              <tr><td>Plantilla</td><td>9€</td><td>19-29€</td><td>10-20 ventas</td></tr>
+              <tr><td>Pack de prompts</td><td>9€</td><td>19-25€</td><td>15-25 ventas</td></tr>
+              <tr><td><strong>Guía o ebook</strong></td><td><strong>17€</strong></td><td><strong>37-47€</strong></td><td><span class="precio-badge">5-15 ventas</span></td></tr>
+              <tr><td>Mini-curso</td><td>37€</td><td>67-97€</td><td>3-8 ventas</td></tr>
+              <tr><td>Servicio puntual</td><td>50€</td><td>100-250€</td><td>2-5 clientes</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-money">
+            <strong>La regla del precio de lanzamiento</strong>
+            Para tu primer producto, pon el precio real y ofrece un descuento de lanzamiento del 30-40% durante los primeros 7 días. Así creas urgencia, consigues primeras ventas y cuando subas el precio la gente ya tiene referencia de lo que valía antes.
+          </div>
+          <div class="callout callout-tip">
+            <strong>Cómo saber si el precio es correcto</strong>
+            Si nadie pregunta el precio — es probable que sea demasiado barato y no parezca serio. Si todo el mundo dice que es caro pero nadie compra — el problema es el mensaje, no el precio. Si compran sin rechistar — sube el precio en la siguiente ronda.
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Módulo 2 completado cuando</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-a"><label for="ck-2-a">Tengo el contenido completo de mi producto generado y revisado</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-b"><label for="ck-2-b">El PDF está maquetado en Canva y exportado correctamente</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-c"><label for="ck-2-c">Decidí el precio real y el precio de lanzamiento</label></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "03",
+    titulo: "Publícalo hoy",
+    lecciones: [
+      {
+        id: "3-1",
+        titulo: "Gumroad: de cero a publicado en 30 minutos",
+        objetivo: "Publicar tu producto en Gumroad con página de ventas funcional y método de pago activo antes de terminar esta lección.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Publícalo hoy</div>
+          </div>
+          <p>Gumroad es la plataforma más rápida para publicar y vender un producto digital. Cero coste para empezar, cobra directamente a tu cuenta bancaria o PayPal y tiene todos los elementos que necesitas para tu primer lanzamiento.</p>
+          <h3>Configuración paso a paso</h3>
+          <div class="config-block">
+            <div class="config-block-title">Paso 1 — Cuenta y perfil</div>
+            <div class="config-row"><div class="config-key">Registro</div><div class="config-val">Gumroad.com → Sign up gratis con email o Google</div></div>
+            <div class="config-row"><div class="config-key">Nombre del perfil</div><div class="config-val">Tu nombre real o tu marca. Claro, sin tecnicismos.</div></div>
+            <div class="config-row"><div class="config-key">Foto de perfil</div><div class="config-val">Una foto real o el logo de tu marca. Nada de avatares genéricos.</div></div>
+            <div class="config-row"><div class="config-key">Bio</div><div class="config-val">1-2 líneas de quién eres y para quién creas productos. Sin listado de credenciales.</div></div>
+          </div>
+          <div class="config-block">
+            <div class="config-block-title">Paso 2 — Crear el producto</div>
+            <div class="config-row"><div class="config-key">New Product</div><div class="config-val">Dashboard → New Product → Digital product</div></div>
+            <div class="config-row"><div class="config-key">Nombre</div><div class="config-val">El título definitivo que generaste con IA</div></div>
+            <div class="config-row"><div class="config-key">Precio</div><div class="config-val">Precio de lanzamiento. Activa "Suggested price" si quieres que paguen más voluntariamente.</div></div>
+            <div class="config-row"><div class="config-key">Archivo</div><div class="config-val">Sube tu PDF. Gumroad lo entrega automáticamente al comprar.</div></div>
+            <div class="config-row"><div class="config-key">Portada</div><div class="config-val">Una imagen representativa del producto — la portada del PDF funciona perfectamente.</div></div>
+          </div>
+          <div class="config-block">
+            <div class="config-block-title">Paso 3 — Cobros</div>
+            <div class="config-row"><div class="config-key">Pago</div><div class="config-val">Settings → Payouts → conecta tu cuenta bancaria o PayPal</div></div>
+            <div class="config-row"><div class="config-key">Comisión Gumroad</div><div class="config-val">10% por transacción en plan gratuito. Sin coste fijo mensual.</div></div>
+            <div class="config-row"><div class="config-key">Entrega</div><div class="config-val">Automática — el comprador recibe el PDF por email en segundos.</div></div>
+          </div>
+          <div class="callout callout-success">
+            <strong>Antes de pasar a la siguiente lección</strong>
+            Publica el producto en modo "Draft" (borrador) y comparte el enlace contigo mismo. Simula el proceso de compra para confirmar que todo funciona — el pago, la entrega y el email de confirmación.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué es crítico publicar primero en draft y comprar tú mismo el producto antes de promocionarlo a tu audiencia?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. Gumroad permite editar el precio en cualquier momento, antes y después de publicar. Esa no es la razón. La razón está en el riesgo silencioso de los errores de configuración.">
+                Porque Gumroad no permite cambiar el precio una vez está publicado en modo público
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. Si lanzas con un error en la entrega del archivo, en el método de pago o en el email post-compra, los primeros compradores tienen una mala experiencia — y esa primera impresión se convierte en reseñas negativas, devoluciones y pérdida de credibilidad. Probarlo tú mismo antes elimina ese riesgo silencioso.">
+                Porque un error en la entrega o el cobro arruina la primera impresión de los primeros compradores — y la confianza no se recupera
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. La indexación en Google no afecta a la mayoría de las primeras ventas, que vienen de tu red directa o tus redes sociales. El motivo real es de calidad: necesitas confirmar que la experiencia de compra funciona end-to-end antes de exponer a usuarios reales.">
+                Porque Google necesita 24-48 horas para indexar la página de Gumroad antes de que reciba tráfico
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        `
+      },
+      {
+        id: "3-2",
+        titulo: "El copy que vende: describe tu producto para que lo quieran",
+        objetivo: "Escribir la descripción de venta de tu producto con IA — el texto que convierte visitantes en compradores.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Publícalo hoy</div>
+          </div>
+          <p>La descripción del producto es lo que vende — no el producto en sí. La mayoría de los productos que no se venden no tienen mal producto. Tienen mala descripción.</p>
+          <h3>La estructura que convierte</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">1</div>
+              <div class="step-content">
+                <strong>El dolor — la primera línea</strong>
+                <p>Empieza nombrando el problema que resuelves. El lector tiene que verse reflejado en la primera frase o se va.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">2</div>
+              <div class="step-content">
+                <strong>La solución — qué es y qué hace</strong>
+                <p>Una frase de lo que es el producto y tres puntos de lo que consiguen al usarlo. Resultados, no características.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">3</div>
+              <div class="step-content">
+                <strong>Para quién es — y para quién NO</strong>
+                <p>Ser específico sobre el comprador ideal genera más confianza que intentar llegar a todo el mundo.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">4</div>
+              <div class="step-content">
+                <strong>Lo que incluye — el inventario</strong>
+                <p>Lista completa del contenido. La gente quiere saber exactamente qué recibe antes de pagar.</p>
+              </div>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Copy de venta completo</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Eres un copywriter especializado en productos digitales para autónomos y pequeños negocios.
+
+Mi producto: <span class="placeholder">[nombre y descripción breve]</span>
+Para quién: <span class="placeholder">[tu comprador ideal]</span>
+Su problema principal: <span class="placeholder">[qué les duele o qué quieren conseguir]</span>
+Lo que incluye: <span class="placeholder">[contenido del producto]</span>
+Precio: <span class="placeholder">[precio de venta]</span>
+
+Escribe la descripción completa para Gumroad con esta estructura:
+1. Primera línea — el dolor (sin "Si te pasa que..." — directa)
+2. Párrafo de solución — qué es y qué consiguen
+3. "Este producto es para ti si..." — 3 bullets del comprador ideal
+4. "No es para ti si..." — 1 bullet del que NO debe comprarlo
+5. "Lo que incluye" — lista completa con formato
+6. CTA final — 1 frase que empuje a comprar ahora
+
+Tono: directo, cercano, sin exageraciones ni promesas imposibles.</pre>
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué incluir un punto "No es para ti si..." en la descripción aumenta la conversión, en lugar de reducirla por "espantar" compradores?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. La intuición es la opuesta — excluir gente debería reducir el embudo. Pero el efecto real es contraintuitivo: la exclusión específica funciona como filtro de calidad, no como freno de ventas.">
+                Porque reduce el número de devoluciones al filtrar a los compradores equivocados
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. Cuando alguien dice "esto no es para todos", suena honesto — y la honestidad genera confianza. El comprador piensa: "si me está diciendo claramente quién no debería comprarlo, debe ser porque para los que sí encajan funciona muy bien". La exclusión es prueba indirecta de especificidad.">
+                Porque señalar quién NO debe comprar suena honesto y genera más confianza en quien sí encaja en el perfil
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. Gumroad no penaliza por longitud de descripción ni premia incluir más secciones. El efecto del 'no es para ti si' es psicológico en el lector, no algorítmico en la plataforma.">
+                Porque Gumroad da más visibilidad a productos con descripciones más largas y completas
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Módulo 3 completado cuando</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-a"><label for="ck-3-a">Mi producto está publicado en Gumroad (aunque sea en modo draft)</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-b"><label for="ck-3-b">El cobro está configurado y probé el proceso de compra</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-c"><label for="ck-3-c">Tengo la descripción completa escrita con el prompt y revisada</label></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "04",
+    titulo: "Tus primeros compradores sin anuncios",
+    lecciones: [
+      {
+        id: "4-1",
+        titulo: "Los 3 canales que funcionan desde el día 1",
+        objetivo: "Identificar los canales de distribución con mayor conversión para primeras ventas sin audiencia ni presupuesto.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Tus primeros compradores sin anuncios</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1611262588024-d12430b98920?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Primeros compradores" onerror="this.parentElement.classList.add('broken');this.remove()">
+          </div>
+          <p>No necesitas seguidores para vender. Necesitas acceso a personas que ya tienen el problema que resuelves. Estos tres canales te dan ese acceso desde el día 1, sin pagar nada.</p>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Tu red de contactos directa</strong>
+                <p>Las personas que ya te conocen son las más fáciles de convertir porque ya confían en ti. No se trata de pedir favores — se trata de avisarles que existe algo que puede ayudarles. WhatsApp, email personal, LinkedIn. 20-30 mensajes directos pueden generar las primeras 3-5 ventas.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Grupos donde ya está tu público</strong>
+                <p>Facebook grupos, comunidades de Slack, foros de Reddit, grupos de WhatsApp de tu sector. Aporta valor primero — responde preguntas, comparte algo útil. Cuando mencionas el producto en ese contexto, es relevante, no spam.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Una publicación de lanzamiento en tus redes</strong>
+                <p>Aunque tengas 200 seguidores, una publicación bien escrita puede generar ventas. No es el número de seguidores — es la claridad del mensaje. Y si 1 persona de las 200 compra y lo comparte, el radio de acción se multiplica.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-money">
+            <strong>El objetivo real del primer lanzamiento</strong>
+            No es generar miles de euros el primer día. Es conseguir 2-3 ventas reales que validen que hay demanda. Con esas ventas tienes prueba social, tienes feedback real y tienes motivación para el segundo lanzamiento — que siempre es más grande que el primero.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué tu red de contactos directos convierte más alto que una audiencia fría de redes sociales, aunque sean muchos menos?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. Tus contactos no necesariamente tienen el problema más grande — de hecho, una audiencia bien dirigida en redes podría tener mayor afinidad con el problema. Lo que diferencia a la red de contactos no es la severidad del problema, sino otra cosa.">
+                Porque tus contactos directos suelen tener problemas más urgentes que la audiencia de redes
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. La conversión depende de tres factores: confianza, urgencia y relevancia. La audiencia fría te ve por primera vez — tiene que decidir si confía en ti antes de evaluar el producto. Tus contactos directos ya saltaron ese paso. Por eso 30 mensajes a contactos generan más ventas que un post a 5.000 seguidores fríos.">
+                Porque ya confían en ti y eso elimina el primer filtro de decisión que sí frena a una audiencia que no te conoce
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. Los mensajes directos a contactos no son técnicamente diferentes de un post — el comprador hace el mismo proceso de decisión. La diferencia no está en el formato del mensaje sino en la confianza previa que tiene el receptor en quien lo envía.">
+                Porque los mensajes directos sortean el algoritmo de redes sociales, que limita el alcance orgánico
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        `
+      },
+      {
+        id: "4-2",
+        titulo: "El mensaje de lanzamiento que no suena a vendedor",
+        objetivo: "Escribir el mensaje de lanzamiento de tu producto para los 3 canales — uno que genere ventas sin sonar desesperado.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Tus primeros compradores sin anuncios</div>
+          </div>
+          <p>El mensaje de lanzamiento tiene que hacer una cosa: conseguir que la persona adecuada haga clic. No tiene que convencer a todo el mundo — solo a quien ya tenía el problema.</p>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Mensaje de lanzamiento para red de contactos</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Escribe un mensaje directo para enviar por WhatsApp o email a contactos cercanos
+anunciando el lanzamiento de mi producto digital.
+
+Mi producto: <span class="placeholder">[nombre y descripción]</span>
+Para quién es: <span class="placeholder">[perfil del comprador]</span>
+Precio de lanzamiento: <span class="placeholder">[precio]</span> (durante <span class="placeholder">[X]</span> días)
+Enlace: <span class="placeholder">[URL de Gumroad]</span>
+
+El mensaje debe:
+- Empezar por el problema, no por el producto
+- Explicar qué es en 1-2 líneas
+- Incluir el precio y que es precio de lanzamiento temporal
+- Tener un CTA claro con el enlace
+- Sonar como yo avisando a alguien, no como un anuncio
+- Máximo 150 palabras</pre>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Publicación de lanzamiento en redes</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Escribe una publicación para Instagram o LinkedIn anunciando el lanzamiento de mi producto.
+
+Producto: <span class="placeholder">[nombre]</span>
+Problema que resuelve: <span class="placeholder">[el dolor]</span>
+Para quién: <span class="placeholder">[tu público]</span>
+Precio de lanzamiento: <span class="placeholder">[precio]</span>
+Enlace: <span class="placeholder">[URL]</span>
+
+La publicación debe:
+- Empezar con el problema o una pregunta que enganche
+- Contar brevemente por qué creé este producto (mi historia de 2 líneas)
+- Explicar qué incluye y qué consiguen
+- Incluir el precio y la urgencia del lanzamiento
+- Terminar con el enlace o "Link en bio"
+- Tono: cercano, honesto, sin hipérboles
+- 200-250 palabras para LinkedIn, 150 para Instagram</pre>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Módulo 4 completado cuando</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-4-a"><label for="ck-4-a">Escribí el mensaje de lanzamiento para contactos directos</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-4-b"><label for="ck-4-b">Escribí la publicación para mis redes sociales</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-4-c"><label for="ck-4-c">Identifiqué al menos 1 grupo donde está mi público objetivo</label></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "05",
+    titulo: "El sistema vivo y escalable",
+    lecciones: [
+      {
+        id: "5-1",
+        titulo: "El sistema que entrega y cobra solo",
+        objetivo: "Configurar la entrega automática del producto y el sistema básico para que el negocio funcione sin intervención manual.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 05</div>
+            <div class="module-name">El sistema vivo y escalable</div>
+          </div>
+          <p>El objetivo final del curso no es solo el primer producto — es el sistema. Una vez tienes el producto publicado, el pago configurado y la entrega automática, cada venta sucede sin que hagas nada. Eso es lo que escala.</p>
+          <h3>Lo que ya tienes automatizado con Gumroad</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--green);">✓</div>
+              <div class="step-content">
+                <strong>Entrega automática del producto</strong>
+                <p>Cuando alguien compra, Gumroad envía el PDF por email automáticamente. No tienes que hacer nada.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--green);">✓</div>
+              <div class="step-content">
+                <strong>Cobro y facturación automáticos</strong>
+                <p>El pago se procesa, Gumroad descuenta su comisión y el resto llega a tu cuenta. Sin perseguir pagos ni emitir facturas manualmente.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--green);">✓</div>
+              <div class="step-content">
+                <strong>Email de bienvenida automático</strong>
+                <p>Configura un mensaje post-compra en Gumroad. Usa el espacio para agradecer, dar contexto de cómo usar el producto y mencionar el siguiente paso.</p>
+              </div>
+            </div>
+          </div>
+          <h3>El siguiente paso natural — de producto a catálogo</h3>
+          <p>Una vez tienes el primer producto funcionando y las primeras ventas reales, el sistema que construiste es reutilizable. El segundo producto tarda la mitad de tiempo. El tercero, la mitad del segundo.</p>
+          <div class="dinero-block">
+            <div class="dinero-label">La progresión real</div>
+            <div class="dinero-num">1 producto → 3 → catálogo</div>
+            <div class="dinero-desc">No es magia. Es el mismo proceso repetido con más productos, mejor copy y una audiencia que crece con cada lanzamiento. Cada producto refuerza al anterior — el comprador del primero ya confía en ti para comprar el segundo.</div>
+            <div class="dinero-math">Mes 1: validas con producto 1 · Mes 3: catálogo de 3 productos · Mes 6: audiencia + ofertas combinadas</div>
+          </div>
+
+          <div class="checklist-block">
+            <div class="checklist-label">🎯 Actividad final — El sistema completo</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-a"><label for="ck-5-a">Mi producto está publicado en Gumroad con precio y descripción correctos</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-b"><label for="ck-5-b">El cobro está conectado a mi cuenta bancaria o PayPal</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-c"><label for="ck-5-c">El email de bienvenida post-compra está configurado</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-d"><label for="ck-5-d">Envié el mensaje de lanzamiento a mi red de contactos</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-e"><label for="ck-5-e">Publiqué el anuncio en mis redes sociales</label></div>
+          </div>
+
+          <div class="challenge-block">
+            <div class="challenge-label">🎯 Reto final · El objetivo real del curso</div>
+            <div class="challenge-question">¿Tu producto está vivo en Gumroad, lo probaste tú mismo end-to-end y enviaste al menos un mensaje de lanzamiento?</div>
+            <div class="challenge-btns">
+              <button class="challenge-yes" onclick="handleChallenge(this,true)">Sí, sistema completo en marcha 🚀</button>
+              <button class="challenge-no" onclick="handleChallenge(this,false)">Aún me falta algún paso</button>
+            </div>
+            <div class="challenge-response"></div>
+          </div>
+
+          <div class="next-course">
+            <div class="next-course-label">Siguiente nivel</div>
+            <div class="next-course-title">Tu Mini CRM Gratis en Google Sheets</div>
+            <div class="next-course-desc">Ya tienes producto y compradores. El siguiente paso es no perder a los que llegan. Un CRM en Google Sheets que se actualiza solo, con colores de urgencia y plantillas de seguimiento listas.</div>
+            <a href="index.html" class="next-course-btn">Ver curso →</a>
+          </div>
+        `
+      }
+    ]
+  }
+];
+
+let currentLesson = 0;
+const allLessons = curso.flatMap(m => m.lecciones);
+const completed = new Set();
+const quizPassed = new Set();
+var BREVO_URL = 'https://0e103c7f.sibforms.com/serve/MUIFAAX5CAZM55RStBrgHEn3OPAekkGR0F0_dJ5F2BhOsBftKjSZbuddZMVw74fkzugl8PB4SxzazAux4Wc52sI7w37UecJ-5TVd3fgnvsp-VUPO2Q_6hkSWwwt1Ga3pO5fbY1r5PqAMeOWW3K9ahjbPx9B76IbHh9ZyR9_PqP5IzWP69UlkD7LoP-GTrq6z9-An4ODrG0DONqpL9w==';
+var progressModalShown = false;
+
+function renderSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  curso.forEach(modulo => {
+    const moduleEl = document.createElement('div');
+    moduleEl.className = 'nav-module';
+    const header = document.createElement('div');
+    header.className = 'nav-module-header';
+    header.innerHTML = `<span><span class="nav-module-num">${modulo.modulo}</span> ${modulo.titulo}</span>`;
+    header.onclick = () => {
+      const l = moduleEl.querySelector('.nav-lessons');
+      l.style.maxHeight = l.style.maxHeight ? '' : l.scrollHeight + 'px';
+    };
+    const lessons = document.createElement('div');
+    lessons.className = 'nav-lessons';
+    lessons.style.maxHeight = '500px';
+    modulo.lecciones.forEach(leccion => {
+      const idx = allLessons.findIndex(l => l.id === leccion.id);
+      const item = document.createElement('div');
+      item.className = 'nav-lesson' + (idx === currentLesson ? ' active' : '') + (completed.has(idx) ? ' completed' : '');
+      item.innerHTML = `<div class="lesson-dot"></div>${leccion.titulo}`;
+      item.onclick = () => goToLesson(idx);
+      lessons.appendChild(item);
+    });
+    moduleEl.appendChild(header);
+    moduleEl.appendChild(lessons);
+    nav.appendChild(moduleEl);
+  });
+}
+
+function renderLesson(idx) {
+  const area = document.getElementById('content-area');
+  const leccion = allLessons[idx];
+  const modulo = curso.find(m => m.lecciones.some(l => l.id === leccion.id));
+  area.innerHTML = `
+    <div class="lesson active">
+      <div class="lesson-breadcrumb">
+        <span>Módulo ${modulo.modulo}</span>
+        <span class="breadcrumb-sep">›</span>
+        <span>Lección ${idx + 1} de ${allLessons.length}</span>
+      </div>
+      <h1 class="lesson-title">${leccion.titulo}</h1>
+      <div class="lesson-objective">${leccion.objetivo}</div>
+      <div class="lesson-body">${leccion.contenido}</div>
+      <div class="lesson-nav">
+        <button class="nav-btn nav-btn-prev" onclick="goToLesson(${idx-1})" ${idx===0?'disabled':''}>← Anterior</button>
+        <button class="nav-btn nav-btn-next" onclick="nextLesson(${idx})">
+          ${idx === allLessons.length-1 ? '¡Completado! 🐧' : 'Siguiente →'}
+        </button>
+      </div>
+    </div>`;
+  document.getElementById('main-content').scrollTop = 0;
+}
+
+function goToLesson(idx) {
+  if (idx < 0 || idx >= allLessons.length) return;
+  completed.add(currentLesson);
+  currentLesson = idx;
+  // Trigger del popup Brevo a mitad de curso (lección 5 — Diseño con Canva, índice 4)
+  if (idx === 4 && !progressModalShown) {
+    setTimeout(function() {
+      document.getElementById('progress-modal').classList.add('active');
+    }, 600);
+  }
+  renderLesson(idx);
+  renderSidebar();
+  updateProgress();
+  closeSidebar();
+}
+
+function nextLesson(idx) {
+  completed.add(idx);
+  if (idx < allLessons.length - 1) {
+    goToLesson(idx + 1);
+  } else {
+    updateProgress();
+    renderSidebar();
+    const lessonsWithQuizzes = allLessons
+      .map((l, i) => ({ idx: i, titulo: l.titulo, hasQuiz: l.contenido.includes('quiz-block') }))
+      .filter(l => l.hasQuiz);
+    const pending = lessonsWithQuizzes.filter(l => !quizPassed.has(l.idx));
+    if (pending.length === 0) {
+      document.getElementById('cert-overlay').classList.add('active');
+    } else {
+      const area = document.getElementById('content-area');
+      const lista = pending.map(l => `<li style="margin-bottom:8px;">${l.titulo}</li>`).join('');
+      area.innerHTML = `
+        <div class="lesson active">
+          <div class="lesson-breadcrumb"><span>Certificado</span></div>
+          <h1 class="lesson-title">Casi lo tienes 🐧</h1>
+          <div class="lesson-objective">Para descargar tu certificado necesitas responder correctamente todos los quizzes del curso.</div>
+          <div class="lesson-body">
+            <p>Tienes quizzes pendientes en las siguientes lecciones:</p>
+            <ul style="margin:16px 0 16px 20px;">${lista}</ul>
+            <p>Vuelve a esas lecciones, responde el quiz correctamente y regresa aquí para obtener tu certificado.</p>
+          </div>
+          <div class="lesson-nav">
+            <button class="nav-btn nav-btn-prev" onclick="goToLesson(${idx})">← Volver</button>
+            <button class="nav-btn nav-btn-next" onclick="
+              const lq = allLessons.map((l,i)=>({idx:i,hasQuiz:l.contenido.includes('quiz-block')})).filter(l=>l.hasQuiz).filter(l=>!quizPassed.has(l.idx));
+              if(lq.length===0){document.getElementById('cert-overlay').classList.add('active');}
+              else{goToLesson(lq[0].idx);}
+            ">Ir al quiz pendiente →</button>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
+function updateProgress() {
+  const done = completed.size;
+  const total = allLessons.length;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = done + ' / ' + total;
+}
+
+function handleQuiz(btn, isCorrect) {
+  const block = btn.closest('.quiz-block');
+  const blockId = block.id || ('quiz-' + currentLesson);
+  if (!block.id) block.id = blockId;
+  block.querySelectorAll('.quiz-option').forEach(o => { o.disabled = true; o.style.pointerEvents = 'none'; });
+  btn.classList.add(isCorrect ? 'quiz-correct' : 'quiz-incorrect');
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback ' + (isCorrect ? 'fb-correct' : 'fb-incorrect');
+  if (isCorrect) {
+    fb.textContent = btn.dataset.correct;
+    quizPassed.add(currentLesson);
+  } else {
+    fb.innerHTML = btn.dataset.incorrect + '<br><br><button onclick="resetQuiz(\'' + blockId + '\')" style="margin-top:8px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;padding:7px 18px;border-radius:6px;font-family:DM Sans,sans-serif;font-size:13px;cursor:pointer;">↩ Volver a intentar</button>';
+  }
+}
+
+function resetQuiz(blockId) {
+  const block = document.getElementById(blockId);
+  block.querySelectorAll('.quiz-option').forEach(o => {
+    o.disabled = false;
+    o.style.pointerEvents = '';
+    o.classList.remove('quiz-correct', 'quiz-incorrect');
+  });
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback';
+  fb.innerHTML = '';
+}
+
+function handleChallenge(btn, success) {
+  const block = btn.closest('.challenge-block');
+  block.querySelectorAll('button').forEach(b => {
+    b.disabled = true;
+    b.style.pointerEvents = 'none';
+    b.style.opacity = '0.5';
+  });
+  const resp = block.querySelector('.challenge-response');
+  if (success) {
+    resp.className = 'challenge-response success';
+    resp.innerHTML = '<strong>Vas por buen camino.</strong> Cuando una idea pasa al menos 2 de las 3 señales, hay base para empezar. La validación final viene con las primeras ventas — pero ya sabes que el problema existe y que hay personas dispuestas a pagar por una solución.';
+  } else {
+    resp.className = 'challenge-response error';
+    resp.innerHTML = '<strong>Mejor parar y replantear.</strong> Si tu idea solo pasa 1 o ninguna de las señales, antes de invertir tiempo creándola conviene volver al prompt de validación y pivotar. Cambia el problema, el público o el formato — sigue iterando hasta que la idea pase al menos 2 de las 3 señales.';
+  }
+}
+
+function saveProgress() {
+  var email = document.getElementById('progress-email').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('progress-email').style.borderColor = '#ef4444';
+    return;
+  }
+  var body = new FormData();
+  body.append('EMAIL', email);
+  body.append('email_address_check', '');
+  body.append('locale', 'es');
+  fetch(BREVO_URL, { method: 'POST', body: body, mode: 'no-cors' }).catch(function(){});
+  dismissProgress();
+}
+
+function dismissProgress() {
+  document.getElementById('progress-modal').classList.remove('active');
+  progressModalShown = true;
+}
+
+function copyPrompt(btn) {
+  const pre = btn.closest('.prompt-box').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '¡Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector('script[src="' + src + '"]')) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function certHTML(name, dateStr, auryBase64) {
+  const auryImg = auryBase64 ? `<img decoding="async" src="${auryBase64}" style="width:92%;object-fit:contain;object-position:bottom center;" alt="Aury">` : '';
+  return `<div style="width:1200px;height:848px;background:#07090F;position:relative;overflow:hidden;font-family:'DM Sans',sans-serif;">
+    <div style="position:absolute;top:-120px;right:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(196,96,48,0.13),transparent 65%);"></div>
+    <div style="position:absolute;bottom:-120px;left:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(45,158,107,0.1),transparent 65%);"></div>
+    <div style="position:absolute;inset:20px;border:1.5px solid rgba(196,96,48,0.4);pointer-events:none;"></div>
+    <div style="position:absolute;inset:26px;border:1px solid rgba(196,96,48,0.1);pointer-events:none;"></div>
+    <div style="position:absolute;top:16px;left:16px;width:14px;height:14px;border-top:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;top:16px;right:16px;width:14px;height:14px;border-top:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;left:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;right:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;top:48px;left:60px;right:60px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;">🐧 AuryOnTech</div>
+      <div style="width:38%;height:1px;background:linear-gradient(to right,transparent,rgba(196,96,48,0.25),transparent);"></div>
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(196,96,48,0.5);font-family:'DM Mono',monospace;">Certificado de Finalización</div>
+    </div>
+    <div style="position:absolute;top:0;left:0;width:760px;height:848px;display:flex;flex-direction:column;justify-content:center;padding:100px 56px 80px 60px;">
+      <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#C46030;font-family:'DM Mono',monospace;margin-bottom:18px;">Este documento certifica que</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:58px;color:#EEF4F8;line-height:1.05;letter-spacing:-1.5px;margin-bottom:22px;">${name}</div>
+      <div style="width:56px;height:3px;background:#C46030;margin-bottom:22px;border-radius:2px;"></div>
+      <div style="font-size:15px;color:#7A6E60;margin-bottom:10px;">ha completado satisfactoriamente el curso</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:20px;color:#D88050;letter-spacing:-0.3px;margin-bottom:52px;line-height:1.3;">Tu primer producto digital con IA — El Sistema Completo Desde la Idea Hasta la Página de Venta</div>
+      <div style="display:flex;gap:52px;align-items:flex-start;">
+        <div><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Fecha</div><div style="font-size:13px;color:#EDE4D8;">${dateStr}</div></div>
+        <div style="width:1px;height:40px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>
+        <div><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Emitido por</div><div style="font-size:13px;color:#EDE4D8;font-weight:600;">Cristian Lopez Garcia</div><div style="font-size:11px;color:#7A6E60;margin-top:2px;">Fundador · AuryOnTech</div></div>
+      </div>
+    </div>
+    <div style="position:absolute;top:100px;bottom:80px;left:760px;width:1px;background:linear-gradient(to bottom,transparent,rgba(196,96,48,0.2) 30%,rgba(196,96,48,0.2) 70%,transparent);"></div>
+    <div style="position:absolute;right:0;bottom:0;width:440px;height:848px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;">${auryImg}</div>
+    <div style="position:absolute;bottom:34px;left:60px;font-size:10px;color:rgba(122,110,96,0.35);letter-spacing:2px;font-family:'DM Mono',monospace;text-transform:uppercase;">auryontech.com</div>
+  </div>`;
+}
+
+async function generateCert() {
+  const name = document.getElementById('cert-name').value.trim();
+  const certEmail = document.getElementById('cert-email').value.trim();
+  if (!name) { document.getElementById('cert-name').focus(); return; }
+  if (certEmail && certEmail.includes('@')) {
+    var bf = new FormData();
+    bf.append('EMAIL', certEmail);
+    bf.append('FIRSTNAME', name);
+    bf.append('email_address_check', '');
+    bf.append('locale', 'es');
+    fetch(BREVO_URL, { method: 'POST', body: bf, mode: 'no-cors' }).catch(function(){});
+  }
+  const dateStr = new Date().toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
+  closeCertModal();
+  const loader = document.createElement('div');
+  loader.style.cssText = 'position:fixed;inset:0;background:rgba(7,9,15,0.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#EEF4F8;font-family:DM Sans,sans-serif;font-size:15px;gap:14px;';
+  loader.innerHTML = '<div style="font-size:36px;">🐧</div><div>Generando tu certificado...</div>';
+  document.body.appendChild(loader);
+  let auryBase64 = '';
+  try {
+    const resp = await fetch('assets/img/Aury-enfrente-de-la-Compu.png');
+    const blob = await resp.blob();
+    auryBase64 = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(blob); });
+  } catch(e) {}
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:1200px;height:848px;z-index:-1;';
+  div.innerHTML = certHTML(name, dateStr, auryBase64);
+  document.body.appendChild(div);
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 400));
+  const canvas = await html2canvas(div, { scale:2, useCORS:true, allowTaint:true, backgroundColor:'#07090F', width:1200, height:848, logging:false });
+  document.body.removeChild(div);
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 297, 210);
+  pdf.save('Certificado_AuryOnTech_' + name.replace(/ /g,'_') + '.pdf');
+  loader.remove();
+}
+
+function closeCertModal() { document.getElementById('cert-overlay').classList.remove('active'); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); }
+
+renderSidebar();
+renderLesson(0);
+updateProgress();
+
+(function() {
+  const dot = document.createElement('div'); dot.className = 'cursor-dot';
+  const ring = document.createElement('div'); ring.className = 'cursor-ring';
+  document.body.appendChild(dot);
+  document.body.appendChild(ring);
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+  document.addEventListener('mousedown', () => { dot.classList.add('clicking'); ring.classList.add('clicking'); });
+  document.addEventListener('mouseup', () => { dot.classList.remove('clicking'); ring.classList.remove('clicking'); });
+  (function animateRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animateRing); })();
+})();
+</script>
+</body>
+</html>

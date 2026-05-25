@@ -1,0 +1,1518 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tu Mini CRM Gratis en Google Sheets — AuryOnTech</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #07090F; --dawn: #C46030; --dawn-l: #D88050; --dawn-ll: #ECA878;
+      --sky: #3A6494; --ice: #B8D4EC; --snow: #EEF4F8; --bone: #EDE4D8;
+      --warm: #7A6E60; --ink-2: #0f1219; --ink-3: #161b26; --sidebar-w: 300px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html,body { height:100%; background:var(--ink); color:var(--snow); font-family:'DM Sans',sans-serif; font-size:16px; line-height:1.7; overflow:hidden; }
+    #progress-bar { position:fixed; top:0; left:0; height:3px; width:0%; background:linear-gradient(90deg,var(--dawn),var(--dawn-ll)); z-index:1000; transition:width 0.4s ease; }
+    .app { display:flex; height:100vh; padding-top:3px; }
+    .sidebar { width:var(--sidebar-w); min-width:var(--sidebar-w); background:var(--ink-2); border-right:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; overflow:hidden; z-index:100; }
+    .sidebar-header { padding:24px 20px 20px; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .sidebar-logo { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+    .logo-icon { width:40px; height:40px; background:none; padding:0; border-radius:8px; display:flex; align-items:center; justify-content:center; }
+    .logo-icon img { width:40px; height:40px; object-fit:contain; display:block; }
+    .logo-text { font-family:'Cabinet Grotesk',sans-serif; font-weight:800; font-size:15px; color:var(--snow); letter-spacing:-0.3px; }
+    .course-title { font-size:12px; color:var(--warm); line-height:1.4; font-weight:400; }
+    .progress-info { margin-top:12px; display:flex; align-items:center; justify-content:space-between; }
+    .progress-label { font-size:11px; color:var(--warm); font-family:'DM Mono',monospace; }
+    .progress-pill { font-size:11px; color:var(--dawn-ll); font-family:'DM Mono',monospace; font-weight:500; }
+    .progress-track { margin-top:8px; height:2px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
+    .progress-fill { height:100%; background:var(--dawn); border-radius:2px; transition:width 0.4s ease; }
+    .sidebar-nav { flex:1; overflow-y:auto; padding:12px 0; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.1) transparent; }
+    .nav-module { margin-bottom:4px; }
+    .nav-module-header { padding:8px 20px; font-size:10px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:var(--warm); font-family:'DM Mono',monospace; cursor:pointer; display:flex; align-items:center; justify-content:space-between; user-select:none; }
+    .nav-module-header:hover { color:var(--dawn-ll); }
+    .nav-module-num { color:var(--dawn); font-weight:500; }
+    .nav-lessons { overflow:hidden; transition:max-height 0.3s ease; }
+    .nav-lesson { padding:8px 20px 8px 32px; font-size:13px; color:rgba(238,244,248,0.6); cursor:pointer; display:flex; align-items:center; gap:10px; transition:all 0.2s; border-left:2px solid transparent; line-height:1.4; }
+    .nav-lesson:hover { color:var(--snow); background:rgba(255,255,255,0.03); }
+    .nav-lesson.active { color:var(--dawn-ll); border-left-color:var(--dawn); background:rgba(196,96,48,0.08); }
+    .nav-lesson.completed { color:rgba(134,239,172,0.7); }
+    .nav-lesson.completed .lesson-dot { background:#4ade80; }
+    .lesson-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.15); flex-shrink:0; transition:background 0.2s; }
+    .nav-lesson.active .lesson-dot { background:var(--dawn); }
+    .main { flex:1; overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.1) transparent; }
+    .content { max-width:760px; margin:0 auto; padding:48px 40px 80px; }
+    .lesson { display:none; }
+    .lesson.active { display:block; animation:fadeIn 0.3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    .lesson-breadcrumb { font-size:12px; color:var(--warm); font-family:'DM Mono',monospace; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+    .breadcrumb-sep { color:var(--dawn); }
+    .lesson-title { font-family:'Cabinet Grotesk',sans-serif; font-weight:800; font-size:36px; line-height:1.1; color:var(--snow); margin-bottom:12px; letter-spacing:-0.5px; }
+    .lesson-objective { font-size:15px; color:var(--dawn-ll); margin-bottom:36px; padding:14px 18px; background:rgba(196,96,48,0.08); border-left:3px solid var(--dawn); border-radius:0 6px 6px 0; font-style:italic; }
+    .lesson-body { font-size:15px; color:rgba(238,244,248,0.85); line-height:1.8; }
+    .lesson-body h3 { font-family:'Cabinet Grotesk',sans-serif; font-weight:700; font-size:20px; color:var(--snow); margin:36px 0 14px; letter-spacing:-0.3px; }
+    .lesson-body p { margin-bottom:16px; }
+    .lesson-body ul,.lesson-body ol { margin:0 0 16px 20px; }
+    .lesson-body li { margin-bottom:8px; }
+    .lesson-body strong { color:var(--snow); font-weight:600; }
+    .module-header { background:var(--ink-3); border-left:4px solid var(--dawn); border-radius:0 12px 12px 0; padding:20px 24px; margin-bottom:36px; }
+    .module-num { font-family:'DM Mono',monospace; font-size:11px; color:var(--dawn); font-weight:500; letter-spacing:1px; text-transform:uppercase; }
+    .module-name { font-family:'Cabinet Grotesk',sans-serif; font-weight:700; font-size:14px; color:var(--warm); margin-top:4px; }
+    .lesson-hero { width:100%; height:220px; border-radius:12px; overflow:hidden; position:relative; margin-bottom:36px; background:var(--ink-3); }
+    .lesson-hero img { width:100%; height:100%; object-fit:cover; display:block; }
+    .lesson-hero::after { content:''; position:absolute; bottom:0; left:0; right:0; height:65%; background:linear-gradient(to top,rgba(7,9,15,0.85),transparent); pointer-events:none; }
+    .lesson-hero.broken { display:none; }
+    .code-box { background:#0d1117; border-radius:10px; margin:20px 0; overflow:hidden; border:1px solid rgba(255,255,255,0.06); }
+    .code-box-header { padding:10px 16px; background:rgba(255,255,255,0.03); border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:space-between; }
+    .code-box-label { font-family:'DM Mono',monospace; font-size:11px; color:var(--warm); text-transform:uppercase; letter-spacing:1px; }
+    .copy-btn { font-family:'DM Mono',monospace; font-size:11px; color:var(--dawn-ll); background:none; border:1px solid rgba(196,96,48,0.3); padding:3px 10px; border-radius:4px; cursor:pointer; transition:all 0.2s; }
+    .copy-btn:hover { background:rgba(196,96,48,0.15); border-color:var(--dawn); }
+    .copy-btn.copied { color:#4ade80; border-color:rgba(74,222,128,0.3); }
+    .code-box pre { padding:20px; overflow-x:auto; font-family:'DM Mono',monospace; font-size:13px; line-height:1.7; color:#e6edf3; white-space:pre-wrap; }
+    .inline-code { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:2px 7px; font-family:'DM Mono',monospace; font-size:12px; color:var(--dawn-ll); }
+    .callout { padding:16px 20px; border-radius:8px; margin:20px 0; font-size:14px; line-height:1.6; }
+    .callout-error { background:rgba(239,68,68,0.08); border-left:3px solid #ef4444; color:#fca5a5; }
+    .callout-tip { background:rgba(58,100,148,0.12); border-left:3px solid var(--sky); color:var(--ice); }
+    .callout-warning { background:rgba(196,96,48,0.1); border-left:3px solid var(--dawn); color:var(--dawn-ll); }
+    .callout-success { background:rgba(74,222,128,0.07); border-left:3px solid #4ade80; color:#86efac; }
+    .callout strong { display:block; margin-bottom:4px; font-weight:600; }
+    .action-block { background:linear-gradient(135deg,rgba(196,96,48,0.12),rgba(196,96,48,0.05)); border:1px solid rgba(196,96,48,0.25); border-radius:12px; padding:24px 28px; margin-top:40px; }
+    .action-label { font-family:'DM Mono',monospace; font-size:10px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase; color:var(--dawn); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+    .action-label::before { content:''; display:inline-block; width:16px; height:2px; background:var(--dawn); }
+    .action-title { font-family:'Cabinet Grotesk',sans-serif; font-weight:700; font-size:18px; color:var(--snow); margin-bottom:12px; }
+    .action-steps { list-style:none; margin:0; padding:0; }
+    .action-steps li { padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.06); font-size:14px; color:rgba(238,244,248,0.8); display:flex; align-items:flex-start; gap:12px; }
+    .action-steps li:last-child { border-bottom:none; }
+    .step-num { font-family:'DM Mono',monospace; font-size:11px; color:var(--dawn); font-weight:500; min-width:20px; margin-top:2px; }
+    .step-list { display:flex; flex-direction:column; gap:6px; margin:24px 0; }
+    .step-item { display:flex; gap:16px; padding:14px 16px; background:rgba(255,255,255,0.02); border-radius:8px; border:1px solid rgba(255,255,255,0.04); align-items:flex-start; transition:background 0.2s; }
+    .step-item:hover { background:rgba(255,255,255,0.04); }
+    .step-number-big { width:28px; height:28px; background:var(--dawn); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:12px; font-weight:500; color:var(--snow); flex-shrink:0; margin-top:2px; }
+    .step-content { flex:1; }
+    .step-content strong { display:block; font-size:15px; color:var(--snow); margin-bottom:3px; }
+    .step-content p { font-size:13px; color:rgba(238,244,248,0.6); margin:0; line-height:1.5; }
+    .quiz-block { background:rgba(58,100,148,0.08); border:1px solid rgba(58,100,148,0.2); border-radius:12px; padding:24px 28px; margin:32px 0; }
+    .quiz-label { font-family:'DM Mono',monospace; font-size:10px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase; color:var(--sky); margin-bottom:16px; }
+    .quiz-question { font-family:'Cabinet Grotesk',sans-serif; font-weight:700; font-size:18px; color:var(--snow); margin-bottom:16px; line-height:1.3; }
+    .quiz-options { display:flex; flex-direction:column; gap:8px; }
+    .quiz-option { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:12px 16px; text-align:left; color:rgba(238,244,248,0.8); font-family:'DM Sans',sans-serif; font-size:14px; cursor:pointer; transition:all 0.2s; line-height:1.5; }
+    .quiz-option:hover:not(:disabled) { background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.2); color:var(--snow); }
+    .quiz-option.quiz-correct { background:rgba(74,222,128,0.1); border-color:rgba(74,222,128,0.4); color:#86efac; }
+    .quiz-option.quiz-incorrect { background:rgba(239,68,68,0.08); border-color:rgba(239,68,68,0.3); color:#fca5a5; }
+    .quiz-feedback { margin-top:16px; padding:12px 16px; border-radius:8px; font-size:14px; line-height:1.5; display:none; }
+    .quiz-feedback.fb-correct { background:rgba(74,222,128,0.08); color:#86efac; border-left:3px solid #4ade80; display:block; }
+    .quiz-feedback.fb-incorrect { background:rgba(239,68,68,0.08); color:#fca5a5; border-left:3px solid #ef4444; display:block; }
+    .checklist-block { background:rgba(196,96,48,0.06); border:1px solid rgba(196,96,48,0.2); border-radius:12px; padding:20px 24px; margin:28px 0; }
+    .checklist-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--dawn); margin-bottom:14px; font-weight:500; }
+    .checklist-item { display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .checklist-item:last-child { border-bottom:none; }
+    .checklist-item input[type="checkbox"] { width:17px; height:17px; cursor:pointer; accent-color:var(--dawn); flex-shrink:0; }
+    .checklist-item label { font-size:14px; color:rgba(238,244,248,0.8); cursor:pointer; transition:all 0.2s; }
+    .checklist-item input:checked + label { color:var(--dawn-ll); text-decoration:line-through; opacity:0.6; }
+    .challenge-block { background:linear-gradient(135deg,rgba(196,96,48,0.08),rgba(58,100,148,0.05)); border:1px solid rgba(196,96,48,0.15); border-radius:12px; padding:22px; margin:24px 0; }
+    .challenge-label { font-family:'DM Mono',monospace; font-size:11px; color:var(--dawn-ll); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:10px; }
+    .challenge-question { font-family:'Cabinet Grotesk',sans-serif; font-weight:700; font-size:16px; color:var(--snow); margin-bottom:14px; line-height:1.4; }
+    .challenge-btns { display:flex; gap:10px; flex-wrap:wrap; }
+    .challenge-yes, .challenge-no { padding:10px 20px; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500; border:1px solid; transition:all 0.15s; cursor:pointer; }
+    .challenge-yes { background:rgba(74,222,128,0.12); border-color:rgba(74,222,128,0.4); color:#86efac; }
+    .challenge-yes:hover:not(:disabled) { background:rgba(74,222,128,0.2); }
+    .challenge-no { background:rgba(239,68,68,0.12); border-color:rgba(239,68,68,0.4); color:#fca5a5; }
+    .challenge-no:hover:not(:disabled) { background:rgba(239,68,68,0.2); }
+    .challenge-response { margin-top:14px; padding:12px 14px; border-radius:8px; font-size:13.5px; line-height:1.55; display:none; }
+    .challenge-response.success { display:block; background:rgba(74,222,128,0.08); border-left:3px solid #4ade80; color:rgba(238,244,248,0.85); }
+    .challenge-response.error { display:block; background:rgba(239,68,68,0.08); border-left:3px solid #ef4444; color:rgba(238,244,248,0.85); }
+    .summary-table { width:100%; border-collapse:collapse; margin:16px 0; font-size:13.5px; }
+    .summary-table th { background:rgba(196,96,48,0.08); color:var(--dawn-l); font-family:'DM Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; padding:10px 14px; text-align:left; border-bottom:1px solid rgba(196,96,48,0.2); }
+    .summary-table td { padding:10px 14px; color:rgba(238,244,248,0.68); border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:top; }
+    .summary-table tr:last-child td { border-bottom:none; }
+    .next-course { background:linear-gradient(135deg,var(--ink-3),rgba(196,96,48,0.08)); border:1px solid rgba(196,96,48,0.2); border-radius:16px; padding:32px; margin:40px 0; }
+    .next-course-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--dawn); margin-bottom:10px; }
+    .next-course-title { font-family:'Cabinet Grotesk',sans-serif; font-weight:800; font-size:24px; color:var(--snow); margin-bottom:10px; letter-spacing:-0.3px; }
+    .next-course-desc { font-size:14px; color:rgba(238,244,248,0.7); margin-bottom:20px; line-height:1.6; }
+    .next-course-btn { display:inline-block; background:var(--dawn); color:var(--snow); padding:11px 24px; border-radius:8px; font-family:'DM Sans',sans-serif; font-weight:500; font-size:14px; text-decoration:none; transition:background 0.2s; }
+    .next-course-btn:hover { background:var(--dawn-l); }
+    .lesson-nav { display:flex; justify-content:space-between; margin-top:48px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.06); }
+    .nav-btn { font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500; padding:10px 20px; border-radius:8px; cursor:pointer; border:none; transition:all 0.2s; }
+    .nav-btn-prev { background:rgba(255,255,255,0.05); color:var(--warm); }
+    .nav-btn-prev:hover { background:rgba(255,255,255,0.09); color:var(--snow); }
+    .nav-btn-next { background:var(--dawn); color:var(--snow); }
+    .nav-btn-next:hover { background:var(--dawn-l); }
+    .nav-btn:disabled { opacity:0.3; cursor:not-allowed; }
+    .hamburger { display:none; position:fixed; top:12px; left:12px; z-index:200; background:var(--ink-2); border:1px solid rgba(255,255,255,0.1); border-radius:8px; width:40px; height:40px; cursor:pointer; flex-direction:column; align-items:center; justify-content:center; gap:5px; }
+    .hamburger span { display:block; width:18px; height:2px; background:var(--snow); border-radius:2px; }
+    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:90; }
+    .cert-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:999; display:none; align-items:center; justify-content:center; }
+    .cert-overlay.active { display:flex; }
+    .cert-modal { background:var(--ink-2); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:36px; max-width:440px; width:90%; text-align:center; }
+    .cert-modal-title { font-family:'Cabinet Grotesk',sans-serif; font-weight:800; font-size:24px; color:var(--snow); margin-bottom:8px; }
+    .cert-modal-sub { font-size:14px; color:var(--warm); margin-bottom:24px; line-height:1.5; }
+    .cert-name-input { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:12px 16px; color:var(--snow); font-family:'DM Sans',sans-serif; font-size:16px; outline:none; margin-bottom:16px; }
+    .cert-name-input:focus { border-color:var(--dawn); }
+    .cert-name-input::placeholder { color:var(--warm); }
+    .cert-generate-btn { width:100%; background:var(--dawn); color:var(--snow); border:none; border-radius:8px; padding:13px; font-family:'DM Sans',sans-serif; font-weight:600; font-size:15px; cursor:pointer; transition:background 0.2s; }
+    .cert-generate-btn:hover { background:var(--dawn-l); }
+    .cert-skip { margin-top:12px; font-size:13px; color:var(--warm); cursor:pointer; text-decoration:underline; }
+    .cert-skip:hover { color:var(--snow); }
+    .certificate { display:none; }
+    /* ── CURSOR PERSONALIZADO ── */
+    * { cursor: none !important; }
+    a, button, [onclick], label, input[type="checkbox"], select, .nav-lesson, .nav-module-header, .quiz-option, .copy-btn, .cert-generate-btn, .cert-skip, .nav-btn, .challenge-yes, .challenge-no, .next-course-btn { cursor: pointer !important; }
+    .cursor-dot { position: fixed; width: 8px; height: 8px; background: #C46030; border-radius: 50%; pointer-events: none; z-index: 99999; transform: translate(-50%, -50%); transition: transform 0.1s ease, background 0.2s; }
+    .cursor-ring { position: fixed; width: 32px; height: 32px; border: 1.5px solid rgba(196,96,48,0.6); border-radius: 50%; pointer-events: none; z-index: 99998; transform: translate(-50%, -50%); transition: width 0.2s ease, height 0.2s ease, border-color 0.2s; }
+    .cursor-dot.clicking { transform: translate(-50%,-50%) scale(0.6); background: #ECA878; }
+    .cursor-ring.clicking { width: 20px; height: 20px; border-color: #C46030; }
+    @media (max-width: 768px) { * { cursor: auto !important; } .cursor-dot, .cursor-ring { display: none; } }
+
+    @media (max-width: 768px) {
+      .hamburger { display:flex; }
+      .sidebar { position:fixed; left:-310px; top:0; height:100vh; transition:left 0.3s ease; z-index:150; }
+      .sidebar.open { left:0; }
+      .overlay.active { display:block; }
+      .content { padding:60px 20px 80px; }
+      .lesson-title { font-size:26px; }
+      .lesson-hero { height:160px; }
+    }
+  
+
+/* === MINIMAL ESSENTIAL OVERRIDES (auto-applied) === */
+body, .hero, .about, .services, .testi, .uc, .valor, .flow-demo, .cta, .manifesto, footer {
+  background-color: #000 !important;
+}
+.hero {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/iceberg-sunset-amber.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: scroll, fixed !important;
+}
+.eyebrow, .kicker, .nav-cta { color: #ECA878 !important; }
+.flake { opacity: .55 !important; font-size: 13px !important; }
+
+/* === ICEBERGS on sections === */
+.manifesto { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/mountains-sunset-pink.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.about, section.about { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-aerial-dark.jpeg') !important; background-size: cover, cover !important; background-position: right center !important; }
+.services { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-texture-blue.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.flow-demo { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/glacier-wall-blue.jpeg') !important; background-size: cover, cover !important; }
+.valor { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-minimal.jpeg') !important; background-size: cover, cover !important; }
+.uc { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/aerial-snow-scale.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.testi { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-ice-columns.jpeg') !important; background-size: cover, cover !important; }
+.cta { background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/icebergs-twin-massive.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+footer, .footer { background-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.98)), url('assets/img/antarctic-moon.jpeg') !important; background-size: cover, cover !important; }
+@media (max-width: 900px) { .hero, .services, .uc, .cta, .manifesto { background-attachment: scroll !important; } }
+
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div class="cert-overlay" id="progress-modal">
+  <div class="cert-modal">
+    <div class="cert-modal-title">🐧 ¿Guardamos tu progreso?</div>
+    <div class="cert-modal-sub">Déjame tu email y te aviso cuando publique nuevos cursos. Sin spam, solo lo útil.</div>
+    <input class="cert-name-input" id="progress-email" type="email" placeholder="tu@correo.com">
+    <button class="cert-generate-btn" onclick="saveProgress()">Guardar →</button>
+    <div class="cert-skip" onclick="dismissProgress()">Ahora no</div>
+  </div>
+</div>
+
+<div class="cert-overlay" id="cert-overlay">
+  <div class="cert-modal">
+    <div class="cert-modal-title">🐧 ¡Lo lograste!</div>
+    <div class="cert-modal-sub">Terminaste el curso. Escribe tu nombre y correo para generar tu certificado.</div>
+    <input class="cert-name-input" id="cert-name" type="text" placeholder="Tu nombre completo">
+    <input class="cert-name-input" id="cert-email" type="email" placeholder="tu@correo.com" style="margin-top:8px;">
+    <button class="cert-generate-btn" onclick="generateCert()">Descargar certificado →</button>
+    <div class="cert-skip" onclick="closeCertModal()">Omitir por ahora</div>
+  </div>
+</div>
+<div class="certificate" id="certificate"></div>
+
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><img decoding="async" src="assets/img/Logo.png" alt="AuryOnTech"></div>
+        <span class="logo-text">AuryOnTech</span>
+      </div>
+      <div class="course-title">Tu Mini CRM Gratis en Google Sheets</div>
+      <div class="progress-info">
+        <span class="progress-label">Progreso</span>
+        <span class="progress-pill" id="progress-text">0 / 12</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+  </nav>
+  <main class="main" id="main-content">
+    <div class="content"><div id="content-area"></div></div>
+  </main>
+</div>
+
+<button class="hamburger" onclick="toggleSidebar()">
+  <span></span><span></span><span></span>
+</button>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<script>
+const curso = [
+  {
+    modulo: "01",
+    titulo: "Por qué estás perdiendo clientes",
+    lecciones: [
+      {
+        id: "1-1",
+        titulo: "El seguimiento que nunca haces",
+        objetivo: "Calcular cuánto dinero real estás dejando ir cada mes por no hacer seguimiento a tus leads.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">Por qué estás perdiendo clientes sin darte cuenta</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Leads perdidos" onerror="this.parentElement.classList.add('broken');this.remove()">
+          </div>
+          <p>Tienes clientes potenciales. Algunos te escribieron por WhatsApp, otros llenaron un formulario, otros te contactaron en Instagram. Les respondiste. Dijeron "lo pienso" o "dame unos días". Y ahí quedó.</p>
+          <p>No porque no te importaran. Sino porque no tenías un sistema para recordar que existían.</p>
+          <h3>La cuenta que nadie hace</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>10 leads al mes sin seguimiento</strong>
+                <p>Conversión típica: 1 o 2 clientes (10-20%). El resto se fue a la competencia o simplemente se olvidó.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>10 leads al mes con seguimiento sistemático</strong>
+                <p>Conversión: 3 o 4 clientes (30-40%). La diferencia es únicamente el seguimiento, no el producto.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>2 clientes extra al mes × 200€ de ticket medio</strong>
+                <p>Son 400€ al mes. 4.800€ al año. Solo por no dejar morir los leads que ya mostraron interés.</p>
+              </div>
+            </div>
+          </div>
+          <p>El problema no es conseguir más leads. Es dejar de perder los que ya tienes.</p>
+          <div class="callout callout-tip">
+            <strong>El dato que cambia todo</strong>
+            El 80% de las ventas requieren cinco o más contactos antes de cerrarse, pero casi la mitad de los vendedores se rinden después del primero. El que hace el seguimiento número cinco casi siempre gana.
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Cuenta tus leads perdidos este mes</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Abre WhatsApp ahora mismo</li>
+              <li><span class="step-num">02</span> Cuenta cuántas conversaciones con posibles clientes tienes sin seguimiento en los últimos 30 días</li>
+              <li><span class="step-num">03</span> Multiplica ese número por tu ticket medio — ese es el dinero que dejaste ir este mes</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "1-2",
+        titulo: "Por qué un Excel desordenado no es un CRM",
+        objetivo: "Entender la diferencia entre guardar datos y tener un sistema que te diga qué hacer cada día.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">Por qué estás perdiendo clientes sin darte cuenta</div>
+          </div>
+          <p>La mayoría de los pequeños negocios ya tienen "algo" donde guardan clientes. Un Excel con nombres y teléfonos. Una libreta. Los favoritos de WhatsApp. El problema no es que no tengan datos — es que esos datos no les dicen nada accionable.</p>
+          <h3>Las 3 preguntas que debe responder un CRM en 10 segundos</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">1</div>
+              <div class="step-content">
+                <strong>¿A quién tengo que contactar hoy?</strong>
+                <p>No "¿a quién tengo que contactar esta semana?". Hoy. Específicamente.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">2</div>
+              <div class="step-content">
+                <strong>¿Cuánto tiempo lleva este lead sin respuesta?</strong>
+                <p>Sin calcular fechas a mano. De un vistazo.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">3</div>
+              <div class="step-content">
+                <strong>¿En qué estado está cada conversación?</strong>
+                <p>¿Está evaluando? ¿Tiene propuesta? ¿Ya dijo que no?</p>
+              </div>
+            </div>
+          </div>
+          <p>Si tu sistema actual no responde esas tres preguntas de un vistazo, no es un CRM. Es un cementerio de datos.</p>
+          <h3>Lo que vas a construir en este curso</h3>
+          <p>Una hoja de Google Sheets que en 20 segundos te muestra:</p>
+          <ul>
+            <li>Los leads que llevan más de 7 días sin contacto <strong>(en rojo automáticamente)</strong></li>
+            <li>El estado de cada conversación con un color distinto</li>
+            <li>Quién está listo para recibir una propuesta y quién necesita seguimiento suave</li>
+          </ul>
+          <div class="callout callout-warning">
+            <strong>Para quién es este curso</strong>
+            Este CRM es perfecto para autónomos y dueños de negocio con entre 10 y 100 leads activos. No está diseñado para un equipo de ventas de 10 personas. La última lección del curso te dice exactamente cuándo y a qué herramienta migrar cuando lo superes.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Cuál es la función principal de un CRM bien construido?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="Eso lo hace una agenda. Un CRM te dice qué acción tomar con cada lead y cuándo — no solo guarda el nombre y el teléfono.">
+                Guardar los datos de contacto de tus clientes
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. Los datos sin acción no sirven de nada. Un buen CRM te dice exactamente a quién contactar hoy y qué decirle.">
+                Decirte exactamente a quién contactar hoy y en qué estado está cada conversación
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="Eso es email marketing. Un CRM organiza el proceso de venta — la automatización del envío es una función separada.">
+                Enviar emails automáticos a tus clientes
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "02",
+    titulo: "Construye tu CRM en 20 minutos",
+    lecciones: [
+      {
+        id: "2-1",
+        titulo: "Las 7 columnas que necesitas (y por qué no más)",
+        objetivo: "Crear la estructura base del CRM con exactamente la información necesaria para actuar, sin datos que nadie rellena.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Construye tu CRM en 20 minutos</div>
+          </div>
+          <p>El error más común al construir un CRM es añadir demasiadas columnas. A los tres días nadie lo actualiza porque lleva demasiado tiempo. Regla: si no vas a consultar esa columna para tomar una decisión, no existe.</p>
+          <h3>Paso a paso — crea la hoja</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Ve a sheets.google.com</strong>
+                <p>Crea una hoja nueva en blanco. Nómbrala <span class="inline-code">Mi CRM — [nombre de tu negocio]</span></p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Escribe los 7 encabezados en la fila 1</strong>
+                <p>Exactamente como aparecen abajo, uno por columna de la A a la G.</p>
+              </div>
+            </div>
+          </div>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Encabezados · Fila 1</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>A1: Nombre
+B1: Contacto
+C1: Origen
+D1: Estado
+E1: Ultimo contacto
+F1: Dias sin contacto
+G1: Notas</pre>
+          </div>
+          <h3>Para qué sirve cada columna</h3>
+          <table class="summary-table">
+            <thead><tr><th>Columna</th><th>Qué va aquí</th><th>Ejemplo</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Nombre</strong></td><td>La persona o empresa. B2C: nombre. B2B: "Nombre — Empresa".</td><td>María García</td></tr>
+              <tr><td><strong>Contacto</strong></td><td>WhatsApp o email. El que más uses con él.</td><td>+34 612 345 678</td></tr>
+              <tr><td><strong>Origen</strong></td><td>Cómo llegó a ti. Te dirá qué canal trae mejores clientes.</td><td>Instagram, Referido, Web...</td></tr>
+              <tr><td><strong>Estado</strong></td><td>La columna más importante. La configuramos en la siguiente lección.</td><td>En conversación</td></tr>
+              <tr><td><strong>Ultimo contacto</strong></td><td>Solo la fecha del último mensaje, llamada o reunión.</td><td>03/04/2026</td></tr>
+              <tr><td><strong>Dias sin contacto</strong></td><td>Fórmula automática. La ponemos en la lección 2.4.</td><td>7 (en rojo automático)</td></tr>
+              <tr><td><strong>Notas</strong></td><td>Una línea. Lo más importante de la última conversación.</td><td>Quiere propuesta para junio</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-warning">
+            <strong>Escribe sin tildes los encabezados "Ultimo contacto" y "Dias sin contacto"</strong>
+            Algunos entornos tienen conflictos de encoding con caracteres especiales en nombres de columna. El contenido de las celdas sí puede tener acentos sin problema.
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Confirma antes de continuar</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-1-a"><label for="ck-2-1-a">Creé la hoja "Mi CRM" en Google Sheets</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-1-b"><label for="ck-2-1-b">Los 7 encabezados están en la fila 1, columnas A a G</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-1-c"><label for="ck-2-1-c">La hoja está en la misma cuenta de Google que uso habitualmente</label></div>
+          </div>
+        `
+      },
+      {
+        id: "2-2",
+        titulo: "Configura los estados con menú desplegable",
+        objetivo: "Crear un menú desplegable en la columna Estado para que actualizar un lead tarde 2 segundos, no 20.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Construye tu CRM en 20 minutos</div>
+          </div>
+          <p>Si el estado es texto libre, en una semana tendrás "interesado", "Interesado", "le interesa" y cuatro variaciones que hacen imposible filtrar. El menú desplegable elimina ese problema.</p>
+          <h3>Paso a paso</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Selecciona toda la columna D</strong>
+                <p>Haz clic en D2, mantén Shift y haz clic en D1000.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Ve a Datos → Validación de datos</strong>
+                <p>En el menú superior de Google Sheets.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>En Criterios, selecciona "Lista de elementos"</strong>
+                <p>Y escribe exactamente esto en el campo de texto:</p>
+              </div>
+            </div>
+          </div>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Lista de estados — copia exactamente</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Nuevo,Contactado,En conversacion,Propuesta enviada,Ganado,Perdido,En pausa</pre>
+          </div>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>Activa "Mostrar lista desplegable en la celda"</strong>
+                <p>Y haz clic en Guardar.</p>
+              </div>
+            </div>
+          </div>
+          <h3>Qué significa cada estado</h3>
+          <table class="summary-table">
+            <thead><tr><th>Estado</th><th>Cuándo usarlo</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Nuevo</strong></td><td>Llegó el lead pero aún no lo has contactado</td></tr>
+              <tr><td><strong>Contactado</strong></td><td>Le mandaste el primer mensaje, esperando respuesta</td></tr>
+              <tr><td><strong>En conversacion</strong></td><td>Hay intercambio activo, está evaluando</td></tr>
+              <tr><td><strong>Propuesta enviada</strong></td><td>Le mandaste precio o propuesta formal</td></tr>
+              <tr><td><strong>Ganado</strong></td><td>Cerró. Es cliente</td></tr>
+              <tr><td><strong>Perdido</strong></td><td>Dijo que no o dejó de responder definitivamente</td></tr>
+              <tr><td><strong>En pausa</strong></td><td>Interesado pero para más adelante. Revisar en X semanas</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-error">
+            <strong>Si el desplegable no aparece</strong>
+            Verifica que seleccionaste D2:D1000 antes de configurar la validación, no solo D2. Si ya lo guardaste, borra la regla y repite el proceso con el rango correcto.
+          </div>
+          <div class="callout callout-tip">
+            <strong>Prueba que funciona</strong>
+            Haz clic en cualquier celda de la columna D. Debe aparecer una pequeña flecha hacia abajo. Haz clic en ella y verifica que aparecen los 7 estados.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué es importante usar un menú desplegable en la columna Estado en lugar de texto libre?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No es por velocidad de escritura — el desplegable puede ser incluso un poco más lento que escribir 'Ganado' a mano. La razón es estructural: garantiza consistencia.">
+                Porque escribir con el desplegable es más rápido que tipear el texto
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. Sin lista controlada, en una semana tienes 'ganado', 'Ganado', 'GANADO' y 'cerrado' como variaciones del mismo estado — y ningún filtro ni formato condicional funciona porque ven cada variación como un valor distinto.">
+                Porque garantiza consistencia exacta de los valores, lo que permite que filtros y formato condicional funcionen
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="Google Sheets no penaliza el texto libre. La razón es práctica: sin valores consistentes, las fórmulas y los filtros se rompen.">
+                Porque Google Sheets penaliza las hojas con texto libre
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        `
+      },
+      {
+        id: "2-3",
+        titulo: "Colores automáticos por estado",
+        objetivo: "Configurar el formato condicional para ver el estado de todo tu pipeline de un vistazo sin leer nada.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Construye tu CRM en 20 minutos</div>
+          </div>
+          <p>Esta es la lección del momento eureka. Cuando termines, tu CRM se verá como un semáforo real: verde para los ganados, rojo para los perdidos, naranja para las conversaciones activas. Sin hacer nada manualmente.</p>
+          <h3>Cómo aplicar el formato condicional</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Selecciona el rango A2:G1000</strong>
+                <p>Toda la hoja excepto los encabezados.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Formato → Formato condicional</strong>
+                <p>Se abre un panel a la derecha.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Crea 7 reglas — una por estado</strong>
+                <p>Para cada regla: en "Dar formato si..." selecciona <span class="inline-code">La fórmula personalizada es</span>. Copia la fórmula y elige el color correspondiente.</p>
+              </div>
+            </div>
+          </div>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Las 7 reglas de formato condicional</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Estado: Nuevo
+Fórmula:  =$D2="Nuevo"
+Color:    Azul claro — #CFE2F3
+
+Estado: Contactado
+Fórmula:  =$D2="Contactado"
+Color:    Amarillo claro — #FFF2CC
+
+Estado: En conversacion
+Fórmula:  =$D2="En conversacion"
+Color:    Naranja claro — #FCE5CD
+
+Estado: Propuesta enviada
+Fórmula:  =$D2="Propuesta enviada"
+Color:    Morado claro — #E1D5E7
+
+Estado: Ganado
+Fórmula:  =$D2="Ganado"
+Color:    Verde claro — #D9EAD3
+
+Estado: Perdido
+Fórmula:  =$D2="Perdido"
+Color:    Rojo claro — #F4CCCC
+
+Estado: En pausa
+Fórmula:  =$D2="En pausa"
+Color:    Gris claro — #EEEEEE</pre>
+          </div>
+          <div class="callout callout-tip">
+            <strong>Por qué el signo $ importa</strong>
+            El signo de dólar antes de la D en <span class="inline-code">=$D2</span> le dice a Google Sheets que siempre mire la columna D de esa fila para decidir el color, independientemente de qué columna esté coloreando. Sin el $, el color solo aparece en la columna D.
+          </div>
+          <div class="callout callout-success">
+            <strong>Prueba que funciona</strong>
+            En D2, selecciona "Ganado" del desplegable. Toda la fila 2 debe ponerse verde automáticamente. Cambia a "Perdido" — debe ponerse roja. Eso es tu CRM funcionando.
+          </div>
+          <div class="challenge-block">
+            <div class="challenge-label">🎯 Reto · Verificación visual</div>
+            <div class="challenge-question">Selecciona "Ganado" en la celda D2. ¿Toda la fila 2 (de la A a la G) se puso verde claro?</div>
+            <div class="challenge-btns">
+              <button class="challenge-yes" onclick="handleChallenge(this,true)">Sí, toda la fila se pintó 🎨</button>
+              <button class="challenge-no" onclick="handleChallenge(this,false)">No, solo se pintó la celda D</button>
+            </div>
+            <div class="challenge-response"></div>
+          </div>
+        `
+      },
+      {
+        id: "2-4",
+        titulo: "La fórmula que te dice quién necesita seguimiento hoy",
+        objetivo: "Configurar la columna de días sin contacto para que se actualice sola y muestre en rojo los leads urgentes automáticamente.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Construye tu CRM en 20 minutos</div>
+          </div>
+          <p>Esta columna es el corazón del sistema. Sin ella tienes que revisar fecha por fecha. Con ella, abres la hoja y en 10 segundos sabes exactamente a quién tienes que escribir hoy.</p>
+          <h3>Instala la fórmula</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Haz clic en la celda F2</strong>
+                <p>Y escribe exactamente esta fórmula:</p>
+              </div>
+            </div>
+          </div>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Fórmula de días sin contacto</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>=SI(E2="","",HOY()-E2)</pre>
+          </div>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Copia la fórmula a toda la columna</strong>
+                <p>Haz clic en F2 → Cmd+C → Selecciona F3:F1000 → Cmd+V</p>
+              </div>
+            </div>
+          </div>
+          <h3>Añade los colores de urgencia en la columna F</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Selecciona F2:F1000</strong>
+                <p>Formato → Formato condicional → Añade estas 3 reglas:</p>
+              </div>
+            </div>
+          </div>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Reglas de urgencia — columna F</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Urgente (más de 7 días)
+Fórmula:  =F2>7
+Fondo:    Rojo claro — #F4CCCC
+Texto:    Rojo oscuro — #CC0000
+
+Atención (4 a 7 días)
+Fórmula:  =Y(F2>=4,F2<=7)
+Fondo:    Amarillo claro — #FFF2CC
+Texto:    Naranja — #E65C00
+
+OK (menos de 4 días)
+Fórmula:  =F2<4
+Fondo:    Verde claro — #D9EAD3
+Texto:    Verde oscuro — #274E13</pre>
+          </div>
+          <div class="callout callout-tip">
+            <strong>Atajo para insertar la fecha de hoy</strong>
+            Cuando registres la fecha en la columna E, no la escribas a mano. Usa <span class="inline-code">Cmd+;</span> en Mac o <span class="inline-code">Ctrl+;</span> en Windows para insertar la fecha de hoy automáticamente.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">En la fórmula <span class="inline-code">=SI(E2="","",HOY()-E2)</span>, ¿qué hace exactamente la condición <span class="inline-code">E2=""</span>?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. La fórmula no evita errores de división — no hay división aquí. Lo que evita es mostrar números falsos en filas que aún no tienen fecha.">
+                Evita un error de división entre cero
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. Sin esa condición, las filas vacías mostrarían un número enorme de días (porque HOY menos 'nada' da el número de días desde el año 1900). Con la condición, las filas sin fecha quedan en blanco hasta que registres el lead.">
+                Hace que las filas vacías queden en blanco en vez de mostrar un número falso de días
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. La condición no afecta el rendimiento de Sheets. Su función es lógica: decidir qué mostrar cuando la fecha aún no existe.">
+                Hace que la fórmula sea más rápida en hojas grandes
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="challenge-block">
+            <div class="challenge-label">🎯 Reto · Verifica la columna F</div>
+            <div class="challenge-question">Pon una fecha de hace 10 días en E2. ¿La columna F muestra "10" en rojo automáticamente?</div>
+            <div class="challenge-btns">
+              <button class="challenge-yes" onclick="handleChallenge(this,true)">Sí, está en rojo 🔴</button>
+              <button class="challenge-no" onclick="handleChallenge(this,false)">No, no se pone rojo</button>
+            </div>
+            <div class="challenge-response"></div>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Tu CRM está listo cuando</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-4-a"><label for="ck-2-4-a">Los 7 estados tienen su color asignado y toda la fila cambia al seleccionarlos</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-4-b"><label for="ck-2-4-b">La columna F muestra días correctamente y cambia de color según la urgencia</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-4-c"><label for="ck-2-4-c">El atajo Cmd+; / Ctrl+; funciona para insertar fechas</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-4-d"><label for="ck-2-4-d">Registré al menos 3 leads de prueba con todos los campos completos</label></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "03",
+    titulo: "Tu flujo de trabajo semanal",
+    lecciones: [
+      {
+        id: "3-1",
+        titulo: "Cómo registrar un lead en 2 minutos",
+        objetivo: "Establecer el hábito de registrar cada lead nuevo inmediatamente para que no desaparezca en el caos del día.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Tu flujo de trabajo semanal</div>
+          </div>
+          <p>El CRM más sofisticado del mundo no sirve de nada si no lo actualizas. La razón por la que la gente abandona sus CRMs es siempre la misma: tardaban demasiado. Este flujo te lleva a 2 minutos por lead.</p>
+          <h3>Cuándo registrar un lead</h3>
+          <p>Inmediatamente cuando alguien te contacta por primera vez. No "luego". No "al final del día". Ahora mismo — abres la hoja en el móvil y lo registras mientras la conversación está fresca.</p>
+          <h3>Los 6 datos que registras</h3>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Plantilla de registro — copia y adapta</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Nombre:          → Nombre completo o número si no lo sabes aún
+Contacto:        → WhatsApp o email — el que usaste para hablar
+Origen:          → Instagram / Referido / Web / LinkedIn / WhatsApp directo
+Estado:          → "Nuevo" si aún no respondiste, "Contactado" si ya le escribiste
+Ultimo contacto: → Fecha de hoy (Cmd+; o Ctrl+;)
+Notas:           → Una línea. Lo más importante que dijo o preguntó</pre>
+          </div>
+          <h3>Ejemplo real completo</h3>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Ejemplo — salón de belleza</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Nombre:          → María García
+Contacto:        → +34 612 345 678
+Origen:          → Instagram
+Estado:          → Contactado
+Ultimo contacto: → 03/04/2026
+Notas:           → Quiere manicura gel para boda el 15 junio, preguntó precio</pre>
+          </div>
+          <div class="callout callout-tip">
+            <strong>Para el móvil</strong>
+            Guarda el link de tu CRM en los favoritos del navegador del móvil. Cuando llegue un lead nuevo, lo registras en 90 segundos sin necesidad de abrir el ordenador.
+          </div>
+          <div class="callout callout-error">
+            <strong>No dejes Notas vacío</strong>
+            Es la columna que hace que cuando vuelves a ese lead 5 días después sepas exactamente de qué hablasteis sin tener que releer toda la conversación de WhatsApp.
+          </div>
+        `
+      },
+      {
+        id: "3-2",
+        titulo: "La revisión de los lunes",
+        objetivo: "Implementar una rutina semanal de 15 minutos que garantiza que ningún lead se enfría sin acción tuya.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Tu flujo de trabajo semanal</div>
+          </div>
+          <p>El sistema funciona solo si lo revisas. La revisión de los lunes son 15 minutos una vez a la semana que reemplazan horas de "¿a quién tengo que llamar?" repartidas por el día.</p>
+          <h3>El proceso — paso a paso</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Ordena por días sin contacto (2 min)</strong>
+                <p>Haz clic en el encabezado de la columna F → Datos → Ordenar de mayor a menor. Los leads más urgentes aparecen arriba.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Revisa los rojos — más de 7 días (5 min)</strong>
+                <p>Para cada uno decide: ¿le mando seguimiento? → actualiza la fecha. ¿Ya pasó a Perdido? → cambia el estado. ¿Necesita más tiempo? → mueve a "En pausa" y anota cuándo revisar.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Revisa los amarillos — 4 a 7 días (5 min)</strong>
+                <p>Decide si actúas esta semana o los dejas madurar un poco más.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>Revisa los "Propuesta enviada" (3 min)</strong>
+                <p>Cualquier propuesta enviada hace más de 3 días merece un seguimiento. No esperes a que te digan que no.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-success">
+            <strong>La regla de los lunes</strong>
+            Al terminar la revisión, no debe haber ningún lead en rojo con estado activo (Contactado, En conversación, Propuesta enviada). O les escribiste, o los moviste a En pausa o Perdido.
+          </div>
+          <div class="callout callout-tip">
+            <strong>Ponlo en el calendario ahora</strong>
+            Crea un recordatorio recurrente todos los lunes a las 9am: "Revisión CRM — 15 min". Los primeros lunes tardarás 20 minutos. Al tercer lunes, en 10.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">Después de la revisión de los lunes, ¿qué situación NO debería existir en tu CRM?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. Es perfectamente válido tener leads en estado 'Perdido' en rojo — un Perdido en rojo significa que llevas tiempo sin hablar con alguien que ya cerró como No, y no requiere acción.">
+                Un lead en estado "Perdido" con más de 7 días en rojo
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. Esa es la regla de oro: si un lead está activo (Contactado, En conversación, Propuesta enviada) y lleva más de 7 días en rojo, significa que se está enfriando sin acción tuya. Después del lunes, o le escribiste, o lo moviste a 'En pausa' o 'Perdido'.">
+                Un lead en estado "Contactado" o "En conversación" con más de 7 días en rojo
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. Los leads en 'En pausa' pueden quedarse meses sin contacto sin problema — esa es justamente la función del estado: 'lo retomo más adelante'.">
+                Un lead en estado "En pausa" con 30 días sin contacto
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        `
+      },
+      {
+        id: "3-3",
+        titulo: "Mensajes de seguimiento por situación",
+        objetivo: "Tener listos los mensajes exactos para cada situación, listos para copiar y personalizar en 30 segundos.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Tu flujo de trabajo semanal</div>
+          </div>
+          <p>El seguimiento no funciona cuando parece un copy-paste genérico. Pero tampoco tienes que escribir desde cero cada vez. Personaliza el nombre y el detalle relevante — el resto está listo.</p>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Situación 1 — Lead nuevo sin respuesta en 48h</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Hola [nombre], te escribo de [tu negocio].
+Vi que nos contactaste por [origen]. ¿Tienes un momento esta semana
+para contarme qué necesitas exactamente? Sin compromiso ninguno.</pre>
+          </div>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Situación 2 — Seguimiento después de "lo pienso" (5-7 días)</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Hola [nombre], ¿qué tal? Te escribo porque quedamos en que
+lo ibas a pensar. ¿Tienes alguna duda sobre [producto/servicio]
+que te pueda resolver? Estoy aquí cuando quieras.</pre>
+          </div>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Situación 3 — Propuesta enviada sin respuesta (3-5 días)</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Hola [nombre], solo quería asegurarme de que te llegó bien
+la propuesta que te mandé el [día]. ¿La pudiste revisar?
+Si tienes alguna pregunta o quieres ajustar algo, me dices.</pre>
+          </div>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Situación 4 — Lead "en pausa" que reactivas</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Hola [nombre], ¿cómo estás? Hace unas semanas hablamos de
+[lo que mencionó]. ¿Sigue siendo algo que te interesa?
+Han cambiado algunas cosas que quizás te interesan.</pre>
+          </div>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Situación 5 — Cierre directo después de varias conversaciones</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Hola [nombre], llevamos un tiempo hablando y quiero ser directo
+contigo: ¿tiene sentido que avancemos o prefieres que lo dejemos
+para más adelante? No hay problema con ninguna de las dos opciones,
+pero me ayuda saber dónde estamos.</pre>
+          </div>
+          <div class="callout callout-tip">
+            <strong>Guarda estos mensajes en tu biblioteca de prompts</strong>
+            Añádelos a la carpeta "Tareas recurrentes" del sistema que construiste en el curso de Prompts. Así tienes el sistema completo en un solo lugar.
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Módulo 3 completado cuando</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-a"><label for="ck-3-a">Registré al menos 5 leads reales con todos los campos completos</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-b"><label for="ck-3-b">Completé mi primera revisión de los lunes</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-c"><label for="ck-3-c">Mandé al menos un mensaje de seguimiento usando las plantillas de arriba</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-d"><label for="ck-3-d">Puse el recordatorio recurrente de los lunes en mi calendario</label></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "04",
+    titulo: "Conecta tu CRM con Make",
+    lecciones: [
+      {
+        id: "4-1",
+        titulo: "Captura leads de Gmail automáticamente",
+        objetivo: "Conectar el CRM de Sheets con el Scenario de Make del primer curso para que los leads que llegan por correo se registren solos.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Conecta tu CRM con Make</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Automatización de flujo de trabajo" onerror="this.parentElement.classList.add('broken');this.remove()">
+          </div>
+          <p>Si completaste el curso de Make, ya tienes un flujo que lleva datos de Gmail a Google Sheets. Ahora vas a apuntar ese mismo flujo a tu CRM para que los leads que llegan por correo aparezcan solos, con estado "Nuevo" y la fecha de hoy.</p>
+          <div class="callout callout-warning">
+            <strong>Este módulo requiere haber completado el curso de Make</strong>
+            Si aún no lo hiciste, es el primer curso del catálogo de AuryOnTech. Lo encuentras en auryontech.com. Este módulo no tiene sentido sin él.
+          </div>
+          <h3>Paso a paso — redirige el Scenario de Make a tu CRM</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Abre Make y entra al Scenario de Gmail que creaste</strong>
+                <p>El que tiene Gmail → Google Sheets.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Haz clic en el módulo de Google Sheets</strong>
+                <p>El segundo módulo del canvas.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>En "Spreadsheet", cambia el archivo a tu CRM</strong>
+                <p>Navega hasta el archivo "Mi CRM — [tu negocio]".</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>Mapea los campos de Gmail a las columnas del CRM</strong>
+                <p>Exactamente como se indica abajo.</p>
+              </div>
+            </div>
+          </div>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Mapeo de campos Gmail → CRM</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Columna A (Nombre):          → "From Name" del módulo Gmail
+Columna B (Contacto):        → "From Email" del módulo Gmail
+Columna C (Origen):          → Escribe "Gmail" como texto fijo
+Columna D (Estado):          → Escribe "Nuevo" como texto fijo
+Columna E (Ultimo contacto): → "Date" del módulo Gmail
+Columna G (Notas):           → "Subject" del módulo Gmail</pre>
+          </div>
+          <div class="callout callout-success">
+            <strong>Resultado</strong>
+            Cada correo que llegue con tu filtro activo crea automáticamente una fila nueva en tu CRM con estado "Nuevo" y la fecha correcta. Los lunes solo tienes que abrir el CRM y ver qué leads nuevos llegaron esa semana.
+          </div>
+          <div class="callout callout-tip">
+            <strong>Puedes tener múltiples Scenarios apuntando al mismo CRM</strong>
+            Uno para Gmail, otro para formularios de tu web, otro para Instagram. Todos crean filas en el mismo CRM. El campo Origen se rellena automáticamente con el canal de cada uno.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué los campos "Origen" y "Estado" se mapean como texto fijo y no como variables del módulo Gmail?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. Gmail sí expone esa información, pero no es el motivo. La razón es semántica: el origen y el estado describen al lead desde la perspectiva de tu negocio, no desde el correo en sí.">
+                Porque Gmail no expone esa información en su API
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. El Origen siempre será 'Gmail' para todos los leads que vienen de este Scenario, y el Estado siempre será 'Nuevo' al momento de la captura. Son valores de tu lógica de negocio, no datos del correo. Por eso van como texto fijo.">
+                Porque su valor siempre es el mismo para todos los leads que pasen por este Scenario — son valores de tu lógica de negocio, no del correo
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. Make funciona perfectamente bien con variables en cualquier columna. La razón no es técnica — es que no existe una variable de Gmail que diga 'Origen=Instagram'. Esa información la pones tú.">
+                Porque Make no permite variables en más de 4 columnas a la vez
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="challenge-block">
+            <div class="challenge-label">🎯 Reto · Prueba real con un correo</div>
+            <div class="challenge-question">Mándale a tu propia cuenta un correo que dispare el Scenario. ¿Apareció una fila nueva en tu CRM con todos los campos correctos?</div>
+            <div class="challenge-btns">
+              <button class="challenge-yes" onclick="handleChallenge(this,true)">Sí, llegó perfecto 📧</button>
+              <button class="challenge-no" onclick="handleChallenge(this,false)">No llegó / llegó con errores</button>
+            </div>
+            <div class="challenge-response"></div>
+          </div>
+        `
+      },
+      {
+        id: "4-2",
+        titulo: "Alerta automática cuando un lead lleva 7 días sin contacto",
+        objetivo: "Configurar una automatización en Make que te avise por correo cuando un lead activo lleva demasiado tiempo sin seguimiento.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Conecta tu CRM con Make</div>
+          </div>
+          <p>En lugar de acordarte de revisar los rojos, Make te avisa directamente. El CRM trabaja para ti, no al revés.</p>
+          <h3>Lo que vamos a construir</h3>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Lógica del Scenario</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Trigger:   Make revisa tu CRM cada mañana a las 8am
+Condición: Filas donde Días sin contacto > 7
+           Y Estado no es "Ganado", "Perdido" ni "En pausa"
+Acción:    Te manda un email con el nombre y los datos del lead urgente</pre>
+          </div>
+          <h3>Paso a paso en Make</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Crea un nuevo Scenario en Make</strong>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Trigger: Google Sheets → "Watch rows"</strong>
+                <p>Apúntalo a tu CRM y configúralo para ejecutarse todos los días a las 8am.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Añade un módulo "Filter" con estas condiciones</strong>
+                <p>Columna F mayor que 7, Y columna D no es igual a "Ganado", "Perdido" ni "En pausa".</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>Añade Gmail → "Send an email" con este cuerpo</strong>
+              </div>
+            </div>
+          </div>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span class="code-box-label">Plantilla del email de alerta</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Asunto: 🔴 Lead sin seguimiento: [Nombre del lead]
+
+Hola,
+
+El lead [Nombre] lleva [Días] días sin contacto.
+Estado actual: [Estado]
+Último contacto: [Fecha]
+Notas: [Notas]
+
+Abre tu CRM para hacer seguimiento:
+[link a tu Google Sheet]</pre>
+          </div>
+          <div class="callout callout-success">
+            <strong>Resultado final</strong>
+            Cada mañana, si hay leads urgentes, recibes un email antes de empezar el día. No tienes que acordarte de revisar el CRM porque el CRM te llama a ti.
+          </div>
+          <div class="challenge-block">
+            <div class="challenge-label">🎯 Reto · Verificación de la alerta</div>
+            <div class="challenge-question">Pon una fecha de hace 9 días en un lead con estado "Contactado" y ejecuta el Scenario manualmente. ¿Te llegó el email de alerta a tu inbox?</div>
+            <div class="challenge-btns">
+              <button class="challenge-yes" onclick="handleChallenge(this,true)">Sí, llegó la alerta 🚨</button>
+              <button class="challenge-no" onclick="handleChallenge(this,false)">No llegó / dio error</button>
+            </div>
+            <div class="challenge-response"></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "05",
+    titulo: "Cuándo escalar",
+    lecciones: [
+      {
+        id: "5-1",
+        titulo: "Cuándo Google Sheets ya no es suficiente",
+        objetivo: "Saber exactamente qué señales indican que necesitas pasar a un CRM profesional, y cuál elegir según tu situación.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 05</div>
+            <div class="module-name">Cuándo escalar</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Crecimiento y escala" onerror="this.parentElement.classList.add('broken');this.remove()">
+          </div>
+          <p>Google Sheets es perfecto hasta cierto punto. Estas son las señales concretas de que has llegado a ese límite:</p>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">1</div>
+              <div class="step-content">
+                <strong>Más de 150 leads activos simultáneos</strong>
+                <p>La hoja empieza a ser difícil de gestionar visualmente. Es el momento de pasar a algo con más filtros y vistas.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">2</div>
+              <div class="step-content">
+                <strong>Más de una persona actualizando el CRM</strong>
+                <p>Sheets aguanta colaboración, pero dos personas editando simultáneamente generan conflictos. Con equipo de ventas necesitas control de acceso por usuario.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">3</div>
+              <div class="step-content">
+                <strong>Necesitas historial de conversaciones</strong>
+                <p>Sheets guarda el estado actual, no el historial. Si necesitas ver todo lo que hablaste con un cliente en el tiempo, un CRM con timeline es imprescindible.</p>
+              </div>
+            </div>
+          </div>
+          <h3>¿A qué herramienta migrar?</h3>
+          <table class="summary-table">
+            <thead><tr><th>Situación</th><th>Herramienta</th><th>Precio</th></tr></thead>
+            <tbody>
+              <tr><td>Hasta 5 usuarios, presupuesto mínimo</td><td><strong>HubSpot CRM</strong></td><td>Plan gratuito, muy completo</td></tr>
+              <tr><td>Hasta 10 usuarios, quieres más control</td><td><strong>Pipedrive</strong></td><td>Desde 15€/usuario/mes</td></tr>
+              <tr><td>Todo integrado: email + CRM + automatizaciones</td><td><strong>ActiveCampaign</strong></td><td>Desde 29€/mes</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-warning">
+            <strong>La regla de oro antes de migrar</strong>
+            No migres hasta que tu CRM de Sheets esté lleno y actualizado. Una herramienta cara con datos desordenados es peor que Google Sheets limpio. Primero el hábito, luego la herramienta.
+          </div>
+          <div class="callout callout-tip">
+            <strong>No pierdes nada al migrar</strong>
+            Cuando llegue ese momento, exporta tu Sheets como CSV. La mayoría de los CRMs lo importan directamente en menos de 5 minutos.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">Tienes 80 leads activos, eres el único que actualiza el CRM, y necesitas saber qué hablaste con cada lead hace 3 meses. ¿Es momento de migrar a HubSpot o Pipedrive?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. Aunque 80 leads es bastante, sigues por debajo de los 150 activos donde Sheets se vuelve inmanejable. Y trabajas solo, así que no hay conflictos de colaboración. Los 2 primeros criterios no se cumplen.">
+                Sí, 80 leads ya es suficiente para migrar
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. Aunque solo 1 de los 3 criterios se cumple (necesitar historial), ese sí es razón suficiente para migrar — Sheets no guarda historial de conversaciones, solo el estado actual. Si necesitas timeline, ningún hábito de Sheets lo va a resolver.">
+                Sí, porque necesitas historial de conversaciones — y eso es algo que Sheets no puede darte aunque tengas pocos leads
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. La regla de oro es 'no migres hasta que tu CRM de Sheets esté lleno y actualizado', pero eso aplica cuando los criterios técnicos no se cumplen. Aquí el criterio de historial sí se cumple — eso justifica la migración aunque tengas pocos leads.">
+                No, primero llena tu CRM de Sheets hasta los 150 leads activos
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">🎯 Checklist final del curso</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-a"><label for="ck-5-a">Mi CRM tiene al menos 5 leads registrados con todos los campos completos</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-b"><label for="ck-5-b">Los colores automáticos por estado funcionan correctamente</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-c"><label for="ck-5-c">La fórmula de días sin contacto se actualiza sola y muestra los urgentes en rojo</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-d"><label for="ck-5-d">Completé mi primera revisión de los lunes</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-e"><label for="ck-5-e">Mandé al menos un mensaje de seguimiento usando las plantillas</label></div>
+          </div>
+          <div class="next-course">
+            <div class="next-course-label">Siguiente nivel</div>
+            <div class="next-course-title">Automatiza tu negocio con Make</div>
+            <div class="next-course-desc">Conecta tu CRM con Gmail y otras herramientas para que los leads lleguen solos, sin que los registres manualmente. Sin código, con resultado visible en la primera sesión.</div>
+            <a href="material-automatizacion.html" class="next-course-btn">Ver curso →</a>
+          </div>
+        `
+      }
+    ]
+  }
+];
+
+let currentLesson = 0;
+const allLessons = curso.flatMap(m => m.lecciones);
+const completed = new Set();
+const quizPassed = new Set();
+var BREVO_URL = 'https://0e103c7f.sibforms.com/serve/MUIFAP0Ij4rYPXCDD5wLVOMbEZjgFBT87eRPmm4auFeNGYIkIPO2vhx68FQEFJqOPP4-pVzV5MgL4Y6MoIO_8tQIbKplpoy0VfnMRI2TvkZr-d2g_WnxdY-2OZtL2yQgxdsgOGGDsw-CIkNYvHdBGqLgUwSKdPWCvP_Hr9PiJkjbKG1mskk61g4Vmpk5BvoB8fE_4PFSa3ALW4M-jQ==';
+var progressModalShown = false;
+
+function renderSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  curso.forEach(modulo => {
+    const moduleEl = document.createElement('div');
+    moduleEl.className = 'nav-module';
+    const header = document.createElement('div');
+    header.className = 'nav-module-header';
+    header.innerHTML = `<span><span class="nav-module-num">${modulo.modulo}</span> ${modulo.titulo}</span>`;
+    header.onclick = () => {
+      const l = moduleEl.querySelector('.nav-lessons');
+      l.style.maxHeight = l.style.maxHeight ? '' : l.scrollHeight + 'px';
+    };
+    const lessons = document.createElement('div');
+    lessons.className = 'nav-lessons';
+    lessons.style.maxHeight = '500px';
+    modulo.lecciones.forEach(leccion => {
+      const idx = allLessons.findIndex(l => l.id === leccion.id);
+      const item = document.createElement('div');
+      item.className = 'nav-lesson' + (idx === currentLesson ? ' active' : '') + (completed.has(idx) ? ' completed' : '');
+      item.innerHTML = `<div class="lesson-dot"></div>${leccion.titulo}`;
+      item.onclick = () => goToLesson(idx);
+      lessons.appendChild(item);
+    });
+    moduleEl.appendChild(header);
+    moduleEl.appendChild(lessons);
+    nav.appendChild(moduleEl);
+  });
+}
+
+function renderLesson(idx) {
+  const area = document.getElementById('content-area');
+  const leccion = allLessons[idx];
+  const modulo = curso.find(m => m.lecciones.some(l => l.id === leccion.id));
+  area.innerHTML = `
+    <div class="lesson active">
+      <div class="lesson-breadcrumb">
+        <span>Módulo ${modulo.modulo}</span>
+        <span class="breadcrumb-sep">›</span>
+        <span>Lección ${idx + 1} de ${allLessons.length}</span>
+      </div>
+      <h1 class="lesson-title">${leccion.titulo}</h1>
+      <div class="lesson-objective">${leccion.objetivo}</div>
+      <div class="lesson-body">${leccion.contenido}</div>
+      <div class="lesson-nav">
+        <button class="nav-btn nav-btn-prev" onclick="goToLesson(${idx-1})" ${idx===0?'disabled':''}>← Anterior</button>
+        <button class="nav-btn nav-btn-next" onclick="nextLesson(${idx})">
+          ${idx === allLessons.length-1 ? '¡Completado! 🐧' : 'Siguiente →'}
+        </button>
+      </div>
+    </div>`;
+  document.getElementById('main-content').scrollTop = 0;
+}
+
+function goToLesson(idx) {
+  if (idx < 0 || idx >= allLessons.length) return;
+  completed.add(currentLesson);
+  currentLesson = idx;
+  // Trigger del popup Brevo a mitad de curso (lección 6, índice 5 - "Mensajes de seguimiento")
+  if (idx === 5 && !progressModalShown) {
+    setTimeout(function() {
+      document.getElementById('progress-modal').classList.add('active');
+    }, 600);
+  }
+  renderLesson(idx);
+  renderSidebar();
+  updateProgress();
+  closeSidebar();
+}
+
+function nextLesson(idx) {
+  completed.add(idx);
+  if (idx < allLessons.length - 1) {
+    goToLesson(idx + 1);
+  } else {
+    updateProgress();
+    renderSidebar();
+    const lessonsWithQuizzes = allLessons
+      .map((l, i) => ({ idx: i, titulo: l.titulo, hasQuiz: l.contenido.includes('quiz-block') }))
+      .filter(l => l.hasQuiz);
+    const pending = lessonsWithQuizzes.filter(l => !quizPassed.has(l.idx));
+    if (pending.length === 0) {
+      document.getElementById('cert-overlay').classList.add('active');
+    } else {
+      const area = document.getElementById('content-area');
+      const lista = pending.map(l => `<li style="margin-bottom:8px;">${l.titulo}</li>`).join('');
+      area.innerHTML = `
+        <div class="lesson active">
+          <div class="lesson-breadcrumb"><span>Certificado</span></div>
+          <h1 class="lesson-title">Casi lo tienes 🐧</h1>
+          <div class="lesson-objective">Para descargar tu certificado necesitas responder correctamente todos los quizzes del curso.</div>
+          <div class="lesson-body">
+            <p>Tienes quizzes pendientes en las siguientes lecciones:</p>
+            <ul style="margin:16px 0 16px 20px;">${lista}</ul>
+            <p>Vuelve a esas lecciones, responde el quiz correctamente y regresa aquí para obtener tu certificado.</p>
+          </div>
+          <div class="lesson-nav">
+            <button class="nav-btn nav-btn-prev" onclick="goToLesson(${idx})">← Volver</button>
+            <button class="nav-btn nav-btn-next" onclick="
+              const lq = allLessons.map((l,i)=>({idx:i,hasQuiz:l.contenido.includes('quiz-block')})).filter(l=>l.hasQuiz).filter(l=>!quizPassed.has(l.idx));
+              if(lq.length===0){document.getElementById('cert-overlay').classList.add('active');}
+              else{goToLesson(lq[0].idx);}
+            ">Ir al quiz pendiente →</button>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
+function updateProgress() {
+  const done = completed.size;
+  const total = allLessons.length;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = done + ' / ' + total;
+}
+
+function handleQuiz(btn, isCorrect) {
+  const block = btn.closest('.quiz-block');
+  const blockId = block.id || ('quiz-' + currentLesson);
+  if (!block.id) block.id = blockId;
+  block.querySelectorAll('.quiz-option').forEach(o => { o.disabled = true; o.style.pointerEvents = 'none'; });
+  btn.classList.add(isCorrect ? 'quiz-correct' : 'quiz-incorrect');
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback ' + (isCorrect ? 'fb-correct' : 'fb-incorrect');
+  if (isCorrect) {
+    fb.textContent = btn.dataset.correct;
+    quizPassed.add(currentLesson);
+  } else {
+    fb.innerHTML = btn.dataset.incorrect + '<br><br><button onclick="resetQuiz(\'' + blockId + '\')" style="margin-top:8px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;padding:7px 18px;border-radius:6px;font-family:DM Sans,sans-serif;font-size:13px;cursor:pointer;">↩ Volver a intentar</button>';
+  }
+}
+
+function resetQuiz(blockId) {
+  const block = document.getElementById(blockId);
+  block.querySelectorAll('.quiz-option').forEach(o => {
+    o.disabled = false;
+    o.style.pointerEvents = '';
+    o.classList.remove('quiz-correct', 'quiz-incorrect');
+  });
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback';
+  fb.innerHTML = '';
+}
+
+function handleChallenge(btn, success) {
+  const block = btn.closest('.challenge-block');
+  block.querySelectorAll('button').forEach(b => {
+    b.disabled = true;
+    b.style.pointerEvents = 'none';
+    b.style.opacity = '0.5';
+  });
+  const resp = block.querySelector('.challenge-response');
+  if (success) {
+    resp.className = 'challenge-response success';
+    resp.innerHTML = '<strong>¡Increíble!</strong> Sigue así. Tu CRM está tomando forma — y cada lección que completas es una pieza más del sistema que va a trabajar para ti todos los días.';
+  } else {
+    resp.className = 'challenge-response error';
+    resp.innerHTML = '<strong>Tranquilo, vamos a debuggearlo.</strong> Vuelve a leer los pasos y los callouts de error de esta lección. El 90% de los problemas son: el rango seleccionado mal (D2:D1000 en vez de solo D2), el signo $ que faltó en la fórmula, o un encabezado escrito con tildes. Si revisaste todo y sigue sin funcionar, copia-pega de nuevo los bloques de código.';
+  }
+}
+
+function saveProgress() {
+  var email = document.getElementById('progress-email').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('progress-email').style.borderColor = '#ef4444';
+    return;
+  }
+  var body = new FormData();
+  body.append('EMAIL', email);
+  body.append('email_address_check', '');
+  body.append('locale', 'es');
+  fetch(BREVO_URL, { method: 'POST', body: body, mode: 'no-cors' }).catch(function(){});
+  dismissProgress();
+}
+
+function dismissProgress() {
+  document.getElementById('progress-modal').classList.remove('active');
+  progressModalShown = true;
+}
+
+function copyCode(btn) {
+  const pre = btn.closest('.code-box').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '¡Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector('script[src="' + src + '"]')) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function certHTML(name, dateStr, auryBase64) {
+  const auryImg = auryBase64 ? `<img decoding="async" src="${auryBase64}" style="width:92%;object-fit:contain;object-position:bottom center;" alt="Aury">` : '';
+  return `<div style="width:1200px;height:848px;background:#07090F;position:relative;overflow:hidden;font-family:'DM Sans',sans-serif;">
+    <div style="position:absolute;top:-120px;right:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(196,96,48,0.13),transparent 65%);"></div>
+    <div style="position:absolute;bottom:-120px;left:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(58,100,148,0.1),transparent 65%);"></div>
+    <div style="position:absolute;inset:20px;border:1.5px solid rgba(196,96,48,0.4);pointer-events:none;"></div>
+    <div style="position:absolute;inset:26px;border:1px solid rgba(196,96,48,0.1);pointer-events:none;"></div>
+    <div style="position:absolute;top:16px;left:16px;width:14px;height:14px;border-top:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;top:16px;right:16px;width:14px;height:14px;border-top:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;left:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;right:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;top:48px;left:60px;right:60px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#7A6E60;font-weight:500;font-family:'DM Mono',monospace;">🐧 AuryOnTech</div>
+      <div style="width:38%;height:1px;background:linear-gradient(to right,transparent,rgba(196,96,48,0.25),transparent);"></div>
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(196,96,48,0.5);font-family:'DM Mono',monospace;">Certificado de Finalización</div>
+    </div>
+    <div style="position:absolute;top:0;left:0;width:760px;height:848px;display:flex;flex-direction:column;justify-content:center;padding:100px 56px 80px 60px;">
+      <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#C46030;font-family:'DM Mono',monospace;margin-bottom:18px;">Este documento certifica que</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:58px;color:#EEF4F8;line-height:1.05;letter-spacing:-1.5px;margin-bottom:22px;">${name}</div>
+      <div style="width:56px;height:3px;background:#C46030;margin-bottom:22px;border-radius:2px;"></div>
+      <div style="font-size:15px;color:#7A6E60;margin-bottom:10px;">ha completado satisfactoriamente el curso</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:24px;color:#D88050;letter-spacing:-0.3px;margin-bottom:52px;line-height:1.3;">Tu Mini CRM Gratis en Google Sheets</div>
+      <div style="display:flex;gap:52px;align-items:flex-start;">
+        <div>
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Fecha</div>
+          <div style="font-size:13px;color:#EDE4D8;">${dateStr}</div>
+        </div>
+        <div style="width:1px;height:40px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>
+        <div>
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Emitido por</div>
+          <div style="font-size:13px;color:#EDE4D8;font-weight:600;">Cristian Lopez Garcia</div>
+          <div style="font-size:11px;color:#7A6E60;margin-top:2px;">Fundador · AuryOnTech</div>
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute;top:100px;bottom:80px;left:760px;width:1px;background:linear-gradient(to bottom,transparent,rgba(196,96,48,0.2) 30%,rgba(196,96,48,0.2) 70%,transparent);"></div>
+    <div style="position:absolute;right:0;bottom:0;width:440px;height:848px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;">${auryImg}</div>
+    <div style="position:absolute;bottom:34px;left:60px;font-size:10px;color:rgba(122,110,96,0.35);letter-spacing:2px;font-family:'DM Mono',monospace;text-transform:uppercase;">auryontech.com</div>
+  </div>`;
+}
+
+async function generateCert() {
+  const name = document.getElementById('cert-name').value.trim();
+  const certEmail = document.getElementById('cert-email').value.trim();
+  if (!name) { document.getElementById('cert-name').focus(); return; }
+  if (certEmail && certEmail.includes('@')) {
+    var bf = new FormData();
+    bf.append('EMAIL', certEmail);
+    bf.append('FIRSTNAME', name);
+    bf.append('email_address_check', '');
+    bf.append('locale', 'es');
+    fetch(BREVO_URL, { method: 'POST', body: bf, mode: 'no-cors' }).catch(function(){});
+  }
+  const dateStr = new Date().toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
+  closeCertModal();
+  const loader = document.createElement('div');
+  loader.style.cssText = 'position:fixed;inset:0;background:rgba(7,9,15,0.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#EEF4F8;font-family:DM Sans,sans-serif;font-size:15px;gap:14px;';
+  loader.innerHTML = '<div style="font-size:36px;">🐧</div><div>Generando tu certificado...</div>';
+  document.body.appendChild(loader);
+  let auryBase64 = '';
+  try {
+    const resp = await fetch('assets/img/Aury-enfrente-de-la-Compu.png');
+    const blob = await resp.blob();
+    auryBase64 = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(blob); });
+  } catch(e) {}
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:1200px;height:848px;z-index:-1;';
+  div.innerHTML = certHTML(name, dateStr, auryBase64);
+  document.body.appendChild(div);
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 400));
+  const canvas = await html2canvas(div, { scale:2, useCORS:true, allowTaint:true, backgroundColor:'#07090F', width:1200, height:848, logging:false });
+  document.body.removeChild(div);
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 297, 210);
+  pdf.save('Certificado_AuryOnTech_' + name.replace(/ /g,'_') + '.pdf');
+  loader.remove();
+}
+
+function closeCertModal() { document.getElementById('cert-overlay').classList.remove('active'); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); }
+
+renderSidebar();
+renderLesson(0);
+updateProgress();
+
+// ── CURSOR PERSONALIZADO ──
+(function() {
+  const dot = document.createElement('div'); dot.className = 'cursor-dot';
+  const ring = document.createElement('div'); ring.className = 'cursor-ring';
+  document.body.appendChild(dot);
+  document.body.appendChild(ring);
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+  document.addEventListener('mousedown', () => { dot.classList.add('clicking'); ring.classList.add('clicking'); });
+  document.addEventListener('mouseup', () => { dot.classList.remove('clicking'); ring.classList.remove('clicking'); });
+  (function animateRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  })();
+})();
+</script>
+</body>
+</html>

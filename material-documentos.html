@@ -1,0 +1,1163 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automatiza tus documentos. Sin tocar nada. — AuryOnTech</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:#000000; --dawn:#C46030; --dawn-l:#D88050; --dawn-ll:#ECA878;
+      --sky:#3A6494; --ice:#B8D4EC; --snow:#EEF4F8; --bone:#EDE4D8;
+      --warm:#7A6E60; --ink-2:#0f1219; --ink-3:#161b26; --sidebar-w:300px;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{height:100%;background:#000000;color:var(--snow);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.7;overflow:hidden;}
+
+    #progress-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:linear-gradient(90deg,var(--dawn),var(--dawn-ll));z-index:1000;transition:width 0.4s ease;}
+
+    .app{display:flex;height:100vh;padding-top:3px;}
+    .sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--ink-2);border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;overflow:hidden;z-index:100;}
+    .sidebar-header{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.06);}
+    .sidebar-logo{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+    .logo-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+    .logo-icon img{width:40px;height:40px;object-fit:contain;display:block;}
+    .logo-text{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:15px;color:var(--snow);letter-spacing:-0.3px;}
+    .course-title{font-size:12px;color:var(--warm);line-height:1.4;font-weight:400;}
+    .progress-info{margin-top:12px;display:flex;align-items:center;justify-content:space-between;}
+    .progress-label{font-size:11px;color:var(--warm);font-family:'DM Mono',monospace;}
+    .progress-pill{font-size:11px;color:var(--dawn-ll);font-family:'DM Mono',monospace;font-weight:500;}
+    .progress-track{margin-top:8px;height:2px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
+    .progress-fill{height:100%;background:var(--dawn);border-radius:2px;transition:width 0.4s ease;}
+
+    .sidebar-nav{flex:1;overflow-y:auto;padding:12px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent;}
+    .nav-module{margin-bottom:4px;}
+    .nav-module-header{padding:8px 20px;font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--warm);font-family:'DM Mono',monospace;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;}
+    .nav-module-header:hover{color:var(--dawn-ll);}
+    .nav-module-num{color:var(--dawn);font-weight:500;}
+    .nav-lessons{overflow:hidden;transition:max-height 0.3s ease;}
+    .nav-lesson{padding:8px 20px 8px 32px;font-size:13px;color:rgba(238,244,248,0.6);cursor:pointer;display:flex;align-items:center;gap:10px;transition:all 0.2s;border-left:2px solid transparent;line-height:1.4;}
+    .nav-lesson:hover{color:var(--snow);background:rgba(255,255,255,0.03);}
+    .nav-lesson.active{color:var(--dawn-ll);border-left-color:var(--dawn);background:rgba(196,96,48,0.08);}
+    .nav-lesson.completed .lesson-dot{background:var(--dawn);}
+    .lesson-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.15);flex-shrink:0;transition:background 0.2s;}
+
+    .main{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent;}
+    .content{max-width:760px;margin:0 auto;padding:48px 40px 80px;}
+
+    .lesson{display:none;}
+    .lesson.active{display:block;animation:fadeIn 0.3s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+    .lesson-breadcrumb{font-size:12px;color:var(--warm);font-family:'DM Mono',monospace;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+    .breadcrumb-sep{color:var(--dawn);}
+    .lesson-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:36px;line-height:1.1;color:var(--snow);margin-bottom:12px;letter-spacing:-0.5px;}
+    .lesson-objective{font-size:15px;color:var(--dawn-ll);margin-bottom:36px;padding:14px 18px;background:rgba(196,96,48,0.08);border-left:3px solid var(--dawn);border-radius:0 6px 6px 0;font-style:italic;}
+    .lesson-body{font-size:15px;color:rgba(238,244,248,0.85);line-height:1.8;}
+    .lesson-body h3{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:20px;color:var(--snow);margin:36px 0 14px;letter-spacing:-0.3px;}
+    .lesson-body p{margin-bottom:16px;}
+    .lesson-body ul,.lesson-body ol{margin:0 0 16px 20px;}
+    .lesson-body li{margin-bottom:8px;}
+    .lesson-body strong{color:var(--snow);font-weight:600;}
+
+    .module-header{background:var(--ink-3);border-left:4px solid var(--dawn);border-radius:0 12px 12px 0;padding:20px 24px;margin-bottom:36px;}
+    .module-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--dawn);font-weight:500;letter-spacing:1px;text-transform:uppercase;}
+    .module-name{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--warm);margin-top:4px;}
+
+    .lesson-hero{width:100%;height:220px;border-radius:12px;overflow:hidden;position:relative;margin-bottom:36px;background:var(--ink-3);}
+    .lesson-hero img{width:100%;height:100%;object-fit:cover;display:block;}
+    .lesson-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:65%;background:linear-gradient(to top,rgba(7,9,15,0.85),transparent);pointer-events:none;}
+    .lesson-hero.broken{display:none;}
+
+    .code-box{background:#0d1117;border-radius:10px;margin:20px 0;overflow:hidden;border:1px solid rgba(255,255,255,0.06);}
+    .code-box-header{padding:10px 16px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;}
+    .code-box-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--warm);text-transform:uppercase;letter-spacing:1px;}
+    .copy-btn{font-family:'DM Mono',monospace;font-size:11px;color:var(--dawn-ll);background:none;border:1px solid rgba(196,96,48,0.3);padding:3px 10px;border-radius:4px;cursor:pointer;transition:all 0.2s;}
+    .copy-btn:hover{background:rgba(196,96,48,0.15);border-color:var(--dawn);}
+    .copy-btn.copied{color:#4ade80;border-color:rgba(74,222,128,0.3);}
+    .code-box pre{padding:20px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:13px;line-height:1.7;color:#e6edf3;white-space:pre-wrap;}
+
+    .inline-code{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:2px 7px;font-family:'DM Mono',monospace;font-size:12px;color:var(--dawn-ll);}
+
+    .callout{padding:16px 20px;border-radius:8px;margin:20px 0;font-size:14px;line-height:1.6;}
+    .callout-error{background:rgba(239,68,68,0.08);border-left:3px solid #ef4444;color:#fca5a5;}
+    .callout-tip{background:rgba(58,100,148,0.12);border-left:3px solid var(--sky);color:var(--ice);}
+    .callout-warning{background:rgba(196,96,48,0.1);border-left:3px solid var(--dawn);color:var(--dawn-ll);}
+    .callout-success{background:rgba(74,222,128,0.07);border-left:3px solid #4ade80;color:#86efac;}
+    .callout strong{display:block;margin-bottom:4px;font-weight:600;}
+
+    .action-block{background:linear-gradient(135deg,rgba(196,96,48,0.12),rgba(196,96,48,0.05));border:1px solid rgba(196,96,48,0.25);border-radius:12px;padding:24px 28px;margin-top:40px;}
+    .action-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--dawn);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .action-label::before{content:'';display:inline-block;width:16px;height:2px;background:var(--dawn);}
+    .action-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:18px;color:var(--snow);margin-bottom:12px;}
+    .action-steps{list-style:none;margin:0;padding:0;}
+    .action-steps li{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px;color:rgba(238,244,248,0.8);display:flex;align-items:flex-start;gap:12px;}
+    .action-steps li:last-child{border-bottom:none;}
+    .step-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--dawn);font-weight:500;min-width:20px;margin-top:2px;}
+
+    .step-list{display:flex;flex-direction:column;gap:6px;margin:24px 0;}
+    .step-item{display:flex;gap:16px;padding:14px 16px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid rgba(255,255,255,0.04);align-items:flex-start;transition:background 0.2s;}
+    .step-item:hover{background:rgba(255,255,255,0.04);}
+    .step-number-big{width:28px;height:28px;background:var(--dawn);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--snow);flex-shrink:0;margin-top:2px;}
+    .step-content{flex:1;}
+    .step-content strong{display:block;font-size:15px;color:var(--snow);margin-bottom:3px;}
+    .step-content p{font-size:13px;color:rgba(238,244,248,0.6);margin:0;line-height:1.5;}
+
+    .flujo-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+    .flujo-table th{background:rgba(196,96,48,0.08);color:var(--dawn-l);font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;padding:10px 14px;text-align:left;border-bottom:1px solid rgba(196,96,48,0.2);}
+    .flujo-table td{padding:10px 14px;color:rgba(238,244,248,0.75);border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top;font-family:'DM Mono',monospace;font-size:12px;}
+    .flujo-table tr:last-child td{border-bottom:none;}
+    .flujo-table td:first-child{color:var(--dawn-ll);font-weight:500;}
+    .flujo-table .badge-inside{background:rgba(58,100,148,0.2);color:var(--ice);border-radius:4px;padding:2px 6px;font-size:10px;}
+    .flujo-table .badge-outside{background:rgba(45,158,107,0.15);color:#3DBE88;border-radius:4px;padding:2px 6px;font-size:10px;}
+
+    .config-block{background:var(--ink-3);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:20px 24px;margin:16px 0;}
+    .config-block-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.9rem;color:var(--dawn-ll);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+    .config-block-title::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--dawn);flex-shrink:0;}
+    .config-row{display:flex;gap:16px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);align-items:flex-start;}
+    .config-row:last-child{border-bottom:none;}
+    .config-key{font-family:'DM Mono',monospace;font-size:11px;color:var(--warm-l);min-width:160px;flex-shrink:0;padding-top:2px;}
+    .config-val{font-size:13px;color:rgba(238,244,248,0.8);line-height:1.5;}
+    .config-val code{font-family:'DM Mono',monospace;font-size:11px;color:var(--dawn-ll);background:rgba(196,96,48,0.1);padding:1px 5px;border-radius:3px;}
+
+    .error-block{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:12px;padding:16px 20px;margin:12px 0;}
+    .error-title{font-family:'DM Mono',monospace;font-size:11px;color:#ef4444;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em;}
+    .error-causa{font-size:13px;color:#fca5a5;margin-bottom:6px;}
+    .error-sol{font-size:13px;color:#86efac;}
+    .error-sol strong{color:#4ade80;}
+
+    .quiz-block{background:rgba(58,100,148,0.08);border:1px solid rgba(58,100,148,0.2);border-radius:12px;padding:24px 28px;margin:32px 0;}
+    .quiz-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--sky);margin-bottom:16px;}
+    .quiz-question{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:18px;color:var(--snow);margin-bottom:16px;line-height:1.3;}
+    .quiz-options{display:flex;flex-direction:column;gap:8px;}
+    .quiz-option{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px 16px;text-align:left;color:rgba(238,244,248,0.8);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;transition:all 0.2s;line-height:1.5;}
+    .quiz-option:hover:not(:disabled){background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.2);color:var(--snow);}
+    .quiz-option.quiz-correct{background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.4);color:#86efac;}
+    .quiz-option.quiz-incorrect{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.3);color:#fca5a5;}
+    .quiz-feedback{margin-top:16px;padding:12px 16px;border-radius:8px;font-size:14px;line-height:1.5;display:none;}
+    .quiz-feedback.fb-correct{background:rgba(74,222,128,0.08);color:#86efac;border-left:3px solid #4ade80;display:block;}
+    .quiz-feedback.fb-incorrect{background:rgba(239,68,68,0.08);color:#fca5a5;border-left:3px solid #ef4444;display:block;}
+
+    .checklist-block{background:rgba(196,96,48,0.06);border:1px solid rgba(196,96,48,0.2);border-radius:12px;padding:20px 24px;margin:28px 0;}
+    .checklist-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dawn);margin-bottom:14px;font-weight:500;}
+    .checklist-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+    .checklist-item:last-child{border-bottom:none;}
+    .checklist-item input[type="checkbox"]{width:17px;height:17px;cursor:pointer;accent-color:var(--dawn);flex-shrink:0;}
+    .checklist-item label{font-size:14px;color:rgba(238,244,248,0.8);cursor:pointer;transition:all 0.2s;}
+    .checklist-item input:checked + label{color:var(--dawn-ll);text-decoration:line-through;opacity:0.6;}
+
+    .casos-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0;}
+    .caso-card{background:var(--ink-3);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 16px;transition:border-color .2s;}
+    .caso-card:hover{border-color:var(--border-dawn);}
+    .caso-sector{font-family:'DM Mono',monospace;font-size:10px;color:var(--dawn-l);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+    .caso-doc{font-size:13px;color:var(--snow);font-weight:500;margin-bottom:4px;}
+    .caso-desc{font-size:12px;color:var(--warm-l);line-height:1.4;}
+
+    .next-course{background:linear-gradient(135deg,var(--ink-3),rgba(196,96,48,0.08));border:1px solid rgba(196,96,48,0.2);border-radius:16px;padding:32px;margin:40px 0;}
+    .next-course-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dawn);margin-bottom:10px;}
+    .next-course-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:24px;color:var(--snow);margin-bottom:10px;letter-spacing:-0.3px;}
+    .next-course-desc{font-size:14px;color:rgba(238,244,248,0.7);margin-bottom:20px;line-height:1.6;}
+    .next-course-btn{display:inline-block;background:var(--dawn);color:var(--snow);padding:11px 24px;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:14px;text-decoration:none;transition:background 0.2s;}
+    .next-course-btn:hover{background:var(--dawn-l);}
+
+    .lesson-nav{display:flex;justify-content:space-between;margin-top:48px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06);}
+    .nav-btn{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;padding:10px 20px;border-radius:8px;cursor:pointer;border:none;transition:all 0.2s;}
+    .nav-btn-prev{background:rgba(255,255,255,0.05);color:var(--warm);}
+    .nav-btn-prev:hover{background:rgba(255,255,255,0.09);color:var(--snow);}
+    .nav-btn-next{background:var(--dawn);color:var(--snow);}
+    .nav-btn-next:hover{background:var(--dawn-l);}
+    .nav-btn:disabled{opacity:0.3;cursor:not-allowed;}
+
+    .hamburger{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--ink-2);border:1px solid rgba(255,255,255,0.1);border-radius:8px;width:40px;height:40px;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px;}
+    .hamburger span{display:block;width:18px;height:2px;background:var(--snow);border-radius:2px;}
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:90;}
+
+    .cert-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:999;display:none;align-items:center;justify-content:center;}
+    .cert-overlay.active{display:flex;}
+    .cert-modal{background:var(--ink-2);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:36px;max-width:440px;width:90%;text-align:center;}
+    .cert-modal-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:24px;color:var(--snow);margin-bottom:8px;}
+    .cert-modal-sub{font-size:14px;color:var(--warm);margin-bottom:24px;line-height:1.5;}
+    .cert-name-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 16px;color:var(--snow);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;margin-bottom:16px;}
+    .cert-name-input:focus{border-color:var(--dawn);}
+    .cert-name-input::placeholder{color:var(--warm);}
+    .cert-generate-btn{width:100%;background:var(--dawn);color:var(--snow);border:none;border-radius:8px;padding:13px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:15px;cursor:pointer;transition:background 0.2s;}
+    .cert-generate-btn:hover{background:var(--dawn-l);}
+    .cert-skip{margin-top:12px;font-size:13px;color:var(--warm);cursor:pointer;text-decoration:underline;}
+    .cert-skip:hover{color:var(--snow);}
+    .certificate{display:none;}
+
+    *{cursor:none !important;}
+    a,button,[onclick],label,input[type="checkbox"],.nav-lesson,.nav-module-header,.quiz-option,.copy-btn,.cert-generate-btn,.cert-skip,.nav-btn,.next-course-btn{cursor:pointer !important;}
+    .cursor-dot{position:fixed;width:8px;height:8px;background:#C46030;border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:transform 0.1s ease,background 0.2s;}
+    .cursor-ring{position:fixed;width:32px;height:32px;border:1.5px solid rgba(196,96,48,0.6);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:width 0.2s ease,height 0.2s ease,border-color 0.2s;}
+    .cursor-dot.clicking{transform:translate(-50%,-50%) scale(0.6);background:#ECA878;}
+    .cursor-ring.clicking{width:20px;height:20px;border-color:#C46030;}
+    @media(max-width:768px){*{cursor:auto !important;}.cursor-dot,.cursor-ring{display:none;}.casos-grid{grid-template-columns:1fr;}}
+
+    @media(max-width:768px){
+      .hamburger{display:flex;}
+      .sidebar{position:fixed;left:-310px;top:0;height:100vh;transition:left 0.3s ease;z-index:150;}
+      .sidebar.open{left:0;}
+      .overlay.active{display:block;}
+      .content{padding:60px 20px 80px;}
+      .lesson-title{font-size:26px;}
+      .lesson-hero{height:160px;}
+    }
+  
+
+/* === MINIMAL ESSENTIAL OVERRIDES (auto-applied) === */
+body, .hero, .about, .services, .testi, .uc, .valor, .flow-demo, .cta, .manifesto, footer {
+  background-color: #000 !important;
+}
+.hero {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/iceberg-sunset-amber.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: scroll, fixed !important;
+}
+.eyebrow, .kicker, .nav-cta { color: #ECA878 !important; }
+.flake { opacity: .55 !important; font-size: 13px !important; }
+
+/* === ICEBERGS on sections === */
+.manifesto { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/mountains-sunset-pink.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.about, section.about { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-aerial-dark.jpeg') !important; background-size: cover, cover !important; background-position: right center !important; }
+.services { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-texture-blue.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.flow-demo { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/glacier-wall-blue.jpeg') !important; background-size: cover, cover !important; }
+.valor { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-minimal.jpeg') !important; background-size: cover, cover !important; }
+.uc { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/aerial-snow-scale.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.testi { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-ice-columns.jpeg') !important; background-size: cover, cover !important; }
+.cta { background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/icebergs-twin-massive.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+footer, .footer { background-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.98)), url('assets/img/antarctic-moon.jpeg') !important; background-size: cover, cover !important; }
+@media (max-width: 900px) { .hero, .services, .uc, .cta, .manifesto { background-attachment: scroll !important; } }
+
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+<div class="cert-overlay" id="cert-overlay">
+  <div class="cert-modal">
+    <div class="cert-modal-title">🐧 ¡Lo lograste!</div>
+    <div class="cert-modal-sub">Terminaste el curso. Escribe tu nombre exactamente como quieres que aparezca en tu certificado.</div>
+    <input class="cert-name-input" id="cert-name" type="text" placeholder="Tu nombre completo">
+    <button class="cert-generate-btn" onclick="generateCert()">Descargar certificado →</button>
+    <div class="cert-skip" onclick="closeCertModal()">Omitir por ahora</div>
+  </div>
+</div>
+<div class="certificate" id="certificate"></div>
+
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><img decoding="async" src="assets/img/Logo.png" alt="AuryOnTech"></div>
+        <span class="logo-text">AuryOnTech</span>
+      </div>
+      <div class="course-title">Automatiza tus documentos. Sin tocar nada.</div>
+      <div class="progress-info">
+        <span class="progress-label">Progreso</span>
+        <span class="progress-pill" id="progress-text">0 / 11</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+  </nav>
+  <main class="main" id="main-content">
+    <div class="content"><div id="content-area"></div></div>
+  </main>
+</div>
+
+<button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<script>
+const curso = [
+  {
+    modulo: "01",
+    titulo: "El problema que nadie calcula",
+    lecciones: [
+      {
+        id: "1-1",
+        titulo: "Cuánto tiempo pierdes generando el mismo documento",
+        objetivo: "Calcular el coste real en tiempo de crear documentos repetitivos manualmente para entender por qué automatizarlo es urgente.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">El problema que nadie calcula</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Documentos en escritorio" onerror="this.parentElement.classList.add('broken');this.remove()">
+          </div>
+          <p>Cada vez que generas un presupuesto, una propuesta o un contrato repites exactamente el mismo proceso: abres la plantilla, cambias el nombre del cliente, el precio, la fecha, los servicios. Guardas con otro nombre. Compruebas que no se te olvidó nada. Lo mandas.</p>
+          <p>10 minutos por documento. A veces 20. Multiplícalo por los documentos que generas al mes.</p>
+          <h3>La cuenta que nadie hace</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Tiempo por documento: 10-15 minutos</strong>
+                <p>Abrir la plantilla, cambiar los datos, revisar que no haya errores del copia-pega anterior, guardar con el nombre correcto.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Si generas 20 documentos al mes: 3-5 horas</strong>
+                <p>Horas de trabajo que podrías dedicar a facturar, a clientes o a hacer crecer el negocio. En cambio las dedicas a copiar y pegar.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>El coste oculto: los errores</strong>
+                <p>Un nombre mal copiado de la propuesta anterior. Un precio que no actualizaste. Un contrato con el DNI de otro cliente. El error humano no es falta de atención — es consecuencia del proceso.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <strong>Lo que cambia en este curso</strong>
+            Al terminar, introduces los datos en el Excel una sola vez. Power Automate Desktop genera todos los documentos solos, con los datos correctos, sin que toques Word. El proceso que tardaba horas tarda segundos.
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Calcula tu coste real</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> ¿Qué documento repites más? Presupuesto, propuesta, contrato, ficha de cliente...</li>
+              <li><span class="step-num">02</span> ¿Cuántos generas al mes?</li>
+              <li><span class="step-num">03</span> Multiplica por 12 minutos. Ese es el tiempo que vas a recuperar cada mes con este curso.</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "1-2",
+        titulo: "Por qué copiar y pegar es el error más caro de tu negocio",
+        objetivo: "Entender por qué los procesos manuales de documentación generan errores inevitables y por qué la automatización los elimina por diseño.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">El problema que nadie calcula</div>
+          </div>
+          <p>El problema no es que no tengas cuidado. El problema es que copiar y pegar es un proceso que falla por diseño. Cuando abres la plantilla del mes pasado y cambias los datos, estás dependiendo de que recuerdes todos los campos que hay que actualizar. Sin excepción. Todas las veces.</p>
+          <h3>Los errores más frecuentes del proceso manual</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:rgba(239,68,68,0.6);">1</div>
+              <div class="step-content">
+                <strong>El nombre del cliente anterior en el documento nuevo</strong>
+                <p>Abriste la propuesta de Juan, cambiaste el precio, cambiaste los servicios... pero olvidaste cambiar el nombre en el encabezado. Mandas la propuesta de Juan a María.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:rgba(239,68,68,0.6);">2</div>
+              <div class="step-content">
+                <strong>El precio de la tarifa antigua</strong>
+                <p>Actualizaste tus precios en enero. El contrato sigue usando la plantilla de diciembre. El cliente firma con la tarifa vieja.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:rgba(239,68,68,0.6);">3</div>
+              <div class="step-content">
+                <strong>El campo que no existe en la plantilla</strong>
+                <p>Te diste cuenta de que necesitas añadir el NIF del cliente en todos los contratos. Tienes que editar uno por uno los que ya mandaste y acordarte en todos los futuros.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-success">
+            <strong>Cómo lo resuelve la automatización</strong>
+            La automatización elimina el error humano por diseño. Si el dato está en el Excel, va al documento. Si no está, el documento no se genera. No hay campos que se olviden — el proceso es siempre idéntico.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué el proceso de copiar y pegar genera errores aunque tengas cuidado?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No es cuestión de velocidad. Puedes ir despacio y seguir olvidando campos — el problema es estructural, no de ritmo.">Porque se hace demasiado rápido</button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. El proceso manual requiere recordar todos los campos que hay que actualizar, sin excepción, cada vez. La automatización elimina esa dependencia — el sistema siempre actualiza todos los campos.">Porque depende de que recuerdes todos los campos a cambiar en cada documento, sin excepción</button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="Las plantillas están bien diseñadas. El problema no es la plantilla sino el proceso de actualizarla manualmente cada vez.">Porque las plantillas están mal diseñadas</button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        `
+      },
+      {
+        id: "1-3",
+        titulo: "Qué es Power Automate Desktop y por qué ya lo tienes instalado",
+        objetivo: "Entender qué hace Power Automate Desktop, para qué sirve y cómo acceder a él sin instalar nada ni pagar nada.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">El problema que nadie calcula</div>
+          </div>
+          <p>Power Automate Desktop es una herramienta de Microsoft para automatizar tareas repetitivas en tu ordenador. Si tienes Windows 10 u 11, ya está instalada — es gratuita y viene incluida con el sistema operativo.</p>
+          <p>No es para programadores. No requiere código. Se trabaja con una interfaz visual donde arrastras acciones y las conectas. Cada acción le dice al ordenador qué hacer: abrir un archivo, leer datos, escribir en un documento, guardar.</p>
+          <h3>Qué puede hacer por tu negocio</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">1</div>
+              <div class="step-content">
+                <strong>Leer datos de Excel automáticamente</strong>
+                <p>El flujo abre el Excel, lee todos los datos fila por fila y los usa para rellenar documentos. Sin que abras el archivo tú.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">2</div>
+              <div class="step-content">
+                <strong>Generar documentos Word personalizados</strong>
+                <p>Por cada fila del Excel crea un documento Word con los datos de esa fila. 50 clientes = 50 documentos generados solos.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">3</div>
+              <div class="step-content">
+                <strong>Guardar y nombrar cada archivo</strong>
+                <p>Cada documento se guarda automáticamente con el nombre correcto en la carpeta que tú definas. Sin renombrar a mano.</p>
+              </div>
+            </div>
+          </div>
+          <h3>Cómo abrirlo</h3>
+          <div class="code-box">
+            <div class="code-box-header"><span class="code-box-label">Cómo abrir Power Automate Desktop</span></div>
+            <pre>Opción 1: Menú Inicio → busca "Power Automate" → abre la aplicación
+Opción 2: Windows + S → escribe "Power Automate" → Enter
+Opción 3: Si no aparece → Microsoft Store → busca "Power Automate" → instalar gratis
+
+Al abrirlo por primera vez te pedirá que inicies sesión con tu cuenta de Microsoft
+(la misma de Outlook, Office o Xbox). Si no tienes, créala gratis en microsoft.com</pre>
+          </div>
+          <div class="callout callout-warning">
+            <strong>Requisito del curso</strong>
+            Necesitas Windows 10 o Windows 11. Power Automate Desktop no está disponible para Mac. Si trabajas en Mac, el curso de Make o n8n es tu alternativa — conectamos al final del curso con esas opciones.
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Antes de continuar</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-1-a"><label for="ck-1-a">Abrí Power Automate Desktop y puedo verlo en pantalla</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-1-b"><label for="ck-1-b">Inicié sesión con mi cuenta de Microsoft</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-1-c"><label for="ck-1-c">Sé qué documento voy a automatizar en este curso</label></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "02",
+    titulo: "Prepara tus archivos",
+    lecciones: [
+      {
+        id: "2-1",
+        titulo: "El Excel de datos — la única hoja que necesitas rellenar",
+        objetivo: "Crear el Excel con la estructura correcta para que Power Automate pueda leerlo sin errores.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Prepara tus archivos</div>
+          </div>
+          <p>El Excel es el único lugar donde introduces datos. Una vez configurado el flujo, solo tienes que añadir filas — una por documento — y ejecutar. El resto lo hace solo.</p>
+          <h3>Reglas de oro del Excel</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>La fila 1 son los encabezados — exactamente en mayúsculas</strong>
+                <p>Los nombres de las columnas tienen que coincidir exactamente con los marcadores de tu plantilla Word. Si en Word escribes «NOMBRE», en el Excel el encabezado es «NOMBRE» — no «Nombre», no «nombre».</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>A partir de la fila 2, un documento por fila</strong>
+                <p>Cada fila genera un documento. 10 filas = 10 documentos. No dejes filas vacías entre datos.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Sin espacios extra en los encabezados</strong>
+                <p>«NOMBRE » con espacio al final no es igual que «NOMBRE». El flujo no lo encontrará y no rellenará ese campo.</p>
+              </div>
+            </div>
+          </div>
+          <h3>Ejemplo para un negocio de servicios</h3>
+          <div class="code-box">
+            <div class="code-box-header"><span class="code-box-label">Estructura del Excel — ejemplo presupuesto</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+            <pre>Columna A: CLIENTE
+Columna B: FECHAHOY
+Columna C: SERVICIO
+Columna D: PRECIO
+Columna E: DESCRIPCION
+Columna F: VALIDEZ
+
+Fila 2 ejemplo:
+Ana García | 03/04/2026 | Diseño de logo | 450€ | Logo + manual de marca | 30 días</pre>
+          </div>
+          <div class="callout callout-tip">
+            <strong>Adapta las columnas a tu documento</strong>
+            No tienes que usar estas columnas — son un ejemplo. Define las columnas que necesitas según los campos que cambien en tu documento. Si tu presupuesto tiene 5 campos variables, el Excel tiene 5 columnas.
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Crea tu Excel de datos</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Abre tu documento repetitivo (presupuesto, contrato, propuesta)</li>
+              <li><span class="step-num">02</span> Identifica todos los campos que cambian de un documento a otro</li>
+              <li><span class="step-num">03</span> Crea un Excel nuevo con esos campos como encabezados en la fila 1 en MAYÚSCULAS</li>
+              <li><span class="step-num">04</span> Añade 3 filas de datos reales para probar el flujo</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "2-2",
+        titulo: "La plantilla Word con marcadores",
+        objetivo: "Preparar la plantilla Word con los marcadores correctos para que Power Automate sepa dónde insertar cada dato.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Prepara tus archivos</div>
+          </div>
+          <p>La plantilla Word es tu documento con todo el contenido fijo — el diseño, el texto estático, las condiciones — y marcadores en los lugares donde van los datos variables. El flujo reemplaza cada marcador con el dato del Excel.</p>
+          <h3>Cómo escribir los marcadores</h3>
+          <p>El formato estándar es el nombre del campo entre dobles corchetes angulares:</p>
+          <div class="code-box">
+            <div class="code-box-header"><span class="code-box-label">Formato de marcadores</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+            <pre>&lt;&lt;CLIENTE&gt;&gt;     → se reemplaza con el valor de la columna CLIENTE del Excel
+&lt;&lt;FECHAHOY&gt;&gt;   → se reemplaza con el valor de la columna FECHAHOY del Excel
+&lt;&lt;PRECIO&gt;&gt;     → se reemplaza con el valor de la columna PRECIO del Excel
+
+Ejemplo en el documento:
+"Estimado/a &lt;&lt;CLIENTE&gt;&gt;, le presentamos nuestra propuesta de &lt;&lt;SERVICIO&gt;&gt;
+por un importe de &lt;&lt;PRECIO&gt;&gt;, válida durante &lt;&lt;VALIDEZ&gt;&gt;."</pre>
+          </div>
+          <div class="callout callout-error">
+            <strong>Regla crítica: coherencia exacta</strong>
+            El marcador en Word y el encabezado en Excel deben ser idénticos. «&lt;&lt;CLIENTE&gt;&gt;» en Word requiere «CLIENTE» en el Excel. Un espacio, una mayúscula diferente o un carácter distinto rompe el flujo.
+          </div>
+          <h3>Dónde pueden ir los marcadores</h3>
+          <p>En cualquier parte del documento: el encabezado, el cuerpo del texto, los pies de página, tablas, o incluso en el nombre del archivo si lo necesitas. El flujo busca el marcador en todo el documento y lo reemplaza donde aparezca — si aparece varias veces, lo reemplaza en todas.</p>
+          <div class="callout callout-tip">
+            <strong>Truco para verificar</strong>
+            Usa Ctrl+H en Word (Buscar y reemplazar) para probar manualmente que el marcador existe en el documento. Si Word lo encuentra, Power Automate también lo encontrará.
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Tu plantilla está lista cuando</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-a"><label for="ck-2-a">Todos los campos variables tienen marcadores en formato &lt;&lt;NOMBRE&gt;&gt;</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-b"><label for="ck-2-b">Los nombres de los marcadores coinciden exactamente con los encabezados del Excel</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-2-c"><label for="ck-2-c">Verifiqué con Ctrl+H que los marcadores existen en el documento</label></div>
+          </div>
+        `
+      },
+      {
+        id: "2-3",
+        titulo: "La estructura de carpetas",
+        objetivo: "Organizar los archivos en las carpetas correctas para que el flujo pueda encontrarlos y guardar los documentos generados sin errores.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Prepara tus archivos</div>
+          </div>
+          <p>El flujo necesita saber dónde encontrar los archivos de entrada y dónde guardar los de salida. Una estructura simple evita el 90% de los errores de configuración.</p>
+          <h3>La estructura recomendada</h3>
+          <div class="code-box">
+            <div class="code-box-header"><span class="code-box-label">Estructura de carpetas</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+            <pre>📁 Documentos Automáticos\
+  ├── 📄 Datos.xlsx              → tu Excel con los datos
+  ├── 📄 Plantilla.docx          → tu plantilla Word con marcadores
+  └── 📁 Generados\              → aquí van los documentos creados
+        ├── Propuesta Ana García.docx
+        ├── Propuesta Carlos López.docx
+        └── ...</pre>
+          </div>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Crea la carpeta principal en un lugar fijo</strong>
+                <p>Escritorio, Documentos o OneDrive. Lo importante es que la ruta no cambie — el flujo guarda la ruta exacta y si mueves la carpeta hay que actualizarla.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Crea la subcarpeta "Generados" vacía</strong>
+                <p>Tiene que existir antes de ejecutar el flujo. Si no existe, el flujo falla al intentar guardar los documentos.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Mueve el Excel y la plantilla a la carpeta principal</strong>
+                <p>Cierra el Excel antes de ejecutar el flujo — si está abierto, Power Automate no puede leerlo correctamente.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-warning">
+            <strong>Antes de ejecutar siempre</strong>
+            Cierra el archivo Excel manualmente. Un Excel abierto bloquea el acceso y el flujo fallará en la primera acción.
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "03",
+    titulo: "Construye el flujo paso a paso",
+    lecciones: [
+      {
+        id: "3-1",
+        titulo: "Abre y lee el Excel automáticamente",
+        objetivo: "Configurar las dos primeras acciones del flujo para que Power Automate abra el Excel y cargue todos los datos en memoria.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Construye el flujo paso a paso</div>
+          </div>
+          <p>Abre Power Automate Desktop, crea un nuevo flujo y llámalo con el nombre de tu documento. Vamos a añadir las acciones en orden.</p>
+          <h3>Acción 1 — Iniciar Excel</h3>
+          <p>En el panel de acciones de la izquierda, busca <span class="inline-code">Excel</span> → <span class="inline-code">Iniciar Excel</span> y arrástrala al área de trabajo.</p>
+          <div class="config-block">
+            <div class="config-block-title">Configuración — Iniciar Excel</div>
+            <div class="config-row"><div class="config-key">Iniciar Excel</div><div class="config-val">y abrir el documento siguiente</div></div>
+            <div class="config-row"><div class="config-key">Ruta del documento</div><div class="config-val">Haz clic en 📁 y navega hasta tu <code>Datos.xlsx</code></div></div>
+            <div class="config-row"><div class="config-key">Hacer visible la ventana</div><div class="config-val">Desactivado — trabaja en segundo plano</div></div>
+            <div class="config-row"><div class="config-key">Variable generada</div><div class="config-val"><code>ExcelInstance</code> — déjalo como está</div></div>
+          </div>
+          <h3>Acción 2 — Leer la hoja de cálculo</h3>
+          <p>Busca <span class="inline-code">Leer en hoja de cálculo de Excel</span> y añádela debajo de la primera.</p>
+          <div class="config-block">
+            <div class="config-block-title">Configuración — Leer hoja de cálculo</div>
+            <div class="config-row"><div class="config-key">Instancia de Excel</div><div class="config-val"><code>%ExcelInstance%</code></div></div>
+            <div class="config-row"><div class="config-key">Recuperar</div><div class="config-val">Todos los valores disponibles de la hoja de cálculo</div></div>
+            <div class="config-row"><div class="config-key">Primera línea contiene nombres de columna</div><div class="config-val">✅ Activado — imprescindible</div></div>
+            <div class="config-row"><div class="config-key">Variable generada</div><div class="config-val"><code>ExcelData</code> — todos tus datos están aquí</div></div>
+          </div>
+          <div class="callout callout-error">
+            <strong>Esto no puede faltar</strong>
+            Si no activas "La primera línea contiene nombres de columna", el flujo no podrá acceder a los datos por nombre de columna. Es el error de configuración más frecuente.
+          </div>
+        `
+      },
+      {
+        id: "3-2",
+        titulo: "El bucle — cómo procesar un documento por cada fila",
+        objetivo: "Configurar el bucle For Each que permite al flujo repetir el proceso automáticamente para cada fila del Excel.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Construye el flujo paso a paso</div>
+          </div>
+          <p>El bucle es el elemento central del flujo. Todo lo que esté dentro de él se ejecuta una vez por cada fila del Excel. Si tienes 20 filas, el contenido del bucle se ejecuta 20 veces — y genera 20 documentos.</p>
+          <h3>Acción 3 — For Each (el bucle)</h3>
+          <p>Busca <span class="inline-code">Para cada</span> o <span class="inline-code">For each</span> en el panel de acciones y añádela después de las dos anteriores.</p>
+          <div class="config-block">
+            <div class="config-block-title">Configuración — For Each</div>
+            <div class="config-row"><div class="config-key">Iterar sobre</div><div class="config-val"><code>%ExcelData%</code> — la tabla con todos tus datos</div></div>
+            <div class="config-row"><div class="config-key">Guardar en variable</div><div class="config-val"><code>CurrentRow</code> — la fila actual en cada vuelta</div></div>
+          </div>
+          <div class="callout callout-tip">
+            <strong>Cómo acceder a los datos de cada fila</strong>
+            Dentro del bucle, <code>%CurrentRow['CLIENTE']%</code> contiene el valor de la columna CLIENTE de la fila actual. Sustituye CLIENTE por el nombre de cualquier columna de tu Excel para acceder a ese dato.
+          </div>
+          <h3>La estructura completa del flujo</h3>
+          <table class="flujo-table">
+            <thead><tr><th>#</th><th>Acción</th><th>Posición</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Iniciar Excel</td><td><span class="badge-outside">Fuera del bucle</span></td></tr>
+              <tr><td>2</td><td>Leer hoja de cálculo</td><td><span class="badge-outside">Fuera del bucle</span></td></tr>
+              <tr><td>3</td><td>For Each → End</td><td><span class="badge-outside">Contenedor</span></td></tr>
+              <tr><td>4-9</td><td>Resto de acciones</td><td><span class="badge-inside">Dentro del bucle</span></td></tr>
+              <tr><td>10</td><td>Cerrar Excel</td><td><span class="badge-outside">Fuera del bucle</span></td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-warning">
+            <strong>Las acciones de dentro van DENTRO</strong>
+            Todas las acciones que generan el documento deben estar entre el For Each y el End. Si las colocas fuera, solo se ejecutarán una vez — no por cada fila.
+          </div>
+        `
+      },
+      {
+        id: "3-3",
+        titulo: "Copia la plantilla, renómbrala y rellena los datos",
+        objetivo: "Configurar las acciones dentro del bucle para copiar la plantilla, darle el nombre correcto y reemplazar todos los marcadores con los datos del Excel.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Construye el flujo paso a paso</div>
+          </div>
+          <p>Estas acciones van dentro del bucle. Se ejecutan una vez por cada fila del Excel.</p>
+          <h3>Acción 4 — Copiar la plantilla</h3>
+          <p>Busca <span class="inline-code">Copiar archivo(s)</span> y añádela dentro del bucle.</p>
+          <div class="config-block">
+            <div class="config-block-title">Configuración — Copiar archivo</div>
+            <div class="config-row"><div class="config-key">Archivo a copiar</div><div class="config-val">Ruta completa de tu <code>Plantilla.docx</code></div></div>
+            <div class="config-row"><div class="config-key">Carpeta de destino</div><div class="config-val">Ruta de tu carpeta <code>Generados\</code></div></div>
+            <div class="config-row"><div class="config-key">Si el archivo existe</div><div class="config-val">Sobrescribir</div></div>
+            <div class="config-row"><div class="config-key">Variable generada</div><div class="config-val"><code>CopiedFiles</code></div></div>
+          </div>
+          <h3>Acción 5 — Renombrar con el nombre del cliente</h3>
+          <div class="config-block">
+            <div class="config-block-title">Configuración — Cambiar nombre de archivo</div>
+            <div class="config-row"><div class="config-key">Archivo a renombrar</div><div class="config-val"><code>%CopiedFiles[0]%</code></div></div>
+            <div class="config-row"><div class="config-key">Nuevo nombre</div><div class="config-val"><code>Propuesta - %CurrentRow['CLIENTE']%</code></div></div>
+            <div class="config-row"><div class="config-key">Mantener extensión</div><div class="config-val">✅ Activado</div></div>
+          </div>
+          <h3>Acción 6 — Abrir el documento copiado</h3>
+          <div class="config-block">
+            <div class="config-block-title">Configuración — Iniciar Word</div>
+            <div class="config-row"><div class="config-key">Ruta del documento</div><div class="config-val"><code>[ruta Generados]\Propuesta - %CurrentRow['CLIENTE']%.docx</code></div></div>
+            <div class="config-row"><div class="config-key">Hacer visible la ventana</div><div class="config-val">Activado para pruebas / Desactivado en producción</div></div>
+            <div class="config-row"><div class="config-key">Variable generada</div><div class="config-val"><code>WordInstance</code></div></div>
+          </div>
+          <h3>Acciones 7-N — Buscar y reemplazar cada marcador</h3>
+          <p>Una acción <span class="inline-code">Buscar y reemplazar palabras en documento de Word</span> por cada campo. Todas se configuran igual:</p>
+          <div class="config-block">
+            <div class="config-block-title">Configuración — Buscar y reemplazar (repetir por cada campo)</div>
+            <div class="config-row"><div class="config-key">Instancia de Word</div><div class="config-val"><code>%WordInstance%</code></div></div>
+            <div class="config-row"><div class="config-key">Todas las coincidencias</div><div class="config-val">✅ Activado</div></div>
+            <div class="config-row"><div class="config-key">Texto a buscar</div><div class="config-val"><code>&lt;&lt;CLIENTE&gt;&gt;</code> (el marcador de la plantilla)</div></div>
+            <div class="config-row"><div class="config-key">Reemplazar con</div><div class="config-val"><code>%CurrentRow['CLIENTE']%</code> (el dato del Excel)</div></div>
+          </div>
+          <div class="callout callout-tip">
+            <strong>Repite esta acción por cada campo</strong>
+            Una acción por cada marcador. Si tu plantilla tiene 6 marcadores, añades 6 acciones de buscar y reemplazar — una para cada par marcador/columna.
+          </div>
+        `
+      },
+      {
+        id: "3-4",
+        titulo: "Guarda, cierra y pasa al siguiente — el ciclo completo",
+        objetivo: "Completar el flujo con las acciones de guardado y cierre para que el ciclo se repita correctamente para cada documento.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Construye el flujo paso a paso</div>
+          </div>
+          <h3>Última acción dentro del bucle — Cerrar Word</h3>
+          <div class="config-block">
+            <div class="config-block-title">Configuración — Cerrar Word (dentro del bucle)</div>
+            <div class="config-row"><div class="config-key">Instancia de Word</div><div class="config-val"><code>%WordInstance%</code></div></div>
+            <div class="config-row"><div class="config-key">Antes de cerrar</div><div class="config-val">Guardar documento</div></div>
+          </div>
+          <h3>Acción fuera del bucle — Cerrar Excel</h3>
+          <div class="config-block">
+            <div class="config-block-title">Configuración — Cerrar Excel (fuera del bucle)</div>
+            <div class="config-row"><div class="config-key">Instancia de Excel</div><div class="config-val"><code>%ExcelInstance%</code></div></div>
+            <div class="config-row"><div class="config-key">Antes de cerrar</div><div class="config-val">No guardar el documento</div></div>
+          </div>
+          <h3>El flujo completo de un vistazo</h3>
+          <table class="flujo-table">
+            <thead><tr><th>#</th><th>Acción</th><th>Qué hace</th><th>Posición</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Iniciar Excel</td><td>Abre Datos.xlsx en segundo plano</td><td><span class="badge-outside">Fuera</span></td></tr>
+              <tr><td>2</td><td>Leer hoja</td><td>Carga todos los datos en ExcelData</td><td><span class="badge-outside">Fuera</span></td></tr>
+              <tr><td>3</td><td>For Each</td><td>Inicia el bucle por fila</td><td><span class="badge-outside">Contenedor</span></td></tr>
+              <tr><td>4</td><td>Copiar archivo</td><td>Copia la plantilla a Generados</td><td><span class="badge-inside">Dentro</span></td></tr>
+              <tr><td>5</td><td>Cambiar nombre</td><td>Renombra con el nombre del cliente</td><td><span class="badge-inside">Dentro</span></td></tr>
+              <tr><td>6</td><td>Iniciar Word</td><td>Abre el documento copiado</td><td><span class="badge-inside">Dentro</span></td></tr>
+              <tr><td>7-N</td><td>Buscar y reemplazar</td><td>Sustituye cada marcador con el dato</td><td><span class="badge-inside">Dentro</span></td></tr>
+              <tr><td>N+1</td><td>Cerrar Word</td><td>Guarda y cierra antes del siguiente</td><td><span class="badge-inside">Dentro</span></td></tr>
+              <tr><td>N+2</td><td>Cerrar Excel</td><td>Cierra el Excel al terminar todo</td><td><span class="badge-outside">Fuera</span></td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-success">
+            <strong>Prueba con 3 filas primero</strong>
+            Antes de ejecutar con todos tus datos, pon solo 3 filas en el Excel y ejecuta el flujo. Verifica que se generan 3 documentos correctos. Si todo está bien, añade el resto de filas.
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Módulo 3 completado cuando</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-a"><label for="ck-3-a">El flujo tiene todas las acciones en el orden correcto</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-b"><label for="ck-3-b">Las acciones de dentro del bucle están entre For Each y End</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-c"><label for="ck-3-c">Ejecuté el flujo con 3 filas de prueba y generó 3 documentos correctos</label></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "04",
+    titulo: "Prueba, errores y ajustes",
+    lecciones: [
+      {
+        id: "4-1",
+        titulo: "Los 4 errores más frecuentes y cómo resolverlos",
+        objetivo: "Identificar y resolver los errores más comunes para no perder tiempo buscando qué falló.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Prueba, errores y ajustes</div>
+          </div>
+          <p>La mayoría de los errores en este flujo tienen una causa muy concreta y una solución en menos de 2 minutos. Aquí están los cuatro que aparecen el 95% de las veces.</p>
+
+          <div class="error-block">
+            <div class="error-title">Error 1 — El marcador no se reemplaza</div>
+            <div class="error-causa">El campo aparece vacío o sigue mostrando &lt;&lt;NOMBRE&gt;&gt; en el documento generado.</div>
+            <div class="error-sol"><strong>Causa:</strong> El marcador en Word no coincide exactamente con el nombre de la columna del Excel.<br><strong>Solución:</strong> Usa Ctrl+H en Word para verificar el marcador exacto. Compara carácter por carácter con el encabezado del Excel — mayúsculas, espacios y símbolos incluidos.</div>
+          </div>
+
+          <div class="error-block">
+            <div class="error-title">Error 2 — El Excel está bloqueado</div>
+            <div class="error-causa">El flujo falla en la primera acción con un error de acceso al archivo.</div>
+            <div class="error-sol"><strong>Causa:</strong> El archivo Datos.xlsx está abierto en Excel.<br><strong>Solución:</strong> Cierra el Excel antes de ejecutar el flujo. Siempre.</div>
+          </div>
+
+          <div class="error-block">
+            <div class="error-title">Error 3 — La carpeta Generados no existe</div>
+            <div class="error-causa">El flujo falla al intentar copiar la plantilla con un error de ruta no encontrada.</div>
+            <div class="error-sol"><strong>Causa:</strong> La subcarpeta Generados no existe o tiene un nombre diferente al que configuraste en el flujo.<br><strong>Solución:</strong> Crea la carpeta manualmente antes de ejecutar. Verifica que la ruta en el flujo coincide exactamente.</div>
+          </div>
+
+          <div class="error-block">
+            <div class="error-title">Error 4 — %CurrentRow['COLUMNA']% no funciona</div>
+            <div class="error-causa">El flujo genera un error de variable no encontrada en las acciones de buscar y reemplazar.</div>
+            <div class="error-sol"><strong>Causa:</strong> El encabezado en el Excel no coincide exactamente con el nombre entre corchetes en el flujo, o no activaste "La primera línea contiene nombres de columna" al leer el Excel.<br><strong>Solución:</strong> Revisa la Acción 2 y activa esa opción. Compara el nombre de la columna del Excel con el que usas en %CurrentRow['NOMBRE']%.</div>
+          </div>
+
+          <div class="callout callout-tip">
+            <strong>Cómo depurar el flujo</strong>
+            Usa el botón de ejecución paso a paso (el botón de play con un icono de pie) para ejecutar acción por acción. Así puedes ver exactamente en qué acción falla y qué valor tiene cada variable en ese momento.
+          </div>
+        `
+      },
+      {
+        id: "4-2",
+        titulo: "Cómo añadir nuevos documentos sin rehacer el flujo",
+        objetivo: "Entender cómo mantener y escalar el sistema una vez está funcionando, sin tocar el flujo.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Prueba, errores y ajustes</div>
+          </div>
+          <p>Una vez el flujo funciona, el mantenimiento es mínimo. La mayoría de las veces no necesitas tocar el flujo — solo el Excel.</p>
+          <h3>Para generar documentos nuevos</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Añade una fila nueva en el Excel</strong>
+                <p>Rellena todos los campos y guarda el archivo.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Cierra el Excel</strong>
+                <p>Imprescindible antes de ejecutar.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Ejecuta el flujo</strong>
+                <p>Genera todos los documentos del Excel. Si no quieres regenerar los anteriores, mueve las filas viejas a otra hoja o elimínalas del Excel antes de ejecutar.</p>
+              </div>
+            </div>
+          </div>
+          <h3>Para añadir un campo nuevo a la plantilla</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Añade la columna nueva en el Excel</strong>
+                <p>Con su encabezado en mayúsculas en la fila 1.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Añade el marcador en la plantilla Word</strong>
+                <p>En el lugar donde quieres que aparezca el dato.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Añade una acción de buscar y reemplazar en el flujo</strong>
+                <p>Una nueva acción dentro del bucle para ese campo nuevo.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-success">
+            <strong>El sistema es tuyo</strong>
+            No dependes de nadie para mantenerlo. Cambias el Excel, cambias la plantilla, añades una acción. Todo es visual, todo es reversible.
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "05",
+    titulo: "Aplícalo a tu negocio",
+    lecciones: [
+      {
+        id: "5-1",
+        titulo: "Adapta el flujo a tu documento real",
+        objetivo: "Identificar el documento exacto de tu negocio que vas a automatizar y construir el flujo completo adaptado a tu caso.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 05</div>
+            <div class="module-name">Aplícalo a tu negocio</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1507925921958-8a62f3d1a50d?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Negocio organizado" onerror="this.parentElement.classList.add('broken');this.remove()">
+          </div>
+          <p>El flujo que construiste en el Módulo 3 es universal. Funciona para cualquier documento que tenga campos variables. Aquí van los casos más frecuentes para el público de AuryOnTech y cómo adaptar el flujo a cada uno.</p>
+          <div class="casos-grid">
+            <div class="caso-card">
+              <div class="caso-sector">Consultoría · Servicios</div>
+              <div class="caso-doc">Propuesta de servicios</div>
+              <div class="caso-desc">Campos: Cliente, Servicio, Precio, Descripción, Validez, Fecha</div>
+            </div>
+            <div class="caso-card">
+              <div class="caso-sector">Cualquier negocio</div>
+              <div class="caso-doc">Contrato con cliente</div>
+              <div class="caso-desc">Campos: Nombre, DNI, Servicio, Precio, Fecha inicio, Duración</div>
+            </div>
+            <div class="caso-card">
+              <div class="caso-sector">Diseño · Freelance</div>
+              <div class="caso-doc">Presupuesto detallado</div>
+              <div class="caso-desc">Campos: Cliente, Proyecto, Fases, Precio por fase, Total, Plazos</div>
+            </div>
+            <div class="caso-card">
+              <div class="caso-sector">Salud · Belleza</div>
+              <div class="caso-doc">Ficha de cliente</div>
+              <div class="caso-desc">Campos: Nombre, Fecha, Servicios, Observaciones, Próxima cita</div>
+            </div>
+            <div class="caso-card">
+              <div class="caso-sector">Formación · Academia</div>
+              <div class="caso-doc">Contrato de matrícula</div>
+              <div class="caso-desc">Campos: Alumno, Curso, Precio, Fecha inicio, Modalidad, Duración</div>
+            </div>
+            <div class="caso-card">
+              <div class="caso-sector">Comercio · Tienda</div>
+              <div class="caso-doc">Albarán o confirmación</div>
+              <div class="caso-desc">Campos: Cliente, Producto, Cantidad, Precio, Fecha entrega</div>
+            </div>
+          </div>
+          <h3>Checklist de adaptación</h3>
+          <div class="checklist-block">
+            <div class="checklist-label">🎯 Actividad final — tu flujo adaptado</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-a"><label for="ck-5-a">Identifiqué el documento que más repito en mi negocio</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-b"><label for="ck-5-b">Creé el Excel con los campos exactos de ese documento</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-c"><label for="ck-5-c">Preparé la plantilla Word con los marcadores &lt;&lt;CAMPO&gt;&gt;</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-d"><label for="ck-5-d">Construí el flujo completo adaptado a mi documento</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-e"><label for="ck-5-e">Ejecuté el flujo con datos reales y generé al menos 3 documentos correctos</label></div>
+          </div>
+          <div class="next-course">
+            <div class="next-course-label">Siguiente nivel</div>
+            <div class="next-course-title">Tu primer agente de IA sin programar</div>
+            <div class="next-course-desc">Ya automatizas documentos. El siguiente paso: un agente que lee emails, entiende qué preguntan y responde solo. Sin código. Con n8n y ChatGPT.</div>
+            <a href="index.html" class="next-course-btn">Ver curso →</a>
+          </div>
+        `
+      }
+    ]
+  }
+];
+
+let currentLesson = 0;
+const allLessons = curso.flatMap(m => m.lecciones);
+const completed = new Set();
+
+function renderSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  curso.forEach(modulo => {
+    const moduleEl = document.createElement('div');
+    moduleEl.className = 'nav-module';
+    const header = document.createElement('div');
+    header.className = 'nav-module-header';
+    header.innerHTML = `<span><span class="nav-module-num">${modulo.modulo}</span> ${modulo.titulo}</span>`;
+    header.onclick = () => {
+      const l = moduleEl.querySelector('.nav-lessons');
+      l.style.maxHeight = l.style.maxHeight ? '' : l.scrollHeight + 'px';
+    };
+    const lessons = document.createElement('div');
+    lessons.className = 'nav-lessons';
+    lessons.style.maxHeight = '500px';
+    modulo.lecciones.forEach(leccion => {
+      const idx = allLessons.findIndex(l => l.id === leccion.id);
+      const item = document.createElement('div');
+      item.className = 'nav-lesson' + (idx === currentLesson ? ' active' : '') + (completed.has(idx) ? ' completed' : '');
+      item.innerHTML = `<div class="lesson-dot"></div>${leccion.titulo}`;
+      item.onclick = () => goToLesson(idx);
+      lessons.appendChild(item);
+    });
+    moduleEl.appendChild(header);
+    moduleEl.appendChild(lessons);
+    nav.appendChild(moduleEl);
+  });
+}
+
+function renderLesson(idx) {
+  const area = document.getElementById('content-area');
+  const leccion = allLessons[idx];
+  const modulo = curso.find(m => m.lecciones.some(l => l.id === leccion.id));
+  area.innerHTML = `
+    <div class="lesson active">
+      <div class="lesson-breadcrumb">
+        <span>Módulo ${modulo.modulo}</span>
+        <span class="breadcrumb-sep">›</span>
+        <span>Lección ${idx + 1} de ${allLessons.length}</span>
+      </div>
+      <h1 class="lesson-title">${leccion.titulo}</h1>
+      <div class="lesson-objective">${leccion.objetivo}</div>
+      <div class="lesson-body">${leccion.contenido}</div>
+      <div class="lesson-nav">
+        <button class="nav-btn nav-btn-prev" onclick="goToLesson(${idx-1})" ${idx===0?'disabled':''}>← Anterior</button>
+        <button class="nav-btn nav-btn-next" onclick="nextLesson(${idx})">
+          ${idx === allLessons.length-1 ? '¡Completado! 🐧' : 'Siguiente →'}
+        </button>
+      </div>
+    </div>`;
+  document.getElementById('main-content').scrollTop = 0;
+}
+
+function goToLesson(idx) {
+  if (idx < 0 || idx >= allLessons.length) return;
+  completed.add(currentLesson);
+  currentLesson = idx;
+  renderLesson(idx);
+  renderSidebar();
+  updateProgress();
+  closeSidebar();
+}
+
+function nextLesson(idx) {
+  completed.add(idx);
+  if (idx < allLessons.length - 1) {
+    goToLesson(idx + 1);
+  } else {
+    updateProgress();
+    renderSidebar();
+    document.getElementById('cert-overlay').classList.add('active');
+  }
+}
+
+function updateProgress() {
+  const done = completed.size;
+  const total = allLessons.length;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = done + ' / ' + total;
+}
+
+function handleQuiz(btn, isCorrect) {
+  const block = btn.closest('.quiz-block');
+  block.querySelectorAll('.quiz-option').forEach(o => { o.disabled = true; o.style.pointerEvents = 'none'; });
+  btn.classList.add(isCorrect ? 'quiz-correct' : 'quiz-incorrect');
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback ' + (isCorrect ? 'fb-correct' : 'fb-incorrect');
+  fb.textContent = isCorrect ? btn.dataset.correct : btn.dataset.incorrect;
+}
+
+function copyCode(btn) {
+  const pre = btn.closest('.code-box').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '¡Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector('script[src="' + src + '"]')) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function certHTML(name, dateStr, auryBase64) {
+  const auryImg = auryBase64 ? `<img decoding="async" src="${auryBase64}" style="width:92%;object-fit:contain;object-position:bottom center;" alt="Aury">` : '';
+  return `<div style="width:1200px;height:848px;background:#07090F;position:relative;overflow:hidden;font-family:'DM Sans',sans-serif;">
+    <div style="position:absolute;top:-120px;right:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(196,96,48,0.13),transparent 65%);"></div>
+    <div style="position:absolute;bottom:-120px;left:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(58,100,148,0.1),transparent 65%);"></div>
+    <div style="position:absolute;inset:20px;border:1.5px solid rgba(196,96,48,0.4);pointer-events:none;"></div>
+    <div style="position:absolute;inset:26px;border:1px solid rgba(196,96,48,0.1);pointer-events:none;"></div>
+    <div style="position:absolute;top:16px;left:16px;width:14px;height:14px;border-top:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;top:16px;right:16px;width:14px;height:14px;border-top:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;left:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;right:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;top:48px;left:60px;right:60px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#7A6E60;font-weight:500;font-family:'DM Mono',monospace;">🐧 AuryOnTech</div>
+      <div style="width:38%;height:1px;background:linear-gradient(to right,transparent,rgba(196,96,48,0.25),transparent);"></div>
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(196,96,48,0.5);font-family:'DM Mono',monospace;">Certificado de Finalización</div>
+    </div>
+    <div style="position:absolute;top:0;left:0;width:760px;height:848px;display:flex;flex-direction:column;justify-content:center;padding:100px 56px 80px 60px;">
+      <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#C46030;font-family:'DM Mono',monospace;margin-bottom:18px;">Este documento certifica que</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:58px;color:#EEF4F8;line-height:1.05;letter-spacing:-1.5px;margin-bottom:22px;">${name}</div>
+      <div style="width:56px;height:3px;background:#C46030;margin-bottom:22px;border-radius:2px;"></div>
+      <div style="font-size:15px;color:#7A6E60;margin-bottom:10px;">ha completado satisfactoriamente el curso</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:24px;color:#D88050;letter-spacing:-0.3px;margin-bottom:52px;line-height:1.3;">Automatiza tus documentos. Sin tocar nada.</div>
+      <div style="display:flex;gap:52px;align-items:flex-start;">
+        <div><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Fecha</div><div style="font-size:13px;color:#EDE4D8;">${dateStr}</div></div>
+        <div style="width:1px;height:40px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>
+        <div><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Emitido por</div><div style="font-size:13px;color:#EDE4D8;font-weight:600;">Cristian Lopez Garcia</div><div style="font-size:11px;color:#7A6E60;margin-top:2px;">Fundador · AuryOnTech</div></div>
+      </div>
+    </div>
+    <div style="position:absolute;top:100px;bottom:80px;left:760px;width:1px;background:linear-gradient(to bottom,transparent,rgba(196,96,48,0.2) 30%,rgba(196,96,48,0.2) 70%,transparent);"></div>
+    <div style="position:absolute;right:0;bottom:0;width:440px;height:848px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;">${auryImg}</div>
+    <div style="position:absolute;bottom:34px;left:60px;font-size:10px;color:rgba(122,110,96,0.35);letter-spacing:2px;font-family:'DM Mono',monospace;text-transform:uppercase;">auryontech.com</div>
+  </div>`;
+}
+
+async function generateCert() {
+  const name = document.getElementById('cert-name').value.trim();
+  if (!name) { document.getElementById('cert-name').focus(); return; }
+  const dateStr = new Date().toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
+  closeCertModal();
+  const loader = document.createElement('div');
+  loader.style.cssText = 'position:fixed;inset:0;background:rgba(7,9,15,0.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#EEF4F8;font-family:DM Sans,sans-serif;font-size:15px;gap:14px;';
+  loader.innerHTML = '<div style="font-size:36px;">🐧</div><div>Generando tu certificado...</div>';
+  document.body.appendChild(loader);
+  let auryBase64 = '';
+  try {
+    const resp = await fetch('assets/img/Aury-enfrente-de-la-Compu.png');
+    const blob = await resp.blob();
+    auryBase64 = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(blob); });
+  } catch(e) {}
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:1200px;height:848px;z-index:-1;';
+  div.innerHTML = certHTML(name, dateStr, auryBase64);
+  document.body.appendChild(div);
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 400));
+  const canvas = await html2canvas(div, { scale:2, useCORS:true, allowTaint:true, backgroundColor:'#07090F', width:1200, height:848, logging:false });
+  document.body.removeChild(div);
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 297, 210);
+  pdf.save('Certificado_AuryOnTech_' + name.replace(/ /g,'_') + '.pdf');
+  loader.remove();
+}
+
+function closeCertModal() { document.getElementById('cert-overlay').classList.remove('active'); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); }
+
+renderSidebar();
+renderLesson(0);
+updateProgress();
+
+(function() {
+  const dot = document.createElement('div'); dot.className = 'cursor-dot';
+  const ring = document.createElement('div'); ring.className = 'cursor-ring';
+  document.body.appendChild(dot);
+  document.body.appendChild(ring);
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+  document.addEventListener('mousedown', () => { dot.classList.add('clicking'); ring.classList.add('clicking'); });
+  document.addEventListener('mouseup', () => { dot.classList.remove('clicking'); ring.classList.remove('clicking'); });
+  (function animateRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animateRing); })();
+})();
+</script>
+</body>
+</html>
+
+
+
+<p></p>

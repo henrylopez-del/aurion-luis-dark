@@ -1,0 +1,1628 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recordatorios Automáticos de Citas — AuryOnTech</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #07090F;
+      --dawn: #C46030;
+      --dawn-l: #D88050;
+      --dawn-ll: #ECA878;
+      --sky: #3A6494;
+      --ice: #B8D4EC;
+      --snow: #EEF4F8;
+      --bone: #EDE4D8;
+      --warm: #7A6E60;
+      --ink-2: #0f1219;
+      --ink-3: #161b26;
+      --sidebar-w: 300px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; background: var(--ink); color: var(--snow); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.7; overflow: hidden; }
+
+    #progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--dawn), var(--dawn-ll)); z-index: 1000; transition: width 0.4s ease; }
+
+    .app { display: flex; height: 100vh; padding-top: 3px; }
+
+    .sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: var(--ink-2); border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 100; }
+    .sidebar-header { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .logo-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .logo-text { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 15px; color: var(--snow); letter-spacing: -0.3px; }
+    .course-title { font-size: 12px; color: var(--warm); line-height: 1.4; font-weight: 400; }
+    .progress-info { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .progress-label { font-size: 11px; color: var(--warm); font-family: 'DM Mono', monospace; }
+    .progress-pill { font-size: 11px; color: var(--dawn-ll); font-family: 'DM Mono', monospace; font-weight: 500; }
+    .progress-track { margin-top: 8px; height: 2px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--dawn); border-radius: 2px; transition: width 0.4s ease; }
+
+    .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 0; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+    .nav-module { margin-bottom: 4px; }
+    .nav-module-header { padding: 8px 20px; font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--warm); font-family: 'DM Mono', monospace; cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; }
+    .nav-module-header:hover { color: var(--dawn-ll); }
+    .nav-module-num { color: var(--dawn); font-weight: 500; }
+    .nav-lessons { overflow: hidden; transition: max-height 0.3s ease; }
+    .nav-lesson { padding: 8px 20px 8px 32px; font-size: 13px; color: rgba(238,244,248,0.6); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; border-left: 2px solid transparent; line-height: 1.4; }
+    .nav-lesson:hover { color: var(--snow); background: rgba(255,255,255,0.03); }
+    .nav-lesson.active { color: var(--dawn-ll); border-left-color: var(--dawn); background: rgba(196,96,48,0.08); }
+    .nav-lesson.completed .lesson-dot { background: var(--dawn); }
+    .lesson-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.15); flex-shrink: 0; transition: background 0.2s; }
+
+    .main { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+    .content { max-width: 760px; margin: 0 auto; padding: 48px 40px 80px; }
+
+    .lesson { display: none; }
+    .lesson.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .lesson-breadcrumb { font-size: 12px; color: var(--warm); font-family: 'DM Mono', monospace; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .breadcrumb-sep { color: var(--dawn); }
+    .lesson-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 36px; line-height: 1.1; color: var(--snow); margin-bottom: 12px; letter-spacing: -0.5px; }
+    .lesson-objective { font-size: 15px; color: var(--dawn-ll); margin-bottom: 36px; padding: 14px 18px; background: rgba(196,96,48,0.08); border-left: 3px solid var(--dawn); border-radius: 0 6px 6px 0; font-style: italic; }
+    .lesson-body { font-size: 15px; color: rgba(238,244,248,0.85); line-height: 1.8; }
+    .lesson-body h3 { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 20px; color: var(--snow); margin: 36px 0 14px; letter-spacing: -0.3px; }
+    .lesson-body p { margin-bottom: 16px; }
+    .lesson-body ul, .lesson-body ol { margin: 0 0 16px 20px; }
+    .lesson-body li { margin-bottom: 8px; }
+    .lesson-body strong { color: var(--snow); font-weight: 600; }
+
+    .module-header { background: var(--ink-3); border-left: 4px solid var(--dawn); border-radius: 0 12px 12px 0; padding: 20px 24px; margin-bottom: 36px; }
+    .module-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn); font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
+    .module-name { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 14px; color: var(--warm); margin-top: 4px; }
+
+    .lesson-hero { width: 100%; height: 220px; border-radius: 12px; overflow: hidden; position: relative; margin-bottom: 36px; background: var(--ink-3); }
+    .lesson-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lesson-hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 65%; background: linear-gradient(to top, rgba(7,9,15,0.85), transparent); pointer-events: none; }
+    .lesson-hero.broken { display: none; }
+
+    .screenshot-frame { background: var(--ink-2); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; margin: 24px 0; }
+    .screenshot-bar { padding: 10px 16px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 6px; }
+    .screenshot-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .screenshot-dot:nth-child(1) { background: #ff5f57; }
+    .screenshot-dot:nth-child(2) { background: #febc2e; }
+    .screenshot-dot:nth-child(3) { background: #28c840; }
+    .screenshot-img { width: 100%; display: block; }
+    .screenshot-placeholder { padding: 40px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; border: 2px dashed rgba(255,255,255,0.07); margin: 12px; border-radius: 8px; min-height: 160px; justify-content: center; }
+    .ph-icon { font-size: 28px; opacity: 0.4; }
+    .ph-title { color: rgba(238,244,248,0.5); font-weight: 500; font-size: 14px; }
+    .ph-sub { color: var(--warm); font-size: 11px; font-family: 'DM Mono', monospace; opacity: 0.7; }
+    .screenshot-caption { padding: 10px 16px; font-size: 12px; color: var(--warm); font-family: 'DM Mono', monospace; border-top: 1px solid rgba(255,255,255,0.05); }
+
+    .code-block { background: #0d1117; border-radius: 10px; margin: 20px 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); }
+    .code-header { padding: 10px 16px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; }
+    .code-lang { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--warm); text-transform: uppercase; letter-spacing: 1px; }
+    .copy-btn { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn-ll); background: none; border: 1px solid rgba(196,96,48,0.3); padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { background: rgba(196,96,48,0.15); border-color: var(--dawn); }
+    .copy-btn.copied { color: #4ade80; border-color: rgba(74,222,128,0.3); }
+    pre { padding: 20px; overflow-x: auto; font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.7; color: #e6edf3; }
+    .inline-code { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 2px 7px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dawn-ll); }
+
+    .callout { padding: 16px 20px; border-radius: 8px; margin: 20px 0; font-size: 14px; line-height: 1.6; }
+    .callout-error { background: rgba(239,68,68,0.08); border-left: 3px solid #ef4444; color: #fca5a5; }
+    .callout-tip { background: rgba(58,100,148,0.12); border-left: 3px solid var(--sky); color: var(--ice); }
+    .callout-warning { background: rgba(196,96,48,0.1); border-left: 3px solid var(--dawn); color: var(--dawn-ll); }
+    .callout-success { background: rgba(74,222,128,0.07); border-left: 3px solid #4ade80; color: #86efac; }
+    .callout strong { display: block; margin-bottom: 4px; font-weight: 600; }
+
+    .action-block { background: linear-gradient(135deg, rgba(196,96,48,0.12), rgba(196,96,48,0.05)); border: 1px solid rgba(196,96,48,0.25); border-radius: 12px; padding: 24px 28px; margin-top: 40px; }
+    .action-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dawn); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .action-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--dawn); }
+    .action-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: var(--snow); margin-bottom: 12px; }
+    .action-steps { list-style: none; margin: 0; padding: 0; }
+    .action-steps li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px; color: rgba(238,244,248,0.8); display: flex; align-items: flex-start; gap: 12px; }
+    .action-steps li:last-child { border-bottom: none; }
+    .step-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn); font-weight: 500; min-width: 20px; margin-top: 2px; }
+
+    .step-list { display: flex; flex-direction: column; gap: 6px; margin: 24px 0; }
+    .step-item { display: flex; gap: 16px; padding: 14px 16px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); align-items: flex-start; transition: background 0.2s; }
+    .step-item:hover { background: rgba(255,255,255,0.04); }
+    .step-number-big { width: 28px; height: 28px; background: var(--dawn); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; color: var(--snow); flex-shrink: 0; margin-top: 2px; }
+    .step-content { flex: 1; }
+    .step-content strong { display: block; font-size: 15px; color: var(--snow); margin-bottom: 3px; }
+    .step-content p { font-size: 13px; color: rgba(238,244,248,0.6); margin: 0; line-height: 1.5; }
+
+    .quiz-block { background: rgba(58,100,148,0.08); border: 1px solid rgba(58,100,148,0.2); border-radius: 12px; padding: 24px 28px; margin: 32px 0; }
+    .quiz-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sky); margin-bottom: 16px; }
+    .quiz-question { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: var(--snow); margin-bottom: 16px; line-height: 1.3; }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-option { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px; text-align: left; color: rgba(238,244,248,0.8); font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; transition: all 0.2s; line-height: 1.5; }
+    .quiz-option:hover:not(:disabled) { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.2); color: var(--snow); }
+    .quiz-option.quiz-correct { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.4); color: #86efac; }
+    .quiz-option.quiz-incorrect { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.3); color: #fca5a5; }
+    .quiz-feedback { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.5; display: none; }
+    .quiz-feedback.fb-correct { background: rgba(74,222,128,0.08); color: #86efac; border-left: 3px solid #4ade80; display: block; }
+    .quiz-feedback.fb-incorrect { background: rgba(239,68,68,0.08); color: #fca5a5; border-left: 3px solid #ef4444; display: block; }
+
+    .checklist-block { background: rgba(196,96,48,0.06); border: 1px solid rgba(196,96,48,0.2); border-radius: 12px; padding: 20px 24px; margin: 28px 0; }
+    .checklist-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dawn); margin-bottom: 14px; font-weight: 500; }
+    .checklist-item { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .checklist-item:last-child { border-bottom: none; }
+    .checklist-item input[type="checkbox"] { width: 17px; height: 17px; cursor: pointer; accent-color: var(--dawn); flex-shrink: 0; }
+    .checklist-item label { font-size: 14px; color: rgba(238,244,248,0.8); cursor: pointer; transition: all 0.2s; }
+    .checklist-item input:checked + label { color: var(--dawn-ll); text-decoration: line-through; opacity: 0.6; }
+
+    .challenge-block { background: linear-gradient(135deg, rgba(74,222,128,0.05), rgba(58,100,148,0.08)); border: 1px solid rgba(74,222,128,0.15); border-radius: 12px; padding: 28px; margin: 36px 0; text-align: center; }
+    .challenge-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #4ade80; margin-bottom: 12px; font-weight: 500; }
+    .challenge-question { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 22px; color: var(--snow); margin-bottom: 20px; }
+    .challenge-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .challenge-yes { background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.35); color: #86efac; padding: 11px 28px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .challenge-yes:hover { background: rgba(74,222,128,0.2); }
+    .challenge-no { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; padding: 11px 28px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 15px; cursor: pointer; transition: all 0.2s; }
+    .challenge-response { margin-top: 20px; padding: 16px; border-radius: 8px; font-size: 15px; line-height: 1.6; display: none; }
+    .challenge-response.success { background: rgba(74,222,128,0.08); color: #86efac; border: 1px solid rgba(74,222,128,0.2); display: block; }
+    .challenge-response.error { background: rgba(239,68,68,0.08); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); display: block; }
+
+    .field-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+    .field-table th { background: rgba(255,255,255,0.05); padding: 10px 14px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--warm); border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .field-table td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; color: rgba(238,244,248,0.8); }
+    .field-table tr:last-child td { border-bottom: none; }
+    .field-name { font-family: 'DM Mono', monospace; color: var(--dawn-ll); font-size: 12px; white-space: nowrap; }
+    .field-val { font-family: 'DM Mono', monospace; color: #a8d5a2; font-size: 12px; }
+
+    .next-course { background: linear-gradient(135deg, var(--ink-3), rgba(196,96,48,0.08)); border: 1px solid rgba(196,96,48,0.2); border-radius: 16px; padding: 32px; margin: 40px 0; }
+    .next-course-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dawn); margin-bottom: 10px; }
+    .next-course-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 24px; color: var(--snow); margin-bottom: 10px; letter-spacing: -0.3px; }
+    .next-course-desc { font-size: 14px; color: rgba(238,244,248,0.7); margin-bottom: 20px; line-height: 1.6; }
+    .next-course-btn { display: inline-block; background: var(--dawn); color: var(--snow); padding: 11px 28px; border-radius: 100px; font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 14px; text-decoration: none; transition: background 0.2s; cursor: pointer; border: none; }
+    .next-course-btn:hover { background: var(--dawn-l); }
+
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .nav-btn { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; transition: all 0.2s; }
+    .nav-btn-prev { background: rgba(255,255,255,0.05); color: var(--warm); }
+    .nav-btn-prev:hover { background: rgba(255,255,255,0.09); color: var(--snow); }
+    .nav-btn-next { background: var(--dawn); color: var(--snow); }
+    .nav-btn-next:hover { background: var(--dawn-l); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .hamburger { display: none; position: fixed; top: 12px; left: 12px; z-index: 200; background: var(--ink-2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; width: 40px; height: 40px; cursor: pointer; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
+    .hamburger span { display: block; width: 18px; height: 2px; background: var(--snow); border-radius: 2px; }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 90; }
+
+    * { cursor: none !important; }
+    a, button, [onclick], label, input[type="checkbox"], .nav-lesson, .nav-module-header, .quiz-option, .copy-btn, .nav-btn, .challenge-yes, .challenge-no, .next-course-btn, .cert-generate-btn, .cert-skip { cursor: pointer !important; }
+    .cursor-dot { position: fixed; width: 8px; height: 8px; background: #C46030; border-radius: 50%; pointer-events: none; z-index: 99999; transform: translate(-50%, -50%); transition: transform 0.1s ease, background 0.2s; }
+    .cursor-ring { position: fixed; width: 32px; height: 32px; border: 1.5px solid rgba(196,96,48,0.6); border-radius: 50%; pointer-events: none; z-index: 99998; transform: translate(-50%, -50%); transition: width 0.2s ease, height 0.2s ease, border-color 0.2s; }
+    .cursor-dot.clicking { transform: translate(-50%,-50%) scale(0.6); background: #ECA878; }
+    .cursor-ring.clicking { width: 20px; height: 20px; border-color: #C46030; }
+    @media (max-width: 768px) { * { cursor: auto !important; } .cursor-dot, .cursor-ring { display: none; } }
+
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .sidebar { position: fixed; left: -310px; top: 0; height: 100vh; transition: left 0.3s ease; z-index: 150; }
+      .sidebar.open { left: 0; }
+      .overlay.active { display: block; }
+      .content { padding: 60px 20px 80px; }
+      .lesson-title { font-size: 26px; }
+      .lesson-hero { height: 160px; }
+    }
+
+    .cert-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; display: none; align-items: center; justify-content: center; }
+    .cert-overlay.active { display: flex; }
+    .cert-modal { background: var(--ink-2); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 36px; max-width: 440px; width: 90%; text-align: center; }
+    .cert-modal-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 24px; color: var(--snow); margin-bottom: 8px; }
+    .cert-modal-sub { font-size: 14px; color: var(--warm); margin-bottom: 24px; line-height: 1.5; }
+    .cert-name-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 12px 16px; color: var(--snow); font-family: 'DM Sans', sans-serif; font-size: 16px; outline: none; margin-bottom: 16px; }
+    .cert-name-input:focus { border-color: var(--dawn); }
+    .cert-name-input::placeholder { color: var(--warm); }
+    .cert-generate-btn { width: 100%; background: var(--dawn); color: var(--snow); border: none; border-radius: 100px; padding: 13px; font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; transition: background 0.2s; }
+    .cert-generate-btn:hover { background: var(--dawn-l); }
+    .cert-skip { margin-top: 12px; font-size: 13px; color: var(--warm); cursor: pointer; text-decoration: underline; display: block; }
+    .cert-skip:hover { color: var(--snow); }
+  
+
+/* === MINIMAL ESSENTIAL OVERRIDES (auto-applied) === */
+body, .hero, .about, .services, .testi, .uc, .valor, .flow-demo, .cta, .manifesto, footer {
+  background-color: #000 !important;
+}
+.hero {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/iceberg-sunset-amber.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: scroll, fixed !important;
+}
+.eyebrow, .kicker, .nav-cta { color: #ECA878 !important; }
+.flake { opacity: .55 !important; font-size: 13px !important; }
+
+/* === ICEBERGS on sections === */
+.manifesto { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/mountains-sunset-pink.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.about, section.about { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-aerial-dark.jpeg') !important; background-size: cover, cover !important; background-position: right center !important; }
+.services { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-texture-blue.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.flow-demo { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/glacier-wall-blue.jpeg') !important; background-size: cover, cover !important; }
+.valor { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-minimal.jpeg') !important; background-size: cover, cover !important; }
+.uc { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/aerial-snow-scale.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.testi { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-ice-columns.jpeg') !important; background-size: cover, cover !important; }
+.cta { background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/icebergs-twin-massive.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+footer, .footer { background-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.98)), url('assets/img/antarctic-moon.jpeg') !important; background-size: cover, cover !important; }
+@media (max-width: 900px) { .hero, .services, .uc, .cta, .manifesto { background-attachment: scroll !important; } }
+
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div class="cert-overlay" id="progress-modal">
+  <div class="cert-modal">
+    <img decoding="async" src="assets/img/Aury-Estudiando.png" style="width:80px;margin:0 auto 12px;display:block;" alt="Aury">
+    <div class="cert-modal-title">¿Guardamos tu progreso?</div>
+    <div class="cert-modal-sub">Déjame tu email y te aviso cuando publique nuevos cursos. Sin spam, solo lo útil.</div>
+    <input class="cert-name-input" id="progress-nombre" type="text" placeholder="Tu nombre">
+    <input class="cert-name-input" id="progress-email" type="email" placeholder="tu@correo.com" style="margin-top:8px;">
+    <input class="cert-name-input" id="progress-negocio" type="text" placeholder="Tu tipo de negocio (ej. peluquería)" style="margin-top:8px;">
+    <button class="cert-generate-btn" onclick="saveProgress()">Guardar →</button>
+    <div class="cert-skip" onclick="dismissProgress()">Ahora no</div>
+  </div>
+</div>
+
+<div class="cert-overlay" id="cert-overlay">
+  <div class="cert-modal">
+    <img decoding="async" src="assets/img/Aury-Saludando.png" style="width:90px;margin:0 auto 12px;display:block;" alt="Aury">
+    <div class="cert-modal-title">¡Lo lograste!</div>
+    <div class="cert-modal-sub">Terminaste el curso. Escribe tu nombre y correo para generar tu certificado y avisarte cuando publique nuevos cursos.</div>
+    <input class="cert-name-input" id="cert-name" type="text" placeholder="Tu nombre completo">
+    <input class="cert-name-input" id="cert-email" type="email" placeholder="tu@correo.com" style="margin-top:8px;">
+    <input class="cert-name-input" id="cert-negocio" type="text" placeholder="Tu tipo de negocio (ej. peluquería)" style="margin-top:8px;">
+    <button class="cert-generate-btn" onclick="generateCert()">Descargar certificado →</button>
+    <div class="cert-skip" onclick="closeCertModal()">Omitir por ahora</div>
+  </div>
+</div>
+
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon" style="background:none;padding:0;"><img decoding="async" src="assets/img/Aury-Art-Computadora-1-2.png" style="width:40px;height:40px;object-fit:contain;display:block;"></div>
+        <span class="logo-text">AuryOnTech</span>
+      </div>
+      <div class="course-title">Recordatorios automáticos de citas</div>
+      <div class="progress-info">
+        <span class="progress-label">Tu progreso</span>
+        <span class="progress-pill" id="progress-text">0 / 20</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+  </nav>
+
+  <main class="main" id="main-content">
+    <div class="content">
+      <div id="content-area"></div>
+    </div>
+  </main>
+</div>
+
+<button class="hamburger" onclick="toggleSidebar()">
+  <span></span><span></span><span></span>
+</button>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<script>
+const curso = [
+  {
+    modulo: "01",
+    titulo: "Qué vas a construir",
+    lecciones: [
+      {
+        id: "1-1",
+        titulo: "El problema que resuelve esto",
+        objetivo: "Al terminar esta lección entenderás exactamente qué problema eliminas con esta automatización.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">Qué vas a construir</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Agenda y citas" onerror="this.parentElement.classList.add('broken'); this.remove()">
+          </div>
+          <p>Tienes una agenda. Mañana tienes 3 citas. El cliente de las 10am a veces no aparece porque se le olvidó. El de las 12pm llegó tarde porque no recordó la dirección. Tú pierdes tiempo, ellos se sienten mal.</p>
+          <p>La solución habitual es acordarte de mandar un WhatsApp o un email a cada cliente el día anterior. Manualmente. Uno por uno.</p>
+          <p>Eso tiene dos problemas:</p>
+          <div class="checklist-block">
+            <div class="checklist-label">Los dos problemas del recordatorio manual</div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-1-1-a">
+              <label for="ck-1-1-a">Depende de que tú te acuerdes — y hay días que no.</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-1-1-b">
+              <label for="ck-1-1-b">Escala fatal: con 3 clientes es manejable, con 10 ya es una tarea molesta.</label>
+            </div>
+          </div>
+          <p>Lo que vas a construir en este curso resuelve ambos: Make revisa tu Google Calendar cada mañana a las 8am, encuentra todos los eventos del día siguiente y manda un correo automático a cada cliente invitado. Sin que tú hagas nada.</p>
+          <div class="callout callout-tip">
+            <strong>Regla clave de este flujo</strong>
+            Para que funcione, el cliente tiene que estar agregado como <strong>invitado</strong> en el evento de Google Calendar. Más adelante te explico exactamente cómo hacerlo — es un clic.
+          </div>
+        `
+      },
+      {
+        id: "1-2",
+        titulo: "Cómo funciona el flujo",
+        objetivo: "Entiendes la lógica del flujo antes de construirlo.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">Qué vas a construir</div>
+          </div>
+          <p>El flujo tiene tres piezas que trabajan juntas:</p>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Google Calendar — Busca eventos de mañana</strong>
+                <p>Make conecta con tu calendario y busca todos los eventos del día siguiente, desde las 00:00 hasta las 23:59.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Iterator — Recorre los invitados</strong>
+                <p>Por cada evento, Make saca la lista de invitados y los recorre uno a uno, excluyendo al organizador (tú).</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Gmail — Envía el recordatorio</strong>
+                <p>Por cada invitado externo, Gmail manda un correo con el nombre de la cita, la fecha, la hora y el lugar.</p>
+              </div>
+            </div>
+          </div>
+          <p>Make ejecuta todo esto automáticamente cada día a las 8am. Tú no haces nada — solo agrega al cliente como invitado cuando creas la cita.</p>
+          <div class="callout callout-success">
+            <strong>Todas las herramientas son gratis</strong>
+            Make (plan Free), Google Calendar y Gmail son completamente gratuitos para el volumen que necesitas en este curso.
+          </div>
+        `
+      },
+      {
+        id: "1-3",
+        titulo: "Lo que necesitas (todo gratis)",
+        objetivo: "Tienes todo listo antes de empezar a construir.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">Qué vas a construir</div>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Lo que necesitas</div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-1-3-a">
+              <label for="ck-1-3-a">Cuenta en <strong>Make.com</strong> — plan Free, sin tarjeta de crédito.</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-1-3-b">
+              <label for="ck-1-3-b">Cuenta de <strong>Google</strong> con Calendar y Gmail activos.</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-1-3-c">
+              <label for="ck-1-3-c">Un <strong>navegador moderno</strong> (Chrome, Firefox, Safari).</label>
+            </div>
+          </div>
+          <div class="callout callout-warning">
+            <strong>Importante sobre Make EU</strong>
+            Make tiene dos servidores: make.com (USA) y eu2.make.com (Europa). Si te registras desde España probablemente estés en EU. Algunas funciones de fecha se llaman diferente — te lo explico paso a paso cuando lleguemos ahí.
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "02",
+    titulo: "Crea tu cuenta en Make",
+    lecciones: [
+      {
+        id: "2-1",
+        titulo: "Registro y primer acceso",
+        objetivo: "Tienes tu cuenta de Make activa y lista para usar.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Crea tu cuenta en Make</div>
+          </div>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Ve a make.com</strong>
+                <p>Escribe <span class="inline-code">make.com</span> y presiona Enter. Haz clic en el botón <span class="inline-code">Get started free</span> o <span class="inline-code">Sign up for free</span>.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Crea tu cuenta</strong>
+                <p>Puedes registrarte con tu cuenta de Google o con tu correo directamente. Elige lo que prefieras.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Confirma tu email si te lo pide</strong>
+                <p>Make suele pedir confirmación por correo. Revisa tu bandeja de entrada y haz clic en el enlace. Puede tardar entre 1 y 3 minutos.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>Completa el onboarding</strong>
+                <p>Make puede preguntarte algunas cosas sobre tu uso. Puedes responderlas o saltarlas — no afecta el curso.</p>
+              </div>
+            </div>
+          </div>
+          <div class="screenshot-frame">
+            <div class="screenshot-bar">
+              <div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div>
+            </div>
+            <div class="screenshot-placeholder">
+              <div class="ph-icon">📸</div>
+              <div class="ph-title">Captura pendiente</div>
+              <div class="ph-sub">Dashboard de Make recién creada la cuenta</div>
+            </div>
+            <div class="screenshot-caption">Así se ve tu dashboard de Make cuando entras por primera vez</div>
+          </div>
+        `
+      },
+      {
+        id: "2-2",
+        titulo: "El dashboard de Make",
+        objetivo: "Reconoces las secciones del dashboard que usarás en el curso.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">Crea tu cuenta en Make</div>
+          </div>
+          <p>Cuando entras a Make ves el dashboard de tu organización. Las cosas importantes que debes conocer:</p>
+          <table class="field-table">
+            <thead><tr><th>Elemento</th><th>Para qué sirve</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">Scenarios</td><td>Donde viven tus automatizaciones. Cada flujo es un escenario.</td></tr>
+              <tr><td class="field-name">+ Create scenario</td><td>El botón morado en la esquina superior derecha. Lo usarás ahora.</td></tr>
+              <tr><td class="field-name">Credits left</td><td>El plan Free tiene 1,000 operaciones al mes. Más que suficiente para este flujo.</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-tip">
+            <strong>¿Cuántas operaciones gasta este flujo?</strong>
+            Cada ejecución diaria usa aproximadamente 2-3 operaciones por cita (1 Calendar + 1 Iterator + 1 Gmail). Con 5 citas al día son ~15 operaciones. Tienes 1,000 al mes — te sobran.
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "03",
+    titulo: "Prepara Google Calendar",
+    lecciones: [
+      {
+        id: "3-1",
+        titulo: "Cómo crear un evento correctamente",
+        objetivo: "Sabes crear eventos en Google Calendar con toda la información que el flujo necesita.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Prepara Google Calendar</div>
+          </div>
+          <p>Para que el recordatorio funcione, el evento tiene que tener estos datos completos:</p>
+          <table class="field-table">
+            <thead><tr><th>Campo</th><th>Por qué importa</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">Título</td><td>Aparece en el asunto y el cuerpo del correo. "Consulta médica", "Corte de pelo", etc.</td></tr>
+              <tr><td class="field-name">Fecha y hora</td><td>El flujo usa la hora de inicio para mostrarla en el correo. No uses "Todo el día".</td></tr>
+              <tr><td class="field-name">Ubicación</td><td>Aparece en el correo como "Lugar". Si no la pones, ese campo saldrá vacío.</td></tr>
+              <tr><td class="field-name">Invitados</td><td>El correo del cliente. Sin esto, el flujo no tiene a quién enviar el recordatorio.</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-warning">
+            <strong>No uses "Todo el día"</strong>
+            Si marcas el evento como "Todo el día", la hora de la cita no existe y saldrá vacía en el correo. Siempre pon una hora de inicio y fin específicas.
+          </div>
+        `
+      },
+      {
+        id: "3-2",
+        titulo: "Agregar al cliente como invitado",
+        objetivo: "Sabes agregar el correo del cliente al evento para que el flujo le mande el recordatorio.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Prepara Google Calendar</div>
+          </div>
+          <p>En Google Calendar, cuando creas o editas un evento, hay un campo que dice <strong>"Añadir invitados"</strong>. Escribe el correo del cliente ahí y presiona Enter.</p>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Abre el evento (o crea uno nuevo)</strong>
+                <p>Haz clic en el evento o en el botón "+" del calendario.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Busca el campo "Añadir invitados"</strong>
+                <p>Si estás en la vista rápida, haz clic en <strong>"Más opciones"</strong> para ver todos los campos.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Escribe el correo del cliente y presiona Enter</strong>
+                <p>Google Calendar puede avisar al cliente automáticamente — eso es opcional, puedes cancelarlo si no quieres que llegue la invitación de Calendar.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <strong>¿Por qué no funciona con tu propio correo de prueba?</strong>
+            Google Calendar no te incluye en el array de invitados cuando eres el organizador del evento — aunque te hayas agregado tú mismo. En el uso real con clientes esto funciona perfectamente porque ellos sí son invitados externos.
+          </div>
+        `
+      },
+      {
+        id: "3-3",
+        titulo: "Crea tu evento de prueba",
+        objetivo: "Tienes un evento real en Google Calendar listo para que el flujo lo detecte.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Prepara Google Calendar</div>
+          </div>
+          <p>Antes de construir el flujo necesitas un evento de prueba para mañana. Créalo ahora con estos datos exactos:</p>
+          <table class="field-table">
+            <thead><tr><th>Campo</th><th>Valor de prueba</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">Título</td><td>Reunión con Cliente</td></tr>
+              <tr><td class="field-name">Fecha</td><td>Mañana (el día siguiente a hoy)</td></tr>
+              <tr><td class="field-name">Hora</td><td>10:00 — 11:00</td></tr>
+              <tr><td class="field-name">Ubicación</td><td>Oficina Central</td></tr>
+              <tr><td class="field-name">Invitado</td><td>Un correo diferente al tuyo (familiar, amigo, cuenta secundaria)</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-warning">
+            <strong>El invitado tiene que ser un correo diferente al tuyo</strong>
+            Si agregas tu propio correo como invitado, Google Calendar no lo incluye en la lista de asistentes externos. Usa una cuenta diferente para la prueba.
+          </div>
+          <div class="challenge-block">
+            <div class="challenge-label">✋ Pausa aquí</div>
+            <div class="challenge-question">¿Creaste el evento de prueba?</div>
+            <div class="challenge-btns">
+              <button class="challenge-yes" onclick="handleChallenge(this, true)">Sí, evento creado ✓</button>
+              <button class="challenge-no" onclick="handleChallenge(this, false)">Lo hago después</button>
+            </div>
+            <div class="challenge-response"></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "04",
+    titulo: "Construye el flujo",
+    lecciones: [
+      {
+        id: "4-1",
+        titulo: "Crea el escenario en Make",
+        objetivo: "Tienes el editor de escenarios abierto y listo para agregar módulos.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Construye el flujo</div>
+          </div>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Ve al dashboard de Make</strong>
+                <p>Entra a make.com (o eu2.make.com si estás en Europa) y verás el dashboard con tus organizaciones.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Haz clic en "+ Create scenario"</strong>
+                <p>Es el botón morado en la esquina superior derecha del dashboard.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Se abre el editor con un círculo morado grande con un "+"</strong>
+                <p>Eso es el lienzo de tu escenario. El círculo con "+" es el primer módulo vacío esperando que elijas una aplicación.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <strong>El panel de aplicaciones se abre automáticamente</strong>
+            Al entrar al editor, Make abre automáticamente el selector de aplicaciones. Verás un buscador y una lista de apps. Es normal.
+          </div>
+        `
+      },
+      {
+        id: "4-2",
+        titulo: "Módulo 1: Google Calendar",
+        objetivo: "Configuras el primer módulo que busca los eventos de mañana en tu calendario.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Construye el flujo</div>
+          </div>
+          <h3>Paso 1 — Agrega Google Calendar</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>En el buscador escribe "Google Calendar"</strong>
+                <p>Aparece la tarjeta de Google Calendar con el ícono del calendario azul.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Haz clic en "Google Calendar" (el título grande)</strong>
+                <p>No hagas clic en los módulos individuales de abajo todavía — haz clic en el nombre principal para ver todos los módulos disponibles.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Haz clic en "Search Events"</strong>
+                <p>Descripción: "Searches for events on the specified calendar." Este es el módulo que busca eventos por rango de fechas.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-warning">
+            <strong>No uses "Watch Events"</strong>
+            "Watch Events" tiene una etiqueta morada que dice "Acid" — significa que está en beta y puede comportarse de forma inestable. Usa siempre "Search Events" para este flujo.
+          </div>
+          <h3>Paso 2 — Conecta tu cuenta de Google</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>Haz clic en "Add" junto a "Choose an account"</strong>
+                <p>Se abre una ventana de Google para autorizar a Make.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">5</div>
+              <div class="step-content">
+                <strong>Elige tu cuenta de Google y acepta los permisos</strong>
+                <p>Make necesita permiso para leer tu calendario. Acepta todo.</p>
+              </div>
+            </div>
+          </div>
+          <h3>Paso 3 — Configura los campos</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Configuración del módulo Google Calendar</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Calendar ID   → tucorreo@gmail.com (Primary Calendar)
+Start Date    → {{parseDate(formatDate(addDays(now; 1); "YYYY-MM-DD"); "YYYY-MM-DD")}}
+End Date      → {{parseDate(formatDate(addDays(now; 1); "YYYY-MM-DD 23:59:59"); "YYYY-MM-DD HH:mm:ss")}}
+Single Events → Yes
+Order By      → Start Time (ascending)
+Limit         → 10</pre>
+          </div>
+          <div class="callout callout-error">
+            <strong>Make EU no soporta endOfDay() ni startOfDay()</strong>
+            Si usas endOfDay(now) o startOfDay(now) en el servidor europeo de Make, obtendrás un error: "Function not found". Por eso usamos parseDate + formatDate — funciona igual en todos los servidores.
+          </div>
+          <div class="callout callout-tip">
+            <strong>Las fórmulas se escriben directamente en el campo</strong>
+            Escribe la fórmula completa en el campo de texto. Make la reconoce automáticamente y la convierte en una "pastilla" visual con las funciones resaltadas.
+          </div>
+          <div class="callout callout-error">
+            <strong>Error: "Duplicate instance id '1' found"</strong>
+            Si ves este error al guardar o activar, significa que dos módulos tienen el mismo ID. Solución: haz clic derecho en el módulo → "Duplicate" → conéctalo en lugar del original → borra el original. El error desaparece.
+          </div>
+        `
+      },
+      {
+        id: "4-3",
+        titulo: "Módulo 2: Iterator",
+        objetivo: "Configuras el Iterator para que el flujo procese cada invitado del evento individualmente.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Construye el flujo</div>
+          </div>
+          <p>Sin el Iterator, Make solo toma el primer elemento del array de asistentes — que suele ser el organizador (tú mismo). El Iterator recorre todos los invitados uno a uno.</p>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Haz clic en el "+" a la derecha del módulo de Google Calendar</strong>
+                <p>Se abre el selector de aplicaciones.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Haz clic en "Flow Control" en la lista de apps</strong>
+                <p>Flow Control aparece en la lista principal sin necesidad de buscar. Es el ícono verde con un engranaje.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Selecciona "Iterator"</strong>
+                <p>Descripción: "Splits a bundle into separate bundles."</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>En el campo "Array" arrastra la variable "Attendees[]"</strong>
+                <p>Haz clic en el campo Array → se abre el panel de variables → busca "Attendees[]" en la sección de Google Calendar. <strong>No</strong> arrastres "Email" — arrastra el array completo "Attendees[]".</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">5</div>
+              <div class="step-content">
+                <strong>Haz clic en "Save"</strong>
+                <p>El módulo queda conectado al de Google Calendar.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <strong>Las variables se arrastran, no se teclean</strong>
+            En Make, los datos de módulos anteriores se insertan arrastrando las "pastillas" de variables desde el panel lateral, no escribiendo el nombre a mano. Es la mecánica central de Make.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Para qué sirve el Iterator en este flujo?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this, false)"
+                data-incorrect="No. Sin Iterator, Make solo procesaría al primer asistente del array — que normalmente es el organizador (tú). El Iterator es esencial para que cada cliente reciba su correo.">
+                Para nada, es opcional.
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, true)"
+                data-correct="¡Exacto! Sin Iterator, Make solo procesaría al primer asistente del evento — que suele ser el organizador (tú). El Iterator garantiza que cada invitado externo reciba su correo.">
+                Para procesar cada invitado del evento individualmente, no solo el primero.
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)"
+                data-incorrect="No. El Iterator no conecta directamente con Google Calendar — trabaja con los datos que ya trajo el módulo de Calendar.">
+                Para conectar con Google Calendar.
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        `
+      },
+      {
+        id: "4-4",
+        titulo: "Filtro: Solo clientes externos",
+        objetivo: "Configuras el filtro para que el flujo no te mande el recordatorio a ti mismo.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Construye el flujo</div>
+          </div>
+          <p>Google Calendar marca a cada asistente con un campo <strong>"Self"</strong>: si es <span class="inline-code">true</span>, eres tú el organizador. Si es <span class="inline-code">false</span>, es un cliente externo. El filtro deja pasar solo a los externos.</p>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Haz clic en la llave inglesa (🔧) entre el Iterator y el siguiente módulo</strong>
+                <p>Se abre el panel "Set up a filter".</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>En "Label" escribe: Solo invitados externos</strong>
+                <p>Es solo una etiqueta para identificar el filtro visualmente.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>En la condición, campo izquierdo: arrastra la variable "Self"</strong>
+                <p>Viene del Iterator → de los datos de Google Calendar.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>Cambia el operador a "Boolean operators: Equal to"</strong>
+                <p>Por defecto aparece "Text operators: Equal to". Haz clic en el desplegable y busca la sección Boolean — es diferente.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">5</div>
+              <div class="step-content">
+                <strong>En el campo derecho escribe: false</strong>
+                <p>Esto le dice a Make: "Solo continúa si el asistente NO es el organizador."</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">6</div>
+              <div class="step-content">
+                <strong>Haz clic en "Save"</strong>
+                <p>El filtro queda activo entre el Iterator y Gmail.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <strong>¿Quieres recibir una copia tú también?</strong>
+            Si prefieres que el flujo te incluya para tener un registro de los correos enviados, simplemente no configures este filtro. Recibirás un correo por cada cita igual que tus clientes.
+          </div>
+        `
+      },
+      {
+        id: "4-5",
+        titulo: "Módulo 3: Gmail",
+        objetivo: "Configuras Gmail para enviar el correo de recordatorio con los datos del evento.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Construye el flujo</div>
+          </div>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Haz clic en el "+" a la derecha del Iterator</strong>
+                <p>Se abre el selector de aplicaciones.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Busca "Gmail" y selecciona "Send an email"</strong>
+                <p>Descripción: "Sends a new email." Es el primer módulo bajo Gmail.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Conecta tu cuenta de Gmail con "Add"</strong>
+                <p>Igual que antes con Google Calendar — se abre la ventana de Google, acepta los permisos.</p>
+              </div>
+            </div>
+          </div>
+          <h3>Configuración del correo</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Configuración del módulo Gmail</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>To          → Haz clic en "+ Add recipient" → arrastra "Attendees[]: Email" del Iterator
+Subject     → Escribe "Recordatorio: " → arrastra la variable "Summary" → escribe " mañana"
+Body type   → Cambia a Raw HTML (hazlo ANTES de escribir el contenido)
+Content     → Copia el bloque HTML de abajo</pre>
+          </div>
+          <div class="callout callout-warning">
+            <strong>Cambia Body type ANTES de escribir el contenido</strong>
+            Si primero escribes el contenido y luego cambias a "Raw HTML", el campo se reinicia y pierdes lo que escribiste.
+          </div>
+          <h3>Contenido del correo (campo Content)</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">HTML del correo</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Hola,&lt;br&gt;&lt;br&gt;
+Te recordamos que tienes una cita mañana: &lt;b&gt;{{1.summary}}&lt;/b&gt;&lt;br&gt;&lt;br&gt;
+📅 Fecha: {{formatDate(1.start; "DD/MM/YYYY")}}&lt;br&gt;
+🕐 Hora: {{formatDate(1.start; "HH:mm")}}&lt;br&gt;
+📍 Lugar: {{1.location}}&lt;br&gt;&lt;br&gt;
+Si necesitas cancelar o reagendar, responde este correo.&lt;br&gt;&lt;br&gt;
+¡Hasta mañana!</pre>
+          </div>
+          <div class="callout callout-warning">
+            <strong>Make no soporta nombres de meses en español</strong>
+            Si usas "dddd D [de] MMMM" para la fecha, el mes saldrá en inglés ("Friday 1 de May"). Por eso usamos el formato numérico "DD/MM/YYYY" — funciona igual en cualquier idioma.
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "05",
+    titulo: "Configura el horario",
+    lecciones: [
+      {
+        id: "5-1",
+        titulo: "Una vez al día a las 8am",
+        objetivo: "El escenario queda programado para ejecutarse automáticamente todos los días a las 8am.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 05</div>
+            <div class="module-name">Configura el horario</div>
+          </div>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>En la barra inferior, haz clic en "Every 15 minutes"</strong>
+                <p>Es el texto gris en la barra de herramientas de la parte baja de la pantalla. Al hacer clic se abre el panel "Schedule settings".</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>En "Run scenario" cambia a "Daily"</strong>
+                <p>Haz clic en el desplegable y selecciona Daily.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>En "Time 1" escribe "8:00"</strong>
+                <p>La zona horaria ya está configurada como Europe/Madrid si te registraste desde España.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">4</div>
+              <div class="step-content">
+                <strong>Haz clic en "Save"</strong>
+                <p>Puede aparecer un popup que pregunta si quieres activar el escenario. Haz clic en "Not yet" — primero lo probamos.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <strong>¿Por qué 8am?</strong>
+            A las 8am los recordatorios llegan cuando el cliente empieza su mañana — con tiempo suficiente para reorganizar si necesita cancelar. Puedes cambiarlo a la hora que prefieras.
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "06",
+    titulo: "Prueba y activa",
+    lecciones: [
+      {
+        id: "6-1",
+        titulo: "Corre el flujo y verifica",
+        objetivo: "Verificas que el flujo funciona de principio a fin antes de activarlo.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 06</div>
+            <div class="module-name">Prueba y activa</div>
+          </div>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Haz clic en "Run once"</strong>
+                <p>Es el botón verde en la barra inferior izquierda. Ejecuta el escenario una sola vez.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Observa los números sobre los módulos</strong>
+                <p>Un número verde con un check (✓1) sobre un módulo significa que procesó 1 bundle correctamente. Si hay un triángulo rojo, hubo un error.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Revisa el correo del invitado</strong>
+                <p>Entra al correo del cliente de prueba y busca el recordatorio. Si no lo ves en la bandeja principal, revisa <strong>Spam</strong>, <strong>Promociones</strong> y <strong>Social</strong>.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-success">
+            <strong>Así debe verse el correo</strong>
+            Asunto: "Recordatorio: Reunión con Cliente mañana". Cuerpo: nombre de la cita en negrita, fecha en formato DD/MM/YYYY, hora en HH:mm, y ubicación.
+          </div>
+          <div class="screenshot-frame">
+            <div class="screenshot-bar">
+              <div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div>
+            </div>
+            <div class="screenshot-placeholder">
+              <div class="ph-icon">📸</div>
+              <div class="ph-title">Captura pendiente</div>
+              <div class="ph-sub">Correo de recordatorio recibido en el buzón del invitado</div>
+            </div>
+            <div class="screenshot-caption">Así debe verse el correo de recordatorio en la bandeja del cliente</div>
+          </div>
+        `
+      },
+      {
+        id: "6-2",
+        titulo: "Errores comunes y cómo resolverlos",
+        objetivo: "Sabes qué hacer si algo no funciona en la primera prueba.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 06</div>
+            <div class="module-name">Prueba y activa</div>
+          </div>
+          <h3>Error 1 — Function 'endOfDay' not found</h3>
+          <div class="callout callout-error">
+            <strong>Mensaje: "Function 'endOfDay' finished with error! Function not found"</strong>
+            Causa: estás en el servidor EU de Make y esa función no existe ahí.
+            Solución: abre Google Calendar → campo "End Date" → reemplaza por: {{parseDate(formatDate(addDays(now; 1); "YYYY-MM-DD 23:59:59"); "YYYY-MM-DD HH:mm:ss")}}
+          </div>
+          <h3>Error 2 — Missing value of required parameter 'to'</h3>
+          <div class="callout callout-error">
+            <strong>Mensaje: "BundleValidationError: Missing value of required parameter 'to'"</strong>
+            Causa: el evento no tiene invitados externos, o el campo "To" de Gmail apunta al organizador en lugar de al Iterator.
+            Solución: (1) Verifica que el evento de prueba tiene un invitado externo. (2) Abre Gmail → campo "To" → confirma que apunta a la variable del Iterator.
+          </div>
+          <h3>Error 3 — Duplicate instance id</h3>
+          <div class="callout callout-error">
+            <strong>Mensaje: "Invalid blueprint: Duplicate instance id '1' found"</strong>
+            Causa: dos módulos tienen el mismo ID interno (bug de Make).
+            Solución: haz clic derecho en el módulo conflictivo → "Duplicate" → conecta el duplicado → borra el original.
+          </div>
+          <h3>Error 4 — El correo no llega</h3>
+          <div class="callout callout-warning">
+            <strong>Los módulos están en verde pero no ves el correo</strong>
+            Si Make dice que envió (✓1 verde en Gmail), el correo se envió. Revisa en este orden: Spam → Promociones → Social. Los correos automáticos suelen caer en Promociones la primera vez.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">Make muestra todos los módulos en verde (✓1) pero no ves el correo en la bandeja principal. ¿Qué haces?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this, false)"
+                data-incorrect="No. Si Make muestra verde, el correo sí se envió — el problema es la carpeta donde llegó, no la configuración de Gmail.">
+                Vuelvo a configurar Gmail desde cero.
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, true)"
+                data-correct="¡Correcto! Los correos automáticos suelen filtrarse a Spam o Promociones la primera vez. Márcalo como 'No es spam' y en el futuro llegará a la bandeja principal.">
+                Reviso las carpetas Spam, Promociones y Social.
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this, false)"
+                data-incorrect="No necesariamente. El problema casi siempre es el filtrado de correo, no la conexión con la cuenta.">
+                Reconecto la cuenta de Gmail.
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        `
+      },
+      {
+        id: "6-3",
+        titulo: "Activa el escenario",
+        objetivo: "El escenario queda activo y funcionando automáticamente todos los días.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 06</div>
+            <div class="module-name">Prueba y activa</div>
+          </div>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Localiza el toggle en la barra inferior</strong>
+                <p>En la barra de herramientas de abajo verás un toggle gris (apagado) junto al texto "Daily at 8:00".</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Haz clic en el toggle para activarlo</strong>
+                <p>Se vuelve morado/azul. El escenario ya está activo.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Puede aparecer un popup "Activate your scenario"</strong>
+                <p>Si aparece, haz clic en "Save and activate".</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-error">
+            <strong>No uses "Run once" una vez que el escenario está activo</strong>
+            Cada vez que haces clic en "Run once" el escenario corre manualmente y manda los correos otra vez. Úsalo solo para pruebas. Una vez activado, Make lo ejecuta automáticamente a las 8am.
+          </div>
+          <div class="callout callout-success">
+            <strong>¡Tu automatización está funcionando!</strong>
+            A partir de ahora, cada mañana a las 8am Make revisará tu Google Calendar, encontrará los eventos de mañana y mandará un correo de recordatorio a cada cliente invitado. Sin que tú hagas nada.
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "07",
+    titulo: "Personaliza y expande",
+    lecciones: [
+      {
+        id: "7-1",
+        titulo: "Personaliza el mensaje",
+        objetivo: "Adaptas el correo de recordatorio al tono de tu negocio.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 07</div>
+            <div class="module-name">Personaliza y expande</div>
+          </div>
+          <p>El correo que configuramos es funcional pero genérico. Puedes personalizarlo abriendo el módulo de Gmail y editando el campo "Content".</p>
+          <div class="checklist-block">
+            <div class="checklist-label">Ideas para personalizar</div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-7-1-a">
+              <label for="ck-7-1-a">Cambia "Te recordamos" por el nombre de tu negocio: "Clínica López te recuerda..."</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-7-1-b">
+              <label for="ck-7-1-b">Agrega instrucciones: "Por favor llega 10 minutos antes."</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-7-1-c">
+              <label for="ck-7-1-c">Añade un enlace de cancelación o reagendado si usas Calendly.</label>
+            </div>
+            <div class="checklist-item">
+              <input type="checkbox" id="ck-7-1-d">
+              <label for="ck-7-1-d">Personaliza la firma con tu nombre, teléfono y web.</label>
+            </div>
+          </div>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Ejemplo de correo personalizado</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+            </div>
+            <pre>Hola,&lt;br&gt;&lt;br&gt;
+Te escribimos desde &lt;b&gt;[Tu Negocio]&lt;/b&gt; para recordarte
+tu cita de mañana: &lt;b&gt;{{1.summary}}&lt;/b&gt;&lt;br&gt;&lt;br&gt;
+📅 Fecha: {{formatDate(1.start; "DD/MM/YYYY")}}&lt;br&gt;
+🕐 Hora: {{formatDate(1.start; "HH:mm")}}&lt;br&gt;
+📍 Lugar: {{1.location}}&lt;br&gt;&lt;br&gt;
+Por favor llega 5 minutos antes.&lt;br&gt;
+Si necesitas cancelar, llámanos al +34 600 000 000.&lt;br&gt;&lt;br&gt;
+¡Hasta mañana!&lt;br&gt;
+El equipo de [Tu Negocio]</pre>
+          </div>
+        `
+      },
+      {
+        id: "7-2",
+        titulo: "Opción: recordatorio al organizador",
+        objetivo: "Conoces la variante del flujo para cuando quieres avisarte a ti mismo en lugar de al cliente.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 07</div>
+            <div class="module-name">Personaliza y expande</div>
+          </div>
+          <p>Hay negocios donde el flujo ideal es diferente: el dueño agenda la cita internamente y luego él contacta al cliente. En ese caso, quieres que Make te avise a <strong>ti</strong> — no al cliente.</p>
+          <p>Para hacer eso, el flujo es más simple: eliminas el Iterator y el filtro, y en el campo "To" de Gmail usas la variable <strong>Organizer: Email</strong> en lugar de Attendees.</p>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Abre el módulo de Gmail → campo "To"</strong>
+                <p>Borra la variable actual.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Arrastra la variable "Organizer: Email"</strong>
+                <p>Viene directamente de Google Calendar — Search Events. No necesitas el Iterator para esto.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>Cambia el mensaje para que sea un aviso interno</strong>
+                <p>Algo como: "Recordatorio: mañana tienes [cita] a las [hora]. Llama al cliente para confirmar."</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <strong>¿Cuál variante usar?</strong>
+            Si tienes el correo del cliente: usa el flujo principal con Iterator. Si gestionas las citas internamente y contactas al cliente por otro medio: usa esta variante.
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "08",
+    titulo: "¡Lo lograste!",
+    lecciones: [
+      {
+        id: "8-1",
+        titulo: "Tu automatización está corriendo",
+        objetivo: "Tienes un flujo real funcionando en Make que manda recordatorios de citas automáticamente.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 08</div>
+            <div class="module-name">¡Lo lograste!</div>
+          </div>
+          <div style="text-align:center;padding:20px 0 8px;">
+            <div style="font-size:64px;margin-bottom:16px;">🎉</div>
+            <p style="font-size:18px;color:var(--snow);font-family:'Cabinet Grotesk',sans-serif;font-weight:700;margin-bottom:8px;">Automatización completada</p>
+            <p style="color:rgba(238,244,248,0.6);margin-bottom:0;">Tu negocio ahora manda recordatorios de citas sin que tú hagas nada.</p>
+          </div>
+          <div class="callout callout-success">
+            <strong>Lo que construiste</strong>
+            Un escenario en Make que cada mañana a las 8am revisa tu Google Calendar, detecta los eventos de mañana y envía un correo personalizado a cada cliente invitado. Para siempre. Sin intervención manual.
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu resumen</div>
+            <div class="action-title">Lo que aprendiste en este curso</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Crear y configurar escenarios en Make desde cero</li>
+              <li><span class="step-num">02</span> Usar Google Calendar → Iterator → Gmail en un flujo encadenado</li>
+              <li><span class="step-num">03</span> Configurar filtros para procesar solo invitados externos</li>
+              <li><span class="step-num">04</span> Resolver los errores más comunes del servidor EU de Make</li>
+              <li><span class="step-num">05</span> Programar ejecuciones automáticas diarias con horario fijo</li>
+            </ul>
+          </div>
+          <div class="next-course">
+            <div class="next-course-label">Próximo curso gratuito</div>
+            <div class="next-course-title">Registrar pedidos de WhatsApp en Google Sheets</div>
+            <div class="next-course-desc">Captura cada mensaje de pedido y guárdalo automáticamente en una hoja de cálculo. El siguiente paso en tu automatización de negocio.</div>
+            <button class="next-course-btn" onclick="window.location.href='catalogo-cursos.html'">Ver catálogo →</button>
+          </div>
+        `
+      }
+    ]
+  }
+];
+
+// ─────────────────────────────────────────
+// ESTADO
+// ─────────────────────────────────────────
+let currentLesson = 0;
+const allLessons = curso.flatMap(m => m.lecciones);
+const completed = new Set();
+const quizPassed = new Set();
+var progressModalShown = false;
+var BREVO_URL = 'https://0e103c7f.sibforms.com/serve/MUIFAK3LynIYnG0g86LodBhffxfikVe9S6JlT-7_KVDKFSCLVEsJX7fIZcyk_WbySlPTmTt9XYUoLLkUW2B4YIVHgMBHh1HKOFdJoB_-A1Gve3bgmrjwnQN-BBan-mOhENvgU1OM1BniJLtKu1OBM17SbRS3KXjrtCAEe7bC3gbK1vb4nJW0vxKwTXYgFsi2_N16admxEnRYARNScQ==';
+
+// ─────────────────────────────────────────
+// RENDER SIDEBAR
+// ─────────────────────────────────────────
+function renderSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  curso.forEach((modulo) => {
+    const moduleEl = document.createElement('div');
+    moduleEl.className = 'nav-module';
+    const header = document.createElement('div');
+    header.className = 'nav-module-header';
+    header.innerHTML = '<span><span class="nav-module-num">' + modulo.modulo + '</span> — ' + modulo.titulo + '</span>';
+    header.onclick = () => {
+      const lessons = moduleEl.querySelector('.nav-lessons');
+      lessons.style.maxHeight = lessons.style.maxHeight ? '' : lessons.scrollHeight + 'px';
+    };
+    const lessons = document.createElement('div');
+    lessons.className = 'nav-lessons';
+    lessons.style.maxHeight = '500px';
+    modulo.lecciones.forEach((leccion) => {
+      const idx = allLessons.findIndex(l => l.id === leccion.id);
+      const item = document.createElement('div');
+      item.className = 'nav-lesson' + (idx === currentLesson ? ' active' : '') + (completed.has(idx) ? ' completed' : '');
+      item.dataset.idx = idx;
+      item.innerHTML = '<div class="lesson-dot"></div>' + leccion.titulo;
+      item.onclick = () => goToLesson(idx);
+      lessons.appendChild(item);
+    });
+    moduleEl.appendChild(header);
+    moduleEl.appendChild(lessons);
+    nav.appendChild(moduleEl);
+  });
+}
+
+// ─────────────────────────────────────────
+// RENDER LESSON
+// ─────────────────────────────────────────
+function renderLesson(idx) {
+  const area = document.getElementById('content-area');
+  const leccion = allLessons[idx];
+  const modulo = curso.find(m => m.lecciones.some(l => l.id === leccion.id));
+  area.innerHTML =
+    '<div class="lesson active">' +
+    '<div class="lesson-breadcrumb">' +
+    '<span>Módulo ' + modulo.modulo + '</span>' +
+    '<span class="breadcrumb-sep">›</span>' +
+    '<span>Lección ' + (idx + 1) + ' de ' + allLessons.length + '</span>' +
+    '</div>' +
+    '<h1 class="lesson-title">' + leccion.titulo + '</h1>' +
+    '<div class="lesson-objective">' + leccion.objetivo + '</div>' +
+    '<div class="lesson-body">' + leccion.contenido + '</div>' +
+    '<div class="lesson-nav">' +
+    '<button class="nav-btn nav-btn-prev" onclick="goToLesson(' + (idx - 1) + ')" ' + (idx === 0 ? 'disabled' : '') + '>← Anterior</button>' +
+    '<button class="nav-btn nav-btn-next" onclick="nextLesson(' + idx + ')">' +
+    (idx === allLessons.length - 1 ? '¡Completado! 🐧' : 'Siguiente →') +
+    '</button>' +
+    '</div>' +
+    '</div>';
+  document.getElementById('main-content').scrollTop = 0;
+}
+
+// ─────────────────────────────────────────
+// NAVEGACIÓN
+// ─────────────────────────────────────────
+function goToLesson(idx) {
+  if (idx < 0 || idx >= allLessons.length) return;
+  completed.add(currentLesson);
+  currentLesson = idx;
+  if (idx === 3 && !progressModalShown) {
+    setTimeout(function() {
+      document.getElementById('progress-modal').classList.add('active');
+    }, 600);
+  }
+  renderLesson(idx);
+  renderSidebar();
+  updateProgress();
+  closeSidebar();
+}
+
+function nextLesson(idx) {
+  completed.add(idx);
+  if (idx < allLessons.length - 1) {
+    goToLesson(idx + 1);
+  } else {
+    updateProgress();
+    renderSidebar();
+    const lessonsWithQuizzes = allLessons
+      .map((l, i) => ({ idx: i, titulo: l.titulo, hasQuiz: l.contenido.includes('quiz-block') }))
+      .filter(l => l.hasQuiz);
+    const pending = lessonsWithQuizzes.filter(l => !quizPassed.has(l.idx));
+    if (pending.length === 0) {
+      document.getElementById('cert-overlay').classList.add('active');
+    } else {
+      const area = document.getElementById('content-area');
+      const lista = pending.map(l => '<li style="margin-bottom:8px;">' + l.titulo + '</li>').join('');
+      area.innerHTML =
+        '<div class="lesson active">' +
+        '<div class="lesson-breadcrumb"><span>Certificado</span></div>' +
+        '<h1 class="lesson-title">Casi lo tienes 🐧</h1>' +
+        '<div class="lesson-objective">Para descargar tu certificado necesitas responder correctamente todos los quizzes del curso.</div>' +
+        '<div class="lesson-body">' +
+        '<p>Tienes quizzes pendientes en las siguientes lecciones:</p>' +
+        '<ul style="margin:16px 0 16px 20px;">' + lista + '</ul>' +
+        '<p>Vuelve a esas lecciones, responde el quiz correctamente y regresa aquí para obtener tu certificado.</p>' +
+        '</div>' +
+        '<div class="lesson-nav">' +
+        '<button class="nav-btn nav-btn-prev" onclick="goToLesson(' + idx + ')">← Volver</button>' +
+        '<button class="nav-btn nav-btn-next" onclick="checkAndCert()">Verificar de nuevo →</button>' +
+        '</div></div>';
+    }
+  }
+}
+
+function checkAndCert() {
+  const lessonsWithQuizzes = allLessons
+    .map((l, i) => ({ idx: i, hasQuiz: l.contenido.includes('quiz-block') }))
+    .filter(l => l.hasQuiz);
+  const pending = lessonsWithQuizzes.filter(l => !quizPassed.has(l.idx));
+  if (pending.length === 0) {
+    document.getElementById('cert-overlay').classList.add('active');
+  } else {
+    goToLesson(pending[0].idx);
+  }
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector('script[src="' + src + '"]')) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function certHTML(name, dateStr, auryBase64) {
+  const auryImg = auryBase64
+    ? '<img decoding="async" src="' + auryBase64 + '" style="width:92%;object-fit:contain;object-position:bottom center;" alt="Aury">'
+    : '';
+  return '<div style="width:1200px;height:848px;background:#07090F;position:relative;overflow:hidden;font-family:\'DM Sans\',sans-serif;">' +
+    '<div style="position:absolute;top:-120px;right:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(196,96,48,0.13),transparent 65%);"></div>' +
+    '<div style="position:absolute;bottom:-120px;left:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(58,100,148,0.1),transparent 65%);"></div>' +
+    '<div style="position:absolute;inset:20px;border:1.5px solid rgba(196,96,48,0.4);pointer-events:none;"></div>' +
+    '<div style="position:absolute;inset:26px;border:1px solid rgba(196,96,48,0.1);pointer-events:none;"></div>' +
+    '<div style="position:absolute;top:16px;left:16px;width:14px;height:14px;border-top:2px solid #C46030;border-left:2px solid #C46030;"></div>' +
+    '<div style="position:absolute;top:16px;right:16px;width:14px;height:14px;border-top:2px solid #C46030;border-right:2px solid #C46030;"></div>' +
+    '<div style="position:absolute;bottom:16px;left:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-left:2px solid #C46030;"></div>' +
+    '<div style="position:absolute;bottom:16px;right:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-right:2px solid #C46030;"></div>' +
+    '<div style="position:absolute;top:48px;left:60px;right:60px;display:flex;align-items:center;justify-content:space-between;">' +
+    '<div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#7A6E60;font-weight:500;font-family:\'DM Mono\',monospace;">🐧 AuryOnTech</div>' +
+    '<div style="width:38%;height:1px;background:linear-gradient(to right,transparent,rgba(196,96,48,0.25),transparent);"></div>' +
+    '<div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(196,96,48,0.5);font-family:\'DM Mono\',monospace;">Certificado de Finalización</div>' +
+    '</div>' +
+    '<div style="position:absolute;top:0;left:0;width:760px;height:848px;display:flex;flex-direction:column;justify-content:center;padding:100px 56px 80px 60px;">' +
+    '<div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#C46030;font-family:\'DM Mono\',monospace;margin-bottom:18px;">Este documento certifica que</div>' +
+    '<div style="font-family:\'Cabinet Grotesk\',sans-serif;font-weight:800;font-size:58px;color:#EEF4F8;line-height:1.05;letter-spacing:-1.5px;margin-bottom:22px;">' + name + '</div>' +
+    '<div style="width:56px;height:3px;background:#C46030;margin-bottom:22px;border-radius:2px;"></div>' +
+    '<div style="font-size:15px;color:#7A6E60;margin-bottom:10px;">ha completado satisfactoriamente el curso</div>' +
+    '<div style="font-family:\'Cabinet Grotesk\',sans-serif;font-weight:700;font-size:24px;color:#D88050;letter-spacing:-0.3px;margin-bottom:52px;line-height:1.3;">Recordatorios Automáticos de Citas</div>' +
+    '<div style="display:flex;gap:52px;align-items:flex-start;">' +
+    '<div><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:\'DM Mono\',monospace;margin-bottom:6px;">Fecha</div><div style="font-size:13px;color:#EDE4D8;">' + dateStr + '</div></div>' +
+    '<div style="width:1px;height:40px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>' +
+    '<div><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:\'DM Mono\',monospace;margin-bottom:6px;">Emitido por</div><div style="font-size:13px;color:#EDE4D8;font-weight:600;">Cristian Lopez Garcia</div><div style="font-size:11px;color:#7A6E60;margin-top:2px;">Automation &amp; Growth Partner · AuryOnTech</div></div>' +
+    '</div></div>' +
+    '<div style="position:absolute;top:100px;bottom:80px;left:760px;width:1px;background:linear-gradient(to bottom,transparent,rgba(196,96,48,0.2) 30%,rgba(196,96,48,0.2) 70%,transparent);"></div>' +
+    '<div style="position:absolute;right:0;bottom:0;width:440px;height:848px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;">' + auryImg + '</div>' +
+    '<div style="position:absolute;bottom:34px;left:60px;font-size:10px;color:rgba(122,110,96,0.35);letter-spacing:2px;font-family:\'DM Mono\',monospace;text-transform:uppercase;">auryontech.com</div>' +
+    '</div>';
+}
+
+async function generateCert() {
+  const name = document.getElementById('cert-name').value.trim();
+  const certEmail = document.getElementById('cert-email').value.trim();
+  const certNegocio = document.getElementById('cert-negocio').value.trim();
+  if (!name) { document.getElementById('cert-name').focus(); return; }
+  if (certEmail && certEmail.includes('@') && certNegocio) {
+    var bf = new FormData();
+    bf.append('FIRSTNAME', name);
+    bf.append('EMAIL', certEmail);
+    bf.append('TIPO_NEGOCIO', certNegocio);
+    bf.append('email_address_check', '');
+    bf.append('locale', 'es');
+    fetch(BREVO_URL, { method: 'POST', body: bf, mode: 'no-cors' }).catch(function(){});
+  }
+  const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+  closeCertModal();
+  const loader = document.createElement('div');
+  loader.style.cssText = 'position:fixed;inset:0;background:rgba(7,9,15,0.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#EEF4F8;font-family:DM Sans,sans-serif;font-size:15px;gap:14px;';
+  loader.innerHTML = '<div style="font-size:36px;">🐧</div><div>Generando tu certificado...</div>';
+  document.body.appendChild(loader);
+  let auryBase64 = '';
+  try {
+    const resp = await fetch('assets/img/Aury-enfrente-de-la-Compu.png');
+    const blob = await resp.blob();
+    auryBase64 = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(blob); });
+  } catch(e) {}
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:1200px;height:848px;z-index:-1;';
+  div.innerHTML = certHTML(name, dateStr, auryBase64);
+  document.body.appendChild(div);
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 400));
+  const canvas = await html2canvas(div, { scale:2, useCORS:true, allowTaint:true, backgroundColor:'#07090F', width:1200, height:848, logging:false });
+  document.body.removeChild(div);
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 297, 210);
+  pdf.save('Certificado_AuryOnTech_Recordatorios_' + name.replace(/ /g, '_') + '.pdf');
+  loader.remove();
+}
+
+function closeCertModal() {
+  document.getElementById('cert-overlay').classList.remove('active');
+}
+
+function saveProgress() {
+  var nombre = document.getElementById('progress-nombre').value.trim();
+  var email = document.getElementById('progress-email').value.trim();
+  var negocio = document.getElementById('progress-negocio').value.trim();
+  if (!nombre) { document.getElementById('progress-nombre').style.borderColor = '#ef4444'; return; }
+  if (!email || !email.includes('@')) {
+    document.getElementById('progress-email').style.borderColor = '#ef4444';
+    return;
+  }
+  if (!negocio) { document.getElementById('progress-negocio').style.borderColor = '#ef4444'; return; }
+  var body = new FormData();
+  body.append('FIRSTNAME', nombre);
+  body.append('EMAIL', email);
+  body.append('TIPO_NEGOCIO', negocio);
+  body.append('email_address_check', '');
+  body.append('locale', 'es');
+  fetch(BREVO_URL, { method: 'POST', body: body, mode: 'no-cors' }).catch(function(){});
+  dismissProgress();
+}
+
+function dismissProgress() {
+  document.getElementById('progress-modal').classList.remove('active');
+  progressModalShown = true;
+}
+
+function updateProgress() {
+  const total = allLessons.length;
+  const done = completed.size;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = done + ' / ' + total;
+}
+
+// ─────────────────────────────────────────
+// QUIZ
+// ─────────────────────────────────────────
+function handleQuiz(btn, isCorrect) {
+  const block = btn.closest('.quiz-block');
+  block.querySelectorAll('.quiz-option').forEach(o => {
+    o.disabled = true;
+    o.style.pointerEvents = 'none';
+  });
+  btn.classList.add(isCorrect ? 'quiz-correct' : 'quiz-incorrect');
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback ' + (isCorrect ? 'fb-correct' : 'fb-incorrect');
+  if (isCorrect) {
+    fb.textContent = btn.dataset.correct;
+    quizPassed.add(currentLesson);
+  } else {
+    fb.innerHTML = btn.dataset.incorrect + '<br><br><button onclick="resetQuiz(this)" style="margin-top:8px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;padding:7px 18px;border-radius:6px;font-family:\'DM Sans\',sans-serif;font-size:13px;cursor:pointer;">↩ Volver a intentar</button>';
+  }
+}
+
+function resetQuiz(btn) {
+  const block = btn.closest('.quiz-block');
+  block.querySelectorAll('.quiz-option').forEach(o => {
+    o.disabled = false;
+    o.style.pointerEvents = '';
+    o.classList.remove('quiz-correct', 'quiz-incorrect');
+  });
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback';
+  fb.innerHTML = '';
+}
+
+// ─────────────────────────────────────────
+// CHALLENGE
+// ─────────────────────────────────────────
+function handleChallenge(btn, success) {
+  const block = btn.closest('.challenge-block');
+  block.querySelectorAll('button').forEach(b => {
+    b.disabled = true;
+    b.style.pointerEvents = 'none';
+    b.style.opacity = '0.5';
+  });
+  const resp = block.querySelector('.challenge-response');
+  if (success) {
+    resp.className = 'challenge-response success';
+    resp.innerHTML = '<strong>Perfecto.</strong> Con el evento de prueba listo podemos pasar a construir el flujo — ya tienes datos reales para probar.';
+  } else {
+    resp.className = 'challenge-response error';
+    resp.innerHTML = '<strong>No hay prisa, pero no lo dejes para después.</strong> Sin el evento de prueba no podrás verificar que el flujo funciona cuando lleguemos a la lección 6. Créalo antes de continuar.';
+  }
+}
+
+// ─────────────────────────────────────────
+// COPY CODE
+// ─────────────────────────────────────────
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '¡Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ─────────────────────────────────────────
+// SIDEBAR MÓVIL
+// ─────────────────────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+}
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+renderSidebar();
+renderLesson(0);
+updateProgress();
+
+(function() {
+  const dot = document.createElement('div'); dot.className = 'cursor-dot';
+  const ring = document.createElement('div'); ring.className = 'cursor-ring';
+  document.body.appendChild(dot);
+  document.body.appendChild(ring);
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+  document.addEventListener('mousedown', () => { dot.classList.add('clicking'); ring.classList.add('clicking'); });
+  document.addEventListener('mouseup', () => { dot.classList.remove('clicking'); ring.classList.remove('clicking'); });
+  (function animateRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animateRing); })();
+})();
+</script>
+</body>
+</html>
+
+
+
+<p></p>

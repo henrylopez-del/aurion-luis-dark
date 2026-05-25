@@ -1,0 +1,1442 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publica con IA. Sin que se note. — AuryOnTech</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #07090F; --dawn: #C46030; --dawn-l: #D88050; --dawn-ll: #ECA878;
+      --sky: #3A6494; --ice: #B8D4EC; --snow: #EEF4F8; --bone: #EDE4D8;
+      --warm: #7A6E60; --ink-2: #0f1219; --ink-3: #161b26; --sidebar-w: 300px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; background: var(--ink); color: var(--snow); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.7; overflow: hidden; }
+
+    #progress-bar { position: fixed; top: 0; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--dawn), var(--dawn-ll)); z-index: 1000; transition: width 0.4s ease; }
+
+    .app { display: flex; height: 100vh; padding-top: 3px; }
+
+    .sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: var(--ink-2); border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; overflow: hidden; z-index: 100; }
+    .sidebar-header { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .logo-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon img { width: 40px; height: 40px; object-fit: contain; display: block; }
+    .logo-text { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 15px; color: var(--snow); letter-spacing: -0.3px; }
+    .course-title { font-size: 12px; color: var(--warm); line-height: 1.4; font-weight: 400; }
+    .progress-info { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .progress-label { font-size: 11px; color: var(--warm); font-family: 'DM Mono', monospace; }
+    .progress-pill { font-size: 11px; color: var(--dawn-ll); font-family: 'DM Mono', monospace; font-weight: 500; }
+    .progress-track { margin-top: 8px; height: 2px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--dawn); border-radius: 2px; transition: width 0.4s ease; }
+
+    .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 0; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+    .nav-module { margin-bottom: 4px; }
+    .nav-module-header { padding: 8px 20px; font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--warm); font-family: 'DM Mono', monospace; cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; }
+    .nav-module-header:hover { color: var(--dawn-ll); }
+    .nav-module-num { color: var(--dawn); font-weight: 500; }
+    .nav-lessons { overflow: hidden; transition: max-height 0.3s ease; }
+    .nav-lesson { padding: 8px 20px 8px 32px; font-size: 13px; color: rgba(238,244,248,0.6); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; border-left: 2px solid transparent; line-height: 1.4; }
+    .nav-lesson:hover { color: var(--snow); background: rgba(255,255,255,0.03); }
+    .nav-lesson.active { color: var(--dawn-ll); border-left-color: var(--dawn); background: rgba(196,96,48,0.08); }
+    .nav-lesson.completed { color: rgba(134,239,172,0.7); }
+    .nav-lesson.completed .lesson-dot { background: #4ade80; }
+    .lesson-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.15); flex-shrink: 0; transition: background 0.2s; }
+    .nav-lesson.active .lesson-dot { background: var(--dawn); }
+
+    .main { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+    .content { max-width: 760px; margin: 0 auto; padding: 48px 40px 80px; }
+
+    .lesson { display: none; }
+    .lesson.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .lesson-breadcrumb { font-size: 12px; color: var(--warm); font-family: 'DM Mono', monospace; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .breadcrumb-sep { color: var(--dawn); }
+    .lesson-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 36px; line-height: 1.1; color: var(--snow); margin-bottom: 12px; letter-spacing: -0.5px; }
+    .lesson-objective { font-size: 15px; color: var(--dawn-ll); margin-bottom: 36px; padding: 14px 18px; background: rgba(196,96,48,0.08); border-left: 3px solid var(--dawn); border-radius: 0 6px 6px 0; font-style: italic; }
+    .lesson-body { font-size: 15px; color: rgba(238,244,248,0.85); line-height: 1.8; }
+    .lesson-body h3 { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 20px; color: var(--snow); margin: 36px 0 14px; letter-spacing: -0.3px; }
+    .lesson-body p { margin-bottom: 16px; }
+    .lesson-body ul, .lesson-body ol { margin: 0 0 16px 20px; }
+    .lesson-body li { margin-bottom: 8px; }
+    .lesson-body strong { color: var(--snow); font-weight: 600; }
+
+    .module-header { background: var(--ink-3); border-left: 4px solid var(--dawn); border-radius: 0 12px 12px 0; padding: 20px 24px; margin-bottom: 36px; }
+    .module-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn); font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
+    .module-name { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 14px; color: var(--warm); margin-top: 4px; }
+
+    .lesson-hero { width: 100%; height: 220px; border-radius: 12px; overflow: hidden; position: relative; margin-bottom: 36px; background: var(--ink-3); }
+    .lesson-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lesson-hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 65%; background: linear-gradient(to top, rgba(7,9,15,0.85), transparent); pointer-events: none; }
+    .lesson-hero.broken { display: none; }
+
+    .prompt-box { background: #0d1117; border-radius: 10px; margin: 20px 0; overflow: hidden; border: 1px solid rgba(58,100,148,0.3); border-left: 3px solid var(--sky); }
+    .prompt-box-label { padding: 10px 16px; background: rgba(58,100,148,0.08); border-bottom: 1px solid rgba(58,100,148,0.15); display: flex; align-items: center; justify-content: space-between; }
+    .prompt-box-label span { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--sky); text-transform: uppercase; letter-spacing: 1px; }
+    .copy-btn { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn-ll); background: none; border: 1px solid rgba(196,96,48,0.3); padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { background: rgba(196,96,48,0.15); border-color: var(--dawn); }
+    .copy-btn.copied { color: #4ade80; border-color: rgba(74,222,128,0.3); }
+    .prompt-box pre { padding: 20px; overflow-x: auto; font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.7; color: var(--ice); white-space: pre-wrap; }
+    .prompt-box pre .placeholder { color: var(--dawn-ll); background: rgba(196,96,48,0.1); padding: 1px 4px; border-radius: 3px; }
+    .prompt-box pre .comment { color: rgba(238,244,248,0.3); }
+
+    .code-box { background: #0d1117; border-radius: 10px; margin: 20px 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); }
+    .code-box-header { padding: 10px 16px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; }
+    .code-box-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--warm); text-transform: uppercase; letter-spacing: 1px; }
+    .code-box pre { padding: 20px; overflow-x: auto; font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.7; color: #e6edf3; white-space: pre-wrap; }
+
+    .inline-code { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 2px 7px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dawn-ll); }
+
+    .callout { padding: 16px 20px; border-radius: 8px; margin: 20px 0; font-size: 14px; line-height: 1.6; }
+    .callout-error { background: rgba(239,68,68,0.08); border-left: 3px solid #ef4444; color: #fca5a5; }
+    .callout-tip { background: rgba(58,100,148,0.12); border-left: 3px solid var(--sky); color: var(--ice); }
+    .callout-warning { background: rgba(196,96,48,0.1); border-left: 3px solid var(--dawn); color: var(--dawn-ll); }
+    .callout-success { background: rgba(74,222,128,0.07); border-left: 3px solid #4ade80; color: #86efac; }
+    .callout strong { display: block; margin-bottom: 4px; font-weight: 600; }
+
+    .action-block { background: linear-gradient(135deg, rgba(196,96,48,0.12), rgba(196,96,48,0.05)); border: 1px solid rgba(196,96,48,0.25); border-radius: 12px; padding: 24px 28px; margin-top: 40px; }
+    .action-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dawn); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .action-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--dawn); }
+    .action-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: var(--snow); margin-bottom: 12px; }
+    .action-steps { list-style: none; margin: 0; padding: 0; }
+    .action-steps li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px; color: rgba(238,244,248,0.8); display: flex; align-items: flex-start; gap: 12px; }
+    .action-steps li:last-child { border-bottom: none; }
+    .step-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dawn); font-weight: 500; min-width: 20px; margin-top: 2px; }
+
+    .step-list { display: flex; flex-direction: column; gap: 6px; margin: 24px 0; }
+    .step-item { display: flex; gap: 16px; padding: 14px 16px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); align-items: flex-start; transition: background 0.2s; }
+    .step-item:hover { background: rgba(255,255,255,0.04); }
+    .step-number-big { width: 28px; height: 28px; background: var(--dawn); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; color: var(--snow); flex-shrink: 0; margin-top: 2px; }
+    .step-content { flex: 1; }
+    .step-content strong { display: block; font-size: 15px; color: var(--snow); margin-bottom: 3px; }
+    .step-content p { font-size: 13px; color: rgba(238,244,248,0.6); margin: 0; line-height: 1.5; }
+
+    .summary-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13.5px; }
+    .summary-table th { background: rgba(196,96,48,0.08); color: var(--dawn-l); font-family: 'DM Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 14px; text-align: left; border-bottom: 1px solid rgba(196,96,48,0.2); }
+    .summary-table td { padding: 10px 14px; color: rgba(238,244,248,0.68); border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+    .summary-table tr:last-child td { border-bottom: none; }
+
+    .quiz-block { background: rgba(58,100,148,0.08); border: 1px solid rgba(58,100,148,0.2); border-radius: 12px; padding: 24px 28px; margin: 32px 0; }
+    .quiz-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sky); margin-bottom: 16px; }
+    .quiz-question { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: var(--snow); margin-bottom: 16px; line-height: 1.3; }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-option { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px; text-align: left; color: rgba(238,244,248,0.8); font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; transition: all 0.2s; line-height: 1.5; }
+    .quiz-option:hover:not(:disabled) { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.2); color: var(--snow); }
+    .quiz-option.quiz-correct { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.4); color: #86efac; }
+    .quiz-option.quiz-incorrect { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.3); color: #fca5a5; }
+    .quiz-feedback { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.5; display: none; }
+    .quiz-feedback.fb-correct { background: rgba(74,222,128,0.08); color: #86efac; border-left: 3px solid #4ade80; display: block; }
+    .quiz-feedback.fb-incorrect { background: rgba(239,68,68,0.08); color: #fca5a5; border-left: 3px solid #ef4444; display: block; }
+
+    .challenge-block { background: linear-gradient(135deg,rgba(196,96,48,0.08),rgba(58,100,148,0.05)); border: 1px solid rgba(196,96,48,0.15); border-radius: 12px; padding: 22px; margin: 24px 0; }
+    .challenge-label { font-family: 'DM Mono',monospace; font-size: 11px; color: var(--dawn-ll); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+    .challenge-question { font-family: 'Cabinet Grotesk',sans-serif; font-weight: 700; font-size: 16px; color: var(--snow); margin-bottom: 14px; line-height: 1.4; }
+    .challenge-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+    .challenge-yes, .challenge-no { padding: 10px 20px; border-radius: 8px; font-family: 'DM Sans',sans-serif; font-size: 14px; font-weight: 500; border: 1px solid; transition: all 0.15s; cursor: pointer; }
+    .challenge-yes { background: rgba(74,222,128,0.12); border-color: rgba(74,222,128,0.4); color: #86efac; }
+    .challenge-yes:hover:not(:disabled) { background: rgba(74,222,128,0.2); }
+    .challenge-no { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #fca5a5; }
+    .challenge-no:hover:not(:disabled) { background: rgba(239,68,68,0.2); }
+    .challenge-response { margin-top: 14px; padding: 12px 14px; border-radius: 8px; font-size: 13.5px; line-height: 1.55; display: none; }
+    .challenge-response.success { display: block; background: rgba(74,222,128,0.08); border-left: 3px solid #4ade80; color: rgba(238,244,248,0.85); }
+    .challenge-response.error { display: block; background: rgba(239,68,68,0.08); border-left: 3px solid #ef4444; color: rgba(238,244,248,0.85); }
+
+    .checklist-block { background: rgba(196,96,48,0.06); border: 1px solid rgba(196,96,48,0.2); border-radius: 12px; padding: 20px 24px; margin: 28px 0; }
+    .checklist-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dawn); margin-bottom: 14px; font-weight: 500; }
+    .checklist-item { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .checklist-item:last-child { border-bottom: none; }
+    .checklist-item input[type="checkbox"] { width: 17px; height: 17px; cursor: pointer; accent-color: var(--dawn); flex-shrink: 0; }
+    .checklist-item label { font-size: 14px; color: rgba(238,244,248,0.8); cursor: pointer; transition: all 0.2s; }
+    .checklist-item input:checked + label { color: var(--dawn-ll); text-decoration: line-through; opacity: 0.6; }
+
+    .tag { display: inline-block; font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 3px; margin-right: 4px; }
+    .tag-sky { background: rgba(58,100,148,0.2); color: var(--ice); border: 1px solid rgba(58,100,148,0.3); }
+    .tag-dawn { background: rgba(196,96,48,0.12); color: var(--dawn-l); border: 1px solid rgba(196,96,48,0.25); }
+    .tag-green { background: rgba(45,158,107,0.12); color: #3DBE88; border: 1px solid rgba(45,158,107,0.25); }
+
+    .compare-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0; }
+    .compare-col { border-radius: 10px; padding: 18px 20px; }
+    .compare-col.bad { background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.15); }
+    .compare-col.good { background: rgba(45,158,107,0.07); border: 1px solid rgba(45,158,107,0.2); }
+    .compare-col-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; font-weight: 600; }
+    .compare-col.bad .compare-col-label { color: #ef4444; }
+    .compare-col.good .compare-col-label { color: #4ade80; }
+    .compare-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+    .compare-col ul li { font-size: 13px; line-height: 1.5; padding-left: 14px; position: relative; }
+    .compare-col.bad ul li { color: #fca5a5; }
+    .compare-col.bad ul li::before { content: '✕'; position: absolute; left: 0; font-size: 10px; top: 2px; }
+    .compare-col.good ul li { color: #86efac; }
+    .compare-col.good ul li::before { content: '✓'; position: absolute; left: 0; font-size: 10px; top: 2px; }
+
+    .calendar-visual { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 24px 0; }
+    .cal-day { background: var(--ink-3); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 12px 10px; }
+    .cal-day-name { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--dawn); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .cal-pill { font-size: 11px; padding: 4px 8px; border-radius: 4px; margin-bottom: 5px; line-height: 1.3; }
+    .cal-pill.reel { background: rgba(196,96,48,0.15); color: var(--dawn-ll); }
+    .cal-pill.carrusel { background: rgba(58,100,148,0.15); color: var(--ice); }
+    .cal-pill.email { background: rgba(45,158,107,0.12); color: #3DBE88; }
+    .cal-pill.post { background: rgba(184,212,236,0.1); color: var(--ice-l); }
+
+    .next-course { background: linear-gradient(135deg, var(--ink-3), rgba(196,96,48,0.08)); border: 1px solid rgba(196,96,48,0.2); border-radius: 16px; padding: 32px; margin: 40px 0; }
+    .next-course-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dawn); margin-bottom: 10px; }
+    .next-course-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 24px; color: var(--snow); margin-bottom: 10px; letter-spacing: -0.3px; }
+    .next-course-desc { font-size: 14px; color: rgba(238,244,248,0.7); margin-bottom: 20px; line-height: 1.6; }
+    .next-course-btn { display: inline-block; background: var(--dawn); color: var(--snow); padding: 11px 24px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 14px; text-decoration: none; transition: background 0.2s; }
+    .next-course-btn:hover { background: var(--dawn-l); }
+
+    .lesson-nav { display: flex; justify-content: space-between; margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .nav-btn { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; transition: all 0.2s; }
+    .nav-btn-prev { background: rgba(255,255,255,0.05); color: var(--warm); }
+    .nav-btn-prev:hover { background: rgba(255,255,255,0.09); color: var(--snow); }
+    .nav-btn-next { background: var(--dawn); color: var(--snow); }
+    .nav-btn-next:hover { background: var(--dawn-l); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .hamburger { display: none; position: fixed; top: 12px; left: 12px; z-index: 200; background: var(--ink-2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; width: 40px; height: 40px; cursor: pointer; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
+    .hamburger span { display: block; width: 18px; height: 2px; background: var(--snow); border-radius: 2px; }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 90; }
+
+    .cert-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; display: none; align-items: center; justify-content: center; }
+    .cert-overlay.active { display: flex; }
+    .cert-modal { background: var(--ink-2); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 36px; max-width: 440px; width: 90%; text-align: center; }
+    .cert-modal-title { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 800; font-size: 24px; color: var(--snow); margin-bottom: 8px; }
+    .cert-modal-sub { font-size: 14px; color: var(--warm); margin-bottom: 24px; line-height: 1.5; }
+    .cert-name-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 12px 16px; color: var(--snow); font-family: 'DM Sans', sans-serif; font-size: 16px; outline: none; margin-bottom: 16px; }
+    .cert-name-input:focus { border-color: var(--dawn); }
+    .cert-name-input::placeholder { color: var(--warm); }
+    .cert-generate-btn { width: 100%; background: var(--dawn); color: var(--snow); border: none; border-radius: 8px; padding: 13px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: background 0.2s; }
+    .cert-generate-btn:hover { background: var(--dawn-l); }
+    .cert-skip { margin-top: 12px; font-size: 13px; color: var(--warm); cursor: pointer; text-decoration: underline; }
+    .cert-skip:hover { color: var(--snow); }
+    .certificate { display: none; }
+
+    * { cursor: none !important; }
+    a, button, [onclick], label, input[type="checkbox"], .nav-lesson, .nav-module-header, .quiz-option, .copy-btn, .cert-generate-btn, .cert-skip, .nav-btn, .next-course-btn, .challenge-yes, .challenge-no { cursor: pointer !important; }
+    .cursor-dot { position: fixed; width: 8px; height: 8px; background: #C46030; border-radius: 50%; pointer-events: none; z-index: 99999; transform: translate(-50%, -50%); transition: transform 0.1s ease, background 0.2s; }
+    .cursor-ring { position: fixed; width: 32px; height: 32px; border: 1.5px solid rgba(196,96,48,0.6); border-radius: 50%; pointer-events: none; z-index: 99998; transform: translate(-50%, -50%); transition: width 0.2s ease, height 0.2s ease, border-color 0.2s; }
+    .cursor-dot.clicking { transform: translate(-50%,-50%) scale(0.6); background: #ECA878; }
+    .cursor-ring.clicking { width: 20px; height: 20px; border-color: #C46030; }
+    @media (max-width: 768px) { * { cursor: auto !important; } .cursor-dot, .cursor-ring { display: none; } .compare-block { grid-template-columns: 1fr; } .calendar-visual { grid-template-columns: repeat(3, 1fr); } }
+
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .sidebar { position: fixed; left: -310px; top: 0; height: 100vh; transition: left 0.3s ease; z-index: 150; }
+      .sidebar.open { left: 0; }
+      .overlay.active { display: block; }
+      .content { padding: 60px 20px 80px; }
+      .lesson-title { font-size: 26px; }
+      .lesson-hero { height: 160px; }
+    }
+  
+
+/* === MINIMAL ESSENTIAL OVERRIDES (auto-applied) === */
+body, .hero, .about, .services, .testi, .uc, .valor, .flow-demo, .cta, .manifesto, footer {
+  background-color: #000 !important;
+}
+.hero {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/iceberg-sunset-amber.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: scroll, fixed !important;
+}
+.eyebrow, .kicker, .nav-cta { color: #ECA878 !important; }
+.flake { opacity: .55 !important; font-size: 13px !important; }
+
+/* === ICEBERGS on sections === */
+.manifesto { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/mountains-sunset-pink.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.about, section.about { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-aerial-dark.jpeg') !important; background-size: cover, cover !important; background-position: right center !important; }
+.services { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-texture-blue.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.flow-demo { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/glacier-wall-blue.jpeg') !important; background-size: cover, cover !important; }
+.valor { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-minimal.jpeg') !important; background-size: cover, cover !important; }
+.uc { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/aerial-snow-scale.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.testi { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-ice-columns.jpeg') !important; background-size: cover, cover !important; }
+.cta { background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/icebergs-twin-massive.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+footer, .footer { background-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.98)), url('assets/img/antarctic-moon.jpeg') !important; background-size: cover, cover !important; }
+@media (max-width: 900px) { .hero, .services, .uc, .cta, .manifesto { background-attachment: scroll !important; } }
+
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div class="cert-overlay" id="progress-modal">
+  <div class="cert-modal">
+    <div class="cert-modal-title">🐧 ¿Guardamos tu progreso?</div>
+    <div class="cert-modal-sub">Déjame tu email y te aviso cuando publique nuevos cursos. Sin spam, solo lo útil.</div>
+    <input class="cert-name-input" id="progress-email" type="email" placeholder="tu@correo.com">
+    <button class="cert-generate-btn" onclick="saveProgress()">Guardar →</button>
+    <div class="cert-skip" onclick="dismissProgress()">Ahora no</div>
+  </div>
+</div>
+
+<div class="cert-overlay" id="cert-overlay">
+  <div class="cert-modal">
+    <div class="cert-modal-title">🐧 ¡Lo lograste!</div>
+    <div class="cert-modal-sub">Terminaste el curso. Escribe tu nombre y correo para generar tu certificado.</div>
+    <input class="cert-name-input" id="cert-name" type="text" placeholder="Tu nombre completo">
+    <input class="cert-name-input" id="cert-email" type="email" placeholder="tu@correo.com" style="margin-top:8px;">
+    <button class="cert-generate-btn" onclick="generateCert()">Descargar certificado →</button>
+    <div class="cert-skip" onclick="closeCertModal()">Omitir por ahora</div>
+  </div>
+</div>
+<div class="certificate" id="certificate"></div>
+
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><img decoding="async" src="assets/img/Logo.png" alt="AuryOnTech"></div>
+        <span class="logo-text">AuryOnTech</span>
+      </div>
+      <div class="course-title">Publica con IA. Sin que se note.</div>
+      <div class="progress-info">
+        <span class="progress-label">Progreso</span>
+        <span class="progress-pill" id="progress-text">0 / 12</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+  </nav>
+  <main class="main" id="main-content">
+    <div class="content"><div id="content-area"></div></div>
+  </main>
+</div>
+
+<button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<script>
+const curso = [
+  {
+    modulo: "01",
+    titulo: "El cuello de botella no son las ideas",
+    lecciones: [
+      {
+        id: "1-1",
+        titulo: "Por qué no publicas aunque tengas ChatGPT",
+        objetivo: "Identificar el problema real que te impide publicar de forma consistente, que no es la falta de ideas ni de herramientas.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">El cuello de botella no son las ideas</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Persona frente a pantalla en blanco" onerror="this.parentElement.classList.add('broken');this.remove()">
+          </div>
+          <p>Tienes ChatGPT. Tal vez incluso hiciste el curso de prompts. Y aun así tu última publicación fue hace dos semanas. No porque no tengas ideas. Porque entre tener una idea y publicar algo hay un proceso que nadie te explicó.</p>
+          <p>El problema no es la herramienta. Es que estás usando la IA para resolver el paso equivocado.</p>
+          <h3>Los tres bloqueos reales</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>No sabes qué publicar hoy</strong>
+                <p>Abres ChatGPT sin saber el tema, sin saber el formato, sin saber el objetivo. La IA te da algo genérico y lo cierras.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Lo que genera no suena a ti</strong>
+                <p>Lees el resultado y aunque técnicamente está bien, no lo publicarías con tu nombre. Lo editas tanto que tardas más que escribiéndolo a mano.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>No tienes un sistema, tienes una herramienta</strong>
+                <p>ChatGPT es un martillo. Este curso es el plano de construcción. Sin el plano, el martillo no sirve de mucho.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <strong>Lo que cambia en este curso</strong>
+            No vas a aprender más prompts. Vas a aprender el sistema completo: qué publicar, en qué formato, con qué estructura y cómo mantener tu voz. El resultado no es saber más — es tener contenido real publicado.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué tener ChatGPT y saber prompts no es suficiente para publicar de forma consistente?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. ChatGPT puede generar contenido tan bueno como el que tú haces — la calidad técnica no es el problema. El bloqueo es anterior: no sabes qué pedirle, en qué formato, ni con qué objetivo.">
+                Porque ChatGPT no genera contenido lo suficientemente bueno todavía
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. ChatGPT es la herramienta. Sin un sistema que te diga qué publicar hoy, en qué formato y con qué objetivo, abres ChatGPT sin saber qué pedirle y obtienes algo genérico que cierras. La herramienta sin sistema no produce resultados.">
+                Porque la herramienta sin un sistema que defina qué publicar, cuándo y en qué formato no produce resultados
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. La velocidad de la IA no es el problema. El cuello de botella está antes: en saber qué quieres producir. Por más rápida que sea la IA, si no le das una dirección clara, no avanza nada.">
+                Porque la IA todavía es muy lenta y no puede generar contenido en tiempo real
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Diagnostica dónde te atascas</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Piensa en la última vez que intentaste crear contenido con IA y no lo publicaste</li>
+              <li><span class="step-num">02</span> ¿En qué punto se rompió el proceso: en la idea, en el resultado, en el tono, en la pereza de editar?</li>
+              <li><span class="step-num">03</span> Ese es tu cuello de botella. Este curso lo va a resolver módulo por módulo.</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "1-2",
+        titulo: "Los 3 formatos que mueven el 80% del impacto",
+        objetivo: "Entender por qué solo necesitas dominar tres formatos para tener una presencia de contenido real y consistente.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">El cuello de botella no son las ideas</div>
+          </div>
+          <p>Hay docenas de formatos de contenido. Stories, lives, podcasts, newsletters, threads, carruseles, Reels, vídeos largos. Si intentas hacerlos todos, no harás ninguno bien.</p>
+          <p>La realidad de los pequeños negocios que publican de forma consistente es que dominan tres formatos. Solo tres. Y los rotan.</p>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--dawn);">R</div>
+              <div class="step-content">
+                <strong>El Reel o vídeo corto — te hace visible</strong>
+                <p>Es el formato con mayor alcance orgánico en Instagram, TikTok y LinkedIn. No necesitas producción. Necesitas un guion de 60 segundos y un punto de vista claro.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">C</div>
+              <div class="step-content">
+                <strong>El carrusel — te hace relevante</strong>
+                <p>Es el formato que más se guarda y comparte. Enseña algo concreto en 7 slides. Quien lo guarda vuelve a tu perfil.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--green);">E</div>
+              <div class="step-content">
+                <strong>El email — te hace facturar</strong>
+                <p>Tu lista de correo es el único canal que no depende de un algoritmo. Un email bien escrito a 200 personas comprometidas convierte más que un post visto por 10.000.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-warning">
+            <strong>La regla de los tres formatos</strong>
+            Elige estos tres y domínalos antes de añadir cualquier otro. La consistencia en tres formatos bate la esporadicidad en diez.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué es importante limitar los formatos que usas?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No es una cuestión de tiempo, sino de profundidad. Con más tiempo también fallarías si intentas dominar diez formatos a la vez. La clave es la consistencia en pocos.">
+                Porque no tenemos tiempo para hacer más
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. La consistencia en tres formatos dominados genera más impacto y confianza que la presencia irregular en muchos. El algoritmo y tu audiencia premian la regularidad.">
+                Porque dominar pocos formatos produce más consistencia y más impacto real
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No se trata de lo que prefiere el algoritmo en abstracto. Se trata de que tú puedas producir de forma regular. Sin consistencia, ningún formato funciona.">
+                Porque el algoritmo penaliza a quienes usan muchos formatos
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        `
+      },
+      {
+        id: "1-3",
+        titulo: "Una plataforma, un sistema, un resultado",
+        objetivo: "Elegir la plataforma principal donde vas a publicar y entender por qué intentar estar en todas es el error que más tiempo te roba.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 01</div>
+            <div class="module-name">El cuello de botella no son las ideas</div>
+          </div>
+          <p>Instagram, LinkedIn, TikTok, Facebook, YouTube, X. Intentar estar en todas produce presencia mediocre en todas. El sistema de este curso empieza eligiendo una plataforma principal y construyendo desde ahí.</p>
+          <h3>Cómo elegir tu plataforma principal</h3>
+          <table class="summary-table">
+            <thead><tr><th>Plataforma</th><th>Mejor para</th><th>Formato estrella</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Instagram</strong></td><td>Negocios visuales, servicios locales, lifestyle, belleza, alimentación</td><td>Reels + carruseles</td></tr>
+              <tr><td><strong>LinkedIn</strong></td><td>Consultoría, servicios B2B, formación, recursos humanos</td><td>Posts de texto + carruseles</td></tr>
+              <tr><td><strong>TikTok</strong></td><td>Negocios con componente educativo o de entretenimiento fuerte</td><td>Vídeos cortos</td></tr>
+              <tr><td><strong>Email</strong></td><td>Cualquier negocio con lista propia — es el complemento de todas</td><td>Newsletter semanal</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-tip">
+            <strong>La regla del 80/20 del contenido</strong>
+            Produce el 80% de tu contenido para una plataforma. Adapta el 20% restante a las otras. No al revés.
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Antes de pasar al Módulo 2</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-1-a"><label for="ck-1-a">Identifiqué mi cuello de botella real al crear contenido</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-1-b"><label for="ck-1-b">Sé los 3 formatos que voy a dominar: Reel, carrusel y email</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-1-c"><label for="ck-1-c">Elegí mi plataforma principal</label></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "02",
+    titulo: "El sistema de los 3 tipos de contenido",
+    lecciones: [
+      {
+        id: "2-1",
+        titulo: "Contenido que entretiene, educa y vende",
+        objetivo: "Entender la lógica detrás de los 3 tipos de contenido y por qué mezclarlos en la proporción correcta es lo que convierte seguidores en clientes.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">El sistema de los 3 tipos de contenido</div>
+          </div>
+          <p>El error más común en redes sociales es publicar solo contenido de venta. O publicar solo contenido educativo y nunca vender. El sistema que funciona mezcla tres tipos en proporciones concretas.</p>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--dawn);">E</div>
+              <div class="step-content">
+                <strong>Contenido que entretiene — te hace conocido</strong>
+                <p>Historias, opiniones, detrás de escena, anécdotas de tu negocio. No tiene por qué ser gracioso. Tiene que ser humano. El algoritmo lo amplifica. La gente lo comparte.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--sky);">E</div>
+              <div class="step-content">
+                <strong>Contenido que educa — te hace relevante</strong>
+                <p>Consejos, tutoriales, comparativas, respuestas a preguntas frecuentes. Demuestra que sabes de lo que hablas. Quien aprende de ti confía en ti para contratar.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--green);">V</div>
+              <div class="step-content">
+                <strong>Contenido que vende — te hace facturar</strong>
+                <p>Casos de éxito, presentación de servicios, testimonios, ofertas. Sin este tipo no hay negocio. Con solo este tipo, la gente deja de seguirte.</p>
+              </div>
+            </div>
+          </div>
+          <h3>La proporción que funciona</h3>
+          <div class="code-box">
+            <div class="code-box-header"><span class="code-box-label">Distribución semanal recomendada</span></div>
+            <pre>Si publicas 4 veces a la semana:
+→ 2 piezas educativas
+→ 1 pieza de entretenimiento / humanización
+→ 1 pieza de venta directa o indirecta
+
+Si publicas 3 veces a la semana:
+→ 1 educativa + 1 entretenimiento + 1 venta
+
+Si publicas 7 veces (incluyendo Stories):
+→ 3 educativas, 2 entretenimiento, 2 venta</pre>
+          </div>
+          <div class="callout callout-success">
+            <strong>La regla de oro</strong>
+            Nunca publiques dos piezas de venta seguidas. Siempre intercala valor antes de pedir.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">Si solo publicas contenido educativo (consejos, tutoriales) y nunca vendes, ¿qué pasa con tu negocio?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. La audiencia que solo recibe valor educativo no convierte automáticamente. Sin contenido de venta que les diga qué ofreces y cómo trabajar contigo, esa audiencia se queda como espectadores — no como clientes.">
+                Tu negocio crece solo, porque la audiencia educada eventualmente compra
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. La gente te ve como un educador gratuito, no como alguien con quien trabajar. Sin contenido de venta intercalado, tu audiencia no aprende a verte como proveedor de un servicio. Educas a futuros clientes de tu competencia, no a los tuyos.">
+                Construyes audiencia que te ve como educador, no como proveedor — y nunca aprende a comprarte
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. El algoritmo no te penaliza por hacer solo contenido educativo — de hecho, lo amplifica. El problema no es de algoritmo; es de modelo de negocio: educas pero no monetizas la atención que generas.">
+                El algoritmo te penaliza por no diversificar tipos de contenido
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        `
+      },
+      {
+        id: "2-2",
+        titulo: "El calendario de 4 semanas",
+        objetivo: "Construir un calendario de contenido de un mes completo en 20 minutos usando IA, listo para copiar y ejecutar.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 02</div>
+            <div class="module-name">El sistema de los 3 tipos de contenido</div>
+          </div>
+          <p>Un calendario de contenido no es una lista de ideas. Es un sistema que te dice exactamente qué publicar cada día, en qué formato y con qué objetivo. Así no empiezas desde cero cada mañana.</p>
+          <h3>Así se ve una semana bien planificada</h3>
+          <div class="calendar-visual">
+            <div class="cal-day"><div class="cal-day-name">Lunes</div><div class="cal-pill reel">Reel educativo</div><div class="cal-pill post" style="font-size:10px;color:var(--warm);">Tip rápido de tu sector</div></div>
+            <div class="cal-day"><div class="cal-day-name">Martes</div><div class="cal-pill carrusel">Carrusel</div><div class="cal-pill post" style="font-size:10px;color:var(--warm);">Guía paso a paso</div></div>
+            <div class="cal-day"><div class="cal-day-name">Miércoles</div><div class="cal-pill post">Post texto</div><div class="cal-pill post" style="font-size:10px;color:var(--warm);">Historia o detrás de escena</div></div>
+            <div class="cal-day"><div class="cal-day-name">Jueves</div><div class="cal-pill email">Email</div><div class="cal-pill post" style="font-size:10px;color:var(--warm);">Newsletter semanal</div></div>
+            <div class="cal-day"><div class="cal-day-name">Viernes</div><div class="cal-pill reel" style="background:rgba(45,158,107,0.15);color:#3DBE88;">Reel venta</div><div class="cal-pill post" style="font-size:10px;color:var(--warm);">Servicio o caso real</div></div>
+          </div>
+          <h3>El prompt para generar tu calendario completo</h3>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Calendario de contenido de 4 semanas</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Eres un estratega de contenido especializado en pequeños negocios y autónomos.
+
+Mi negocio: <span class="placeholder">[describe qué haces y a quién ayudas]</span>
+Plataforma principal: <span class="placeholder">[Instagram / LinkedIn / TikTok]</span>
+Frecuencia: <span class="placeholder">[cuántas veces publico a la semana]</span>
+Este mes me enfoco en: <span class="placeholder">[un producto, servicio o campaña concreta]</span>
+
+Crea un calendario de contenido de 4 semanas con la distribución 50% educativo,
+25% entretenimiento y 25% venta. Para cada pieza indica:
+- Día de publicación
+- Tipo de contenido (entretiene / educa / vende)
+- Formato (Reel / carrusel / post de texto / email)
+- Gancho de apertura en una línea
+- Objetivo de la pieza
+
+No desarrolles el contenido, solo el calendario. Quiero verlo completo antes de producir.</pre>
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Genera tu calendario del mes que viene</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Rellena el prompt con los datos de tu negocio</li>
+              <li><span class="step-num">02</span> Revisa el calendario y elimina cualquier idea que no suene a ti</li>
+              <li><span class="step-num">03</span> Guárdalo — vas a usarlo en el Módulo 5</li>
+            </ul>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "03",
+    titulo: "Produce cada formato con IA en menos de 10 minutos",
+    lecciones: [
+      {
+        id: "3-1",
+        titulo: "El guion de Reel: gancho, desarrollo y CTA",
+        objetivo: "Producir un guion de Reel completo y listo para grabar en menos de 8 minutos usando un prompt de estructura fija.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Produce cada formato con IA en menos de 10 minutos</div>
+          </div>
+          <p>El Reel tiene una estructura que funciona independientemente del sector. Tres partes: un gancho que para el scroll en los primeros 2 segundos, un desarrollo que cumple la promesa del gancho y un cierre con CTA. Con IA, el guion sale en 3 minutos. Ajustarlo a tu voz, en 5.</p>
+          <h3>La estructura de un Reel que funciona</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">1</div>
+              <div class="step-content">
+                <strong>Gancho — los primeros 2 segundos</strong>
+                <p>Una afirmación directa, una pregunta que duele o una promesa concreta. Sin introducción, sin "hola soy", sin contexto previo. Directamente al grano.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">2</div>
+              <div class="step-content">
+                <strong>Desarrollo — 30 a 50 segundos</strong>
+                <p>Cumples la promesa del gancho. Tres puntos, un proceso o una historia breve. Sin rodeos, sin relleno.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">3</div>
+              <div class="step-content">
+                <strong>CTA — los últimos 5 segundos</strong>
+                <p>Una sola acción. Guarda esto, comenta X, escríbeme, link en bio. Una sola, nunca dos.</p>
+              </div>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Guion de Reel completo</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Eres un guionista especializado en vídeos cortos para negocios en Instagram y TikTok.
+
+Mi negocio: <span class="placeholder">[describe qué haces]</span>
+Audiencia: <span class="placeholder">[a quién le hablas]</span>
+Tema del Reel: <span class="placeholder">[tema concreto]</span>
+Tipo: <span class="placeholder">[educativo / entretenimiento / venta]</span>
+Duración objetivo: <span class="placeholder">[30 / 45 / 60 segundos]</span>
+
+Escribe un guion con esta estructura exacta:
+[GANCHO] Una frase que pare el scroll. Sin saludar, sin introducción.
+[DESARROLLO] Tres puntos concretos o un proceso de 3 pasos. Frases cortas.
+[CTA] Una sola acción al final.
+
+Tono: <span class="placeholder">[cercano / directo / educativo]</span>
+Que suene a persona real, no a texto de marca.</pre>
+          </div>
+          <div class="callout callout-error">
+            <strong>El error más frecuente en los ganchos</strong>
+            Empezar con "Hoy quiero hablarte de…" o "En este vídeo vamos a ver…". Eso ya perdiste al espectador. El gancho es la primera frase. Tiene que ser la más fuerte de todo el vídeo.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué los primeros 2 segundos del Reel son el activo más valioso del vídeo entero?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. El algoritmo de Instagram y TikTok no decide en los primeros 2 segundos si te impulsa o no. Sí mide la retención, pero la decisión del algoritmo es continua a lo largo del vídeo, no instantánea.">
+                Porque el algoritmo decide en los primeros 2 segundos si impulsa tu vídeo o no
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. En los 2 primeros segundos el espectador decide si sigue o sigue scrolleando. Sin esa decisión a tu favor, el resto del vídeo no existe — por más bueno que sea el desarrollo, nadie lo verá. Por eso el gancho concentra el mayor riesgo y la mayor recompensa.">
+                Porque en esos 2 segundos el espectador decide si sigue viendo o sigue scrolleando — sin esa decisión, el resto del vídeo no existe
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. La duración legal de los Reels la define la plataforma, no los primeros 2 segundos. El factor crítico no es legal — es de atención: si el espectador no se queda en los primeros 2 segundos, da igual lo que dure el vídeo.">
+                Porque los Reels solo se pueden mostrar legalmente con un gancho corto
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Produce tu primer guion de Reel</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Elige un tema de tu sector que sepas bien y que le interese a tu audiencia</li>
+              <li><span class="step-num">02</span> Usa el prompt, genera el guion y léelo en voz alta</li>
+              <li><span class="step-num">03</span> Si una frase no dirías así en una conversación real, cámbiala</li>
+              <li><span class="step-num">04</span> Guarda el guion final en tu carpeta de contenido</li>
+            </ul>
+          </div>
+          <div class="challenge-block">
+            <div class="challenge-label">🎯 Reto · Test del lenguaje natural</div>
+            <div class="challenge-question">Lee tu guion en voz alta sin pausas ni correcciones. ¿Sale fluido o tropiezas en alguna frase?</div>
+            <div class="challenge-btns">
+              <button class="challenge-yes" onclick="handleChallenge(this,true)">Sí, fluye natural 🎤</button>
+              <button class="challenge-no" onclick="handleChallenge(this,false)">No, hay frases que no salen</button>
+            </div>
+            <div class="challenge-response"></div>
+          </div>
+        `
+      },
+      {
+        id: "3-2",
+        titulo: "El carrusel que enseña: estructura de 7 slides",
+        objetivo: "Producir un carrusel completo de 7 slides con estructura probada en menos de 10 minutos.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Produce cada formato con IA en menos de 10 minutos</div>
+          </div>
+          <p>El carrusel es el formato que más se guarda en Instagram y LinkedIn. Cuando alguien guarda tu carrusel, el algoritmo lo interpreta como una señal de valor muy alta y lo amplifica. La estructura de 7 slides es la que convierte mejor.</p>
+          <div class="code-box">
+            <div class="code-box-header"><span class="code-box-label">Estructura de las 7 slides</span></div>
+            <pre>Slide 1 — Portada con gancho
+         El título es lo único que se ve antes de hacer clic. Tiene que prometer algo concreto.
+
+Slide 2 — El problema o la promesa ampliada
+         Por qué este tema importa. Conecta con el dolor o el deseo del lector.
+
+Slides 3, 4, 5 — Los tres puntos clave
+         Un punto por slide. Título corto + explicación de 2 a 3 líneas. Sin más.
+
+Slide 6 — El error más común relacionado con el tema
+         Esta slide genera más guardados que cualquier otra. A la gente le encanta saber qué no hacer.
+
+Slide 7 — CTA claro
+         Una sola acción: guarda este carrusel, comenta, escríbeme, sigue para más.</pre>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Carrusel de 7 slides</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Eres un experto en contenido educativo para redes sociales.
+
+Mi negocio: <span class="placeholder">[describe qué haces]</span>
+Audiencia: <span class="placeholder">[a quién le hablas]</span>
+Tema del carrusel: <span class="placeholder">[tema concreto]</span>
+
+Escribe el texto de las 7 slides siguiendo esta estructura exacta:
+Slide 1: Título gancho (máx. 8 palabras)
+Slide 2: El problema o promesa (máx. 3 líneas)
+Slide 3: Punto 1 — título corto + 2 líneas de explicación
+Slide 4: Punto 2 — título corto + 2 líneas de explicación
+Slide 5: Punto 3 — título corto + 2 líneas de explicación
+Slide 6: El error más común sobre este tema (2-3 líneas)
+Slide 7: CTA directo (1 sola acción)
+
+Tono: <span class="placeholder">[directo / cercano / experto]</span>. Sin tecnicismos innecesarios.</pre>
+          </div>
+          <div class="callout callout-tip">
+            <strong>Sobre el diseño visual</strong>
+            Canva tiene plantillas de carrusel gratuitas. Una vez tengas el texto de este prompt, solo es copiar y pegar. El diseño no es lo que frena — el texto sí lo era.
+          </div>
+        `
+      },
+      {
+        id: "3-3",
+        titulo: "El email de la semana: los 5 párrafos que siempre funcionan",
+        objetivo: "Escribir un email de newsletter semanal completo y listo para enviar en menos de 10 minutos.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Produce cada formato con IA en menos de 10 minutos</div>
+          </div>
+          <p>Un email de newsletter no es un catálogo de productos ni un boletín de noticias. Es una conversación con personas que eligieron escucharte. La estructura de 5 párrafos es la que genera más respuestas y más clics.</p>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--green);">1</div>
+              <div class="step-content">
+                <strong>Apertura — algo personal o una observación concreta</strong>
+                <p>No empieces con "esta semana quiero hablarte de". Empieza con algo que pasó, algo que viste, algo que te llamó la atención. Dos líneas máximo.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--green);">2</div>
+              <div class="step-content">
+                <strong>El problema que resuelves esta semana</strong>
+                <p>Conecta la apertura con el problema de tu lector. "Si te ha pasado algo parecido, esto te va a servir."</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--green);">3</div>
+              <div class="step-content">
+                <strong>El valor — consejo, historia o recurso</strong>
+                <p>El cuerpo del email. Lo que aprendieron por abrirlo. Tres puntos, un proceso o una historia con lección. Sin relleno.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--green);">4</div>
+              <div class="step-content">
+                <strong>La transición — de valor a acción</strong>
+                <p>Una línea que conecta lo que acabas de contar con lo que ofreces. Sin salto brusco.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:var(--green);">5</div>
+              <div class="step-content">
+                <strong>El CTA — una sola acción</strong>
+                <p>Responde a este email, haz clic aquí, reserva, descarga. Una. Solo una.</p>
+              </div>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Email semanal completo</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Eres un copywriter especializado en emails de pequeños negocios y autónomos.
+Tono: conversacional, directo, como escribirle a alguien que te conoce.
+
+Mi negocio: <span class="placeholder">[describe qué haces]</span>
+Tema del email de esta semana: <span class="placeholder">[tema o aprendizaje concreto]</span>
+Servicio o acción que quiero que hagan: <span class="placeholder">[tu CTA]</span>
+
+Escribe el email con esta estructura de 5 párrafos:
+P1: Apertura con algo concreto o personal (2 líneas)
+P2: El problema del lector relacionado con el tema (2-3 líneas)
+P3: El valor — consejo, proceso o historia con lección (3-4 líneas)
+P4: Transición hacia la acción (1-2 líneas)
+P5: CTA directo y claro (1 línea)
+
+Asunto: 2 opciones, máximo 7 palabras cada una, sin emojis.
+Longitud total del cuerpo: máximo 180 palabras.</pre>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Módulo 3 completado cuando</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-a"><label for="ck-3-a">Tengo un guion de Reel escrito y revisado con mi voz</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-b"><label for="ck-3-b">Tengo un carrusel de 7 slides listo para diseñar en Canva</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-3-c"><label for="ck-3-c">Tengo un email semanal escrito y listo para enviar</label></div>
+          </div>
+        `
+      },
+      {
+        id: "3-4",
+        titulo: "Un contenido, tres formatos — sin repetirte",
+        objetivo: "Aprender a multiplicar un solo tema en los tres formatos sin que parezca el mismo contenido repetido.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 03</div>
+            <div class="module-name">Produce cada formato con IA en menos de 10 minutos</div>
+          </div>
+          <p>El error de pensar que necesitas tres ideas distintas para tres piezas de contenido es lo que agota a los creadores. Un solo tema, abordado desde tres ángulos distintos, produce tres piezas de alto valor sin repetición visible.</p>
+          <div class="compare-block">
+            <div class="compare-col bad">
+              <div class="compare-col-label">❌ Repetición visible</div>
+              <ul>
+                <li>Reel: "5 errores al usar ChatGPT"</li>
+                <li>Carrusel: "5 errores al usar ChatGPT"</li>
+                <li>Email: "Los 5 errores de ChatGPT"</li>
+              </ul>
+            </div>
+            <div class="compare-col good">
+              <div class="compare-col-label">✓ Un tema, tres ángulos</div>
+              <ul>
+                <li>Reel: Historia de un caso real donde ChatGPT falló</li>
+                <li>Carrusel: La anatomía de un prompt que funciona</li>
+                <li>Email: Lo que nadie te dice sobre la segunda iteración</li>
+              </ul>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Multiplica un tema en 3 formatos</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Eres un estratega de contenido especializado en pequeños negocios.
+
+Tema base: <span class="placeholder">[tu tema central]</span>
+Mi audiencia: <span class="placeholder">[a quién le hablas]</span>
+
+Dame tres ángulos distintos para abordar este tema, uno por formato:
+
+Reel (60 seg): un ángulo emocional o narrativo — historia, caso real o provocación
+Carrusel: un ángulo educativo — paso a paso, lista o comparativa
+Email: un ángulo personal — reflexión, lección aprendida o consejo no obvio
+
+Para cada ángulo dame:
+- El gancho de apertura (1 línea)
+- El argumento central (2 líneas)
+- El CTA sugerido
+
+Que los tres parezcan contenido distinto aunque el tema sea el mismo.</pre>
+          </div>
+          <div class="callout callout-success">
+            <strong>El resultado</strong>
+            Con un solo tema y este prompt tienes la planificación de tres piezas distintas. Ahora solo es producirlas con los prompts de las lecciones anteriores.
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">Tu tema base es "cómo cobrar más sin perder clientes". ¿Cuál de estas opciones representa correctamente el principio de "un tema, tres ángulos" en lugar de repetición?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. Eso es repetición pura — el mismo título, el mismo enfoque, en tres formatos. Aunque el formato cambie, la audiencia que ya vio el Reel reconoce el carrusel como contenido reciclado y baja la confianza.">
+                Reel: "5 formas de cobrar más" · Carrusel: "5 formas de cobrar más" · Email: "5 formas de cobrar más"
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. Cada ángulo es genuinamente distinto: el Reel ataca el miedo emocional, el carrusel enseña una técnica concreta, el email comparte una lección personal. La audiencia que consume los tres percibe contenido diferente con valor único en cada uno, no el mismo material repackeado.">
+                Reel: "Por qué tienes miedo a subir precios" · Carrusel: "Cómo presentar la subida sin perder clientes" · Email: "El día que subí mis precios y nadie me dejó"
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. Cambiar el formato sin cambiar el ángulo no es multiplicación — sigue siendo el mismo contenido en tres envases. La diferencia entre repetición y multiplicación está en el ángulo (emocional vs educativo vs personal), no en el formato.">
+                Reel hablando del tema · Carrusel con el mismo tema en slides · Email con el mismo contenido en texto
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "04",
+    titulo: "Que no se note que usaste IA",
+    lecciones: [
+      {
+        id: "4-1",
+        titulo: "Los 5 síntomas del contenido que suena a robot",
+        objetivo: "Reconocer en el texto generado por IA los patrones que delatan que no lo escribió un humano y eliminarlos antes de publicar.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Que no se note que usaste IA</div>
+          </div>
+          <p>La IA tiene patrones. Los repite en millones de textos. Tu audiencia no sabe que son patrones de IA, pero siente que algo no encaja. El resultado es contenido que nadie comenta, nadie guarda y nadie conecta contigo.</p>
+          <h3>Los 5 síntomas que delatan a la IA</h3>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big" style="background:rgba(239,68,68,0.6);">1</div>
+              <div class="step-content">
+                <strong>Frases de apertura genéricas</strong>
+                <p>"En el mundo actual…", "En el dinámico panorama de…", "Hoy quiero hablarte de algo muy importante." Bórralas. Todas.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:rgba(239,68,68,0.6);">2</div>
+              <div class="step-content">
+                <strong>Listas de exactamente tres puntos para todo</strong>
+                <p>La IA tiene una tendencia obsesiva a estructurar todo en tres puntos aunque el tema pida dos o seis. Si tienes cuatro ideas buenas, usa cuatro.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:rgba(239,68,68,0.6);">3</div>
+              <div class="step-content">
+                <strong>Adjetivos vacíos</strong>
+                <p>"Increíble", "poderoso", "revolucionario", "transformador". Si el adjetivo no añade información concreta, elimínalo.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:rgba(239,68,68,0.6);">4</div>
+              <div class="step-content">
+                <strong>Conclusiones que repiten lo que ya dijiste</strong>
+                <p>La IA casi siempre cierra con un resumen de lo que acabas de leer. Elimina ese último párrafo. El lector ya lo leyó.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big" style="background:rgba(239,68,68,0.6);">5</div>
+              <div class="step-content">
+                <strong>Ausencia total de especificidad</strong>
+                <p>La IA dice "muchos negocios". Tú dirías "la mayoría de salones de belleza que conozco". La especificidad es lo que hace que suene a persona real.</p>
+              </div>
+            </div>
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-label">🧠 Comprueba lo que aprendiste</div>
+            <div class="quiz-question">¿Por qué los patrones de IA generan desconfianza inconsciente en quien los lee, aunque el lector no sepa identificarlos como "patrones de IA"?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. La sensación de IA no se asocia con publicidad — se asocia con falta de autoría humana. Lo que detecta el lector no es 'esto vende', es 'esto no lo escribió alguien con experiencia real'.">
+                Porque el lector asocia esos patrones con publicidad y los rechaza
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,true)" data-correct="Exacto. El lector no identifica conscientemente los patrones, pero detecta la ausencia de marcadores humanos: especificidad, opinión, anécdota, asimetría. Cuando un texto está demasiado pulido y demasiado equilibrado, se siente impersonal — y la mente lo procesa como 'esto no está hablando conmigo'.">
+                Porque el lector detecta la ausencia de marcadores humanos (especificidad, opinión, anécdota) aunque no sepa nombrarlos
+              </button>
+              <button class="quiz-option" onclick="handleQuiz(this,false)" data-incorrect="No. La gramática perfecta no es lo que delata a la IA — humanos también escriben con buena gramática. Lo que delata es la ausencia de detalles únicos, opiniones marcadas y experiencia personal verificable.">
+                Porque el contenido de IA tiene gramática demasiado perfecta y eso resulta sospechoso
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label"><span>Prompt — Detecta y elimina los síntomas de IA</span><button class="copy-btn" onclick="copyPrompt(this)">Copiar</button></div>
+            <pre>Eres un editor de textos que sabe distinguir perfectamente entre texto de IA y texto humano.
+
+Voy a darte un texto. Necesito que:
+1. Identifiques las frases que suenan a IA (frases genéricas, adjetivos vacíos,
+   aperturas formulaicas, conclusiones redundantes)
+2. Para cada frase detectada, propón una alternativa más específica y humana
+3. No reescribas el texto completo — solo señala los problemas y propón los cambios
+
+Aquí está el texto:
+---
+<span class="placeholder">[pega aquí tu texto generado]</span>
+---</pre>
+          </div>
+        `
+      },
+      {
+        id: "4-2",
+        titulo: "El 10% que siempre escribe el humano",
+        objetivo: "Entender qué parte del contenido nunca puede delegar a la IA y cómo añadir ese 10% que convierte un texto correcto en uno que conecta.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 04</div>
+            <div class="module-name">Que no se note que usaste IA</div>
+          </div>
+          <p>La IA llega al 90% de un buen texto. El 10% restante es tuyo y no se puede automatizar. Ese 10% es lo que hace que tu contenido suene a ti y no a una plantilla.</p>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number-big">A</div>
+              <div class="step-content">
+                <strong>Añade algo que solo tú sabes</strong>
+                <p>Un dato de tu experiencia real, un número concreto de tu negocio, una anécdota de un cliente (sin nombre). La IA no tiene acceso a esto. Tú sí.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">B</div>
+              <div class="step-content">
+                <strong>Cambia una frase por como lo dirías tú en voz alta</strong>
+                <p>Lee el texto en voz alta. En el momento en que algo no te salga de forma natural, es una frase de IA. Cámbiala por como lo explicarías a un conocido.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number-big">C</div>
+              <div class="step-content">
+                <strong>Añade tu opinión en algún punto</strong>
+                <p>La IA es neutral por diseño. Tú no tienes que serlo. Una opinión clara, aunque no todo el mundo esté de acuerdo, genera más engagement que el consenso.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-warning">
+            <strong>La prueba definitiva</strong>
+            Antes de publicar, hazte esta pregunta: ¿podría haber escrito este texto cualquier otra persona de mi sector? Si la respuesta es sí, falta el 10% tuyo.
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">✓ Módulo 4 listo cuando</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-4-a"><label for="ck-4-a">Sé identificar los 5 síntomas del contenido que suena a IA</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-4-b"><label for="ck-4-b">Revisé al menos un texto generado y eliminé los patrones de IA</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-4-c"><label for="ck-4-c">Añadí mi opinión, un dato real o una anécdota a ese texto</label></div>
+          </div>
+        `
+      }
+    ]
+  },
+  {
+    modulo: "05",
+    titulo: "El flujo semanal en marcha",
+    lecciones: [
+      {
+        id: "5-1",
+        titulo: "Lunes de planificación: 7 contenidos en 20 minutos",
+        objetivo: "Implementar el hábito del lunes de planificación para que nunca más empieces una semana sin saber qué vas a publicar.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 05</div>
+            <div class="module-name">El flujo semanal en marcha</div>
+          </div>
+          <div class="lesson-hero">
+            <img decoding="async" src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=1400&#038;auto=format&#038;fit=crop&#038;q=80" alt="Planificación semanal" onerror="this.parentElement.classList.add('broken');this.remove()">
+          </div>
+          <p>La consistencia no viene de la motivación. Viene del sistema. El lunes de planificación es el hábito más importante de este curso: 20 minutos una vez a la semana que eliminan la pregunta "¿qué publico hoy?" para siempre.</p>
+          <div class="code-box">
+            <div class="code-box-header"><span class="code-box-label">El proceso de los lunes — paso a paso</span></div>
+            <pre>PASO 1 — Abre tu calendario de contenido del mes (5 min)
+¿Qué toca esta semana según el calendario que generaste en el Módulo 2?
+Confirma los temas. Cámbialos si algo más urgente o relevante surgió.
+
+PASO 2 — Genera los textos con los prompts del Módulo 3 (10 min)
+Un prompt por formato. Reel, carrusel, email.
+No los edites todavía — solo genéralos.
+
+PASO 3 — Revisión exprés con el filtro del Módulo 4 (5 min)
+Elimina los síntomas de IA. Añade tu 10%.
+Cada texto debería quedar listo en menos de 2 minutos de edición.
+
+RESULTADO: Entras al martes con los tres formatos de la semana escritos,
+revisados y listos para diseñar o grabar.</pre>
+          </div>
+          <div class="action-block">
+            <div class="action-label">Tu acción ahora mismo</div>
+            <div class="action-title">Pon el recordatorio ahora</div>
+            <ul class="action-steps">
+              <li><span class="step-num">01</span> Abre tu calendario y crea un evento recurrente: "Planificación de contenido", lunes, 20 minutos</li>
+              <li><span class="step-num">02</span> En la descripción del evento pega el proceso de los 3 pasos de arriba</li>
+              <li><span class="step-num">03</span> La primera semana tardará 30 minutos. La tercera, 15. La décima, menos de 10.</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        id: "5-2",
+        titulo: "Produce, revisa y publica — el ciclo de los 10 minutos",
+        objetivo: "Ejecutar el flujo completo de producción de una pieza de contenido en 10 minutos o menos de forma sistemática y repetible.",
+        contenido: `
+          <div class="module-header">
+            <div class="module-num">Módulo 05</div>
+            <div class="module-name">El flujo semanal en marcha</div>
+          </div>
+          <p>El objetivo final de este curso no es que sepas cómo hacer contenido con IA. Es que lo hagas. Esta lección es la actividad final: una semana completa de contenido publicado usando todo lo que aprendiste.</p>
+          <div class="code-box">
+            <div class="code-box-header"><span class="code-box-label">El ciclo de producción de 10 minutos por pieza</span></div>
+            <pre>MIN 0-2   — Define el tema y el objetivo de la pieza
+            ¿Qué quiero que sienta o haga quien lo lea/vea?
+
+MIN 2-5   — Genera con el prompt correspondiente
+            Reel → prompt del Módulo 3.1
+            Carrusel → prompt del Módulo 3.2
+            Email → prompt del Módulo 3.3
+
+MIN 5-8   — Revisión con el filtro del Módulo 4
+            Elimina síntomas de IA. Añade tu 10%.
+            Léelo en voz alta una vez.
+
+MIN 8-10  — Prepara para publicar
+            Copia al diseño (Canva) o al grabador de notas para el Reel.
+            Programa o publica directamente.</pre>
+          </div>
+          <div class="checklist-block">
+            <div class="checklist-label">🎯 Actividad final — semana completa publicada</div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-a"><label for="ck-5-a">Lunes: completé la planificación de la semana con el proceso de 3 pasos</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-b"><label for="ck-5-b">Martes o miércoles: publiqué el Reel o vídeo corto de la semana</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-c"><label for="ck-5-c">Jueves: publiqué el carrusel en mi plataforma principal</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-d"><label for="ck-5-d">Viernes: envié el email semanal a mi lista</label></div>
+            <div class="checklist-item"><input type="checkbox" id="ck-5-e"><label for="ck-5-e">Revisé cada pieza con el filtro del Módulo 4 antes de publicar</label></div>
+          </div>
+          <div class="challenge-block">
+            <div class="challenge-label">🎯 Reto final · El objetivo real del curso</div>
+            <div class="challenge-question">Esta semana, ¿conseguiste publicar las 3 piezas (Reel + carrusel + email) usando el sistema completo?</div>
+            <div class="challenge-btns">
+              <button class="challenge-yes" onclick="handleChallenge(this,true)">Sí, publiqué las 3 🎉</button>
+              <button class="challenge-no" onclick="handleChallenge(this,false)">Aún no, solo algunas</button>
+            </div>
+            <div class="challenge-response"></div>
+          </div>
+          <div class="next-course">
+            <div class="next-course-label">Siguiente nivel</div>
+            <div class="next-course-title">Tu Mini CRM Gratis en Google Sheets</div>
+            <div class="next-course-desc">Ya publicas de forma consistente. El siguiente paso es no perder a los que llegan. Un CRM en Google Sheets que se actualiza solo, con colores de urgencia y plantillas de seguimiento listas.</div>
+            <a href="index.html" class="next-course-btn">Ver curso →</a>
+          </div>
+        `
+      }
+    ]
+  }
+];
+
+let currentLesson = 0;
+const allLessons = curso.flatMap(m => m.lecciones);
+const completed = new Set();
+const quizPassed = new Set();
+var BREVO_URL = 'https://0e103c7f.sibforms.com/serve/MUIFACJO_6w5gJhxeL-fckL0X6LO1DsxFQJDHc-_j4330HAoE9LuRfE8jDn5EDai9obwDLdeoikN4lILkHwPxqErqqWqdz7rVLFIXCpT-f1RgeRjhUpLdariCKvgH-KsPmfa_qyQgx9fnMso83bZ1aiSIO-fKNxIR80jqkBZhm-E1NYzh1Tmwy8GKnNTMRn0reXY3v9fnpYG62mEHQ==';
+var progressModalShown = false;
+
+function renderSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  curso.forEach(modulo => {
+    const moduleEl = document.createElement('div');
+    moduleEl.className = 'nav-module';
+    const header = document.createElement('div');
+    header.className = 'nav-module-header';
+    header.innerHTML = `<span><span class="nav-module-num">${modulo.modulo}</span> ${modulo.titulo}</span>`;
+    header.onclick = () => {
+      const l = moduleEl.querySelector('.nav-lessons');
+      l.style.maxHeight = l.style.maxHeight ? '' : l.scrollHeight + 'px';
+    };
+    const lessons = document.createElement('div');
+    lessons.className = 'nav-lessons';
+    lessons.style.maxHeight = '500px';
+    modulo.lecciones.forEach(leccion => {
+      const idx = allLessons.findIndex(l => l.id === leccion.id);
+      const item = document.createElement('div');
+      item.className = 'nav-lesson' + (idx === currentLesson ? ' active' : '') + (completed.has(idx) ? ' completed' : '');
+      item.innerHTML = `<div class="lesson-dot"></div>${leccion.titulo}`;
+      item.onclick = () => goToLesson(idx);
+      lessons.appendChild(item);
+    });
+    moduleEl.appendChild(header);
+    moduleEl.appendChild(lessons);
+    nav.appendChild(moduleEl);
+  });
+}
+
+function renderLesson(idx) {
+  const area = document.getElementById('content-area');
+  const leccion = allLessons[idx];
+  const modulo = curso.find(m => m.lecciones.some(l => l.id === leccion.id));
+  area.innerHTML = `
+    <div class="lesson active">
+      <div class="lesson-breadcrumb">
+        <span>Módulo ${modulo.modulo}</span>
+        <span class="breadcrumb-sep">›</span>
+        <span>Lección ${idx + 1} de ${allLessons.length}</span>
+      </div>
+      <h1 class="lesson-title">${leccion.titulo}</h1>
+      <div class="lesson-objective">${leccion.objetivo}</div>
+      <div class="lesson-body">${leccion.contenido}</div>
+      <div class="lesson-nav">
+        <button class="nav-btn nav-btn-prev" onclick="goToLesson(${idx-1})" ${idx===0?'disabled':''}>← Anterior</button>
+        <button class="nav-btn nav-btn-next" onclick="nextLesson(${idx})">
+          ${idx === allLessons.length-1 ? '¡Completado! 🐧' : 'Siguiente →'}
+        </button>
+      </div>
+    </div>`;
+  document.getElementById('main-content').scrollTop = 0;
+}
+
+function goToLesson(idx) {
+  if (idx < 0 || idx >= allLessons.length) return;
+  completed.add(currentLesson);
+  currentLesson = idx;
+  // Trigger del popup Brevo a mitad de curso (lección 7 — Carrusel de 7 slides, índice 6)
+  if (idx === 6 && !progressModalShown) {
+    setTimeout(function() {
+      document.getElementById('progress-modal').classList.add('active');
+    }, 600);
+  }
+  renderLesson(idx);
+  renderSidebar();
+  updateProgress();
+  closeSidebar();
+}
+
+function nextLesson(idx) {
+  completed.add(idx);
+  if (idx < allLessons.length - 1) {
+    goToLesson(idx + 1);
+  } else {
+    updateProgress();
+    renderSidebar();
+    const lessonsWithQuizzes = allLessons
+      .map((l, i) => ({ idx: i, titulo: l.titulo, hasQuiz: l.contenido.includes('quiz-block') }))
+      .filter(l => l.hasQuiz);
+    const pending = lessonsWithQuizzes.filter(l => !quizPassed.has(l.idx));
+    if (pending.length === 0) {
+      document.getElementById('cert-overlay').classList.add('active');
+    } else {
+      const area = document.getElementById('content-area');
+      const lista = pending.map(l => `<li style="margin-bottom:8px;">${l.titulo}</li>`).join('');
+      area.innerHTML = `
+        <div class="lesson active">
+          <div class="lesson-breadcrumb"><span>Certificado</span></div>
+          <h1 class="lesson-title">Casi lo tienes 🐧</h1>
+          <div class="lesson-objective">Para descargar tu certificado necesitas responder correctamente todos los quizzes del curso.</div>
+          <div class="lesson-body">
+            <p>Tienes quizzes pendientes en las siguientes lecciones:</p>
+            <ul style="margin:16px 0 16px 20px;">${lista}</ul>
+            <p>Vuelve a esas lecciones, responde el quiz correctamente y regresa aquí para obtener tu certificado.</p>
+          </div>
+          <div class="lesson-nav">
+            <button class="nav-btn nav-btn-prev" onclick="goToLesson(${idx})">← Volver</button>
+            <button class="nav-btn nav-btn-next" onclick="
+              const lq = allLessons.map((l,i)=>({idx:i,hasQuiz:l.contenido.includes('quiz-block')})).filter(l=>l.hasQuiz).filter(l=>!quizPassed.has(l.idx));
+              if(lq.length===0){document.getElementById('cert-overlay').classList.add('active');}
+              else{goToLesson(lq[0].idx);}
+            ">Ir al quiz pendiente →</button>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
+function updateProgress() {
+  const done = completed.size;
+  const total = allLessons.length;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = done + ' / ' + total;
+}
+
+function handleQuiz(btn, isCorrect) {
+  const block = btn.closest('.quiz-block');
+  const blockId = block.id || ('quiz-' + currentLesson);
+  if (!block.id) block.id = blockId;
+  block.querySelectorAll('.quiz-option').forEach(o => { o.disabled = true; o.style.pointerEvents = 'none'; });
+  btn.classList.add(isCorrect ? 'quiz-correct' : 'quiz-incorrect');
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback ' + (isCorrect ? 'fb-correct' : 'fb-incorrect');
+  if (isCorrect) {
+    fb.textContent = btn.dataset.correct;
+    quizPassed.add(currentLesson);
+  } else {
+    fb.innerHTML = btn.dataset.incorrect + '<br><br><button onclick="resetQuiz(\'' + blockId + '\')" style="margin-top:8px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;padding:7px 18px;border-radius:6px;font-family:DM Sans,sans-serif;font-size:13px;cursor:pointer;">↩ Volver a intentar</button>';
+  }
+}
+
+function resetQuiz(blockId) {
+  const block = document.getElementById(blockId);
+  block.querySelectorAll('.quiz-option').forEach(o => {
+    o.disabled = false;
+    o.style.pointerEvents = '';
+    o.classList.remove('quiz-correct', 'quiz-incorrect');
+  });
+  const fb = block.querySelector('.quiz-feedback');
+  fb.className = 'quiz-feedback';
+  fb.innerHTML = '';
+}
+
+function handleChallenge(btn, success) {
+  const block = btn.closest('.challenge-block');
+  block.querySelectorAll('button').forEach(b => {
+    b.disabled = true;
+    b.style.pointerEvents = 'none';
+    b.style.opacity = '0.5';
+  });
+  const resp = block.querySelector('.challenge-response');
+  if (success) {
+    resp.className = 'challenge-response success';
+    resp.innerHTML = '<strong>¡Increíble!</strong> Cuando un guion fluye al leerlo en voz alta, sonará natural en el Reel. Ese test es el filtro más importante para que no se note que usaste IA — porque la cámara amplifica cualquier frase que no sea tuya.';
+  } else {
+    resp.className = 'challenge-response error';
+    resp.innerHTML = '<strong>Eso es la señal exacta.</strong> Si tropiezas al leerlo, es porque hay frases que tú no dirías así en una conversación real. Cámbialas por como lo explicarías a un amigo. Ese ejercicio es lo que separa un Reel que parece de IA de uno que parece tuyo.';
+  }
+}
+
+function saveProgress() {
+  var email = document.getElementById('progress-email').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('progress-email').style.borderColor = '#ef4444';
+    return;
+  }
+  var body = new FormData();
+  body.append('EMAIL', email);
+  body.append('email_address_check', '');
+  body.append('locale', 'es');
+  fetch(BREVO_URL, { method: 'POST', body: body, mode: 'no-cors' }).catch(function(){});
+  dismissProgress();
+}
+
+function dismissProgress() {
+  document.getElementById('progress-modal').classList.remove('active');
+  progressModalShown = true;
+}
+
+function copyPrompt(btn) {
+  const pre = btn.closest('.prompt-box').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = '¡Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector('script[src="' + src + '"]')) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function certHTML(name, dateStr, auryBase64) {
+  const auryImg = auryBase64 ? `<img decoding="async" src="${auryBase64}" style="width:92%;object-fit:contain;object-position:bottom center;" alt="Aury">` : '';
+  return `<div style="width:1200px;height:848px;background:#07090F;position:relative;overflow:hidden;font-family:'DM Sans',sans-serif;">
+    <div style="position:absolute;top:-120px;right:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(196,96,48,0.13),transparent 65%);"></div>
+    <div style="position:absolute;bottom:-120px;left:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(58,100,148,0.1),transparent 65%);"></div>
+    <div style="position:absolute;inset:20px;border:1.5px solid rgba(196,96,48,0.4);pointer-events:none;"></div>
+    <div style="position:absolute;inset:26px;border:1px solid rgba(196,96,48,0.1);pointer-events:none;"></div>
+    <div style="position:absolute;top:16px;left:16px;width:14px;height:14px;border-top:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;top:16px;right:16px;width:14px;height:14px;border-top:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;left:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-left:2px solid #C46030;"></div>
+    <div style="position:absolute;bottom:16px;right:16px;width:14px;height:14px;border-bottom:2px solid #C46030;border-right:2px solid #C46030;"></div>
+    <div style="position:absolute;top:48px;left:60px;right:60px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#7A6E60;font-weight:500;font-family:'DM Mono',monospace;">🐧 AuryOnTech</div>
+      <div style="width:38%;height:1px;background:linear-gradient(to right,transparent,rgba(196,96,48,0.25),transparent);"></div>
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(196,96,48,0.5);font-family:'DM Mono',monospace;">Certificado de Finalización</div>
+    </div>
+    <div style="position:absolute;top:0;left:0;width:760px;height:848px;display:flex;flex-direction:column;justify-content:center;padding:100px 56px 80px 60px;">
+      <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#C46030;font-family:'DM Mono',monospace;margin-bottom:18px;">Este documento certifica que</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:58px;color:#EEF4F8;line-height:1.05;letter-spacing:-1.5px;margin-bottom:22px;">${name}</div>
+      <div style="width:56px;height:3px;background:#C46030;margin-bottom:22px;border-radius:2px;"></div>
+      <div style="font-size:15px;color:#7A6E60;margin-bottom:10px;">ha completado satisfactoriamente el curso</div>
+      <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:24px;color:#D88050;letter-spacing:-0.3px;margin-bottom:52px;line-height:1.3;">Publica con IA. Sin que se note.</div>
+      <div style="display:flex;gap:52px;align-items:flex-start;">
+        <div>
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Fecha</div>
+          <div style="font-size:13px;color:#EDE4D8;">${dateStr}</div>
+        </div>
+        <div style="width:1px;height:40px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>
+        <div>
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7A6E60;font-family:'DM Mono',monospace;margin-bottom:6px;">Emitido por</div>
+          <div style="font-size:13px;color:#EDE4D8;font-weight:600;">Cristian Lopez Garcia</div>
+          <div style="font-size:11px;color:#7A6E60;margin-top:2px;">Fundador · AuryOnTech</div>
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute;top:100px;bottom:80px;left:760px;width:1px;background:linear-gradient(to bottom,transparent,rgba(196,96,48,0.2) 30%,rgba(196,96,48,0.2) 70%,transparent);"></div>
+    <div style="position:absolute;right:0;bottom:0;width:440px;height:848px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;">${auryImg}</div>
+    <div style="position:absolute;bottom:34px;left:60px;font-size:10px;color:rgba(122,110,96,0.35);letter-spacing:2px;font-family:'DM Mono',monospace;text-transform:uppercase;">auryontech.com</div>
+  </div>`;
+}
+
+async function generateCert() {
+  const name = document.getElementById('cert-name').value.trim();
+  const certEmail = document.getElementById('cert-email').value.trim();
+  if (!name) { document.getElementById('cert-name').focus(); return; }
+  if (certEmail && certEmail.includes('@')) {
+    var bf = new FormData();
+    bf.append('EMAIL', certEmail);
+    bf.append('FIRSTNAME', name);
+    bf.append('email_address_check', '');
+    bf.append('locale', 'es');
+    fetch(BREVO_URL, { method: 'POST', body: bf, mode: 'no-cors' }).catch(function(){});
+  }
+  const dateStr = new Date().toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
+  closeCertModal();
+  const loader = document.createElement('div');
+  loader.style.cssText = 'position:fixed;inset:0;background:rgba(7,9,15,0.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#EEF4F8;font-family:DM Sans,sans-serif;font-size:15px;gap:14px;';
+  loader.innerHTML = '<div style="font-size:36px;">🐧</div><div>Generando tu certificado...</div>';
+  document.body.appendChild(loader);
+  let auryBase64 = '';
+  try {
+    const resp = await fetch('assets/img/Aury-enfrente-de-la-Compu.png');
+    const blob = await resp.blob();
+    auryBase64 = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(blob); });
+  } catch(e) {}
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:1200px;height:848px;z-index:-1;';
+  div.innerHTML = certHTML(name, dateStr, auryBase64);
+  document.body.appendChild(div);
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 400));
+  const canvas = await html2canvas(div, { scale:2, useCORS:true, allowTaint:true, backgroundColor:'#07090F', width:1200, height:848, logging:false });
+  document.body.removeChild(div);
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 297, 210);
+  pdf.save('Certificado_AuryOnTech_' + name.replace(/ /g,'_') + '.pdf');
+  loader.remove();
+}
+
+function closeCertModal() { document.getElementById('cert-overlay').classList.remove('active'); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); }
+
+renderSidebar();
+renderLesson(0);
+updateProgress();
+
+(function() {
+  const dot = document.createElement('div'); dot.className = 'cursor-dot';
+  const ring = document.createElement('div'); ring.className = 'cursor-ring';
+  document.body.appendChild(dot);
+  document.body.appendChild(ring);
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+  document.addEventListener('mousedown', () => { dot.classList.add('clicking'); ring.classList.add('clicking'); });
+  document.addEventListener('mouseup', () => { dot.classList.remove('clicking'); ring.classList.remove('clicking'); });
+  (function animateRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animateRing); })();
+})();
+</script>
+</body>
+</html>

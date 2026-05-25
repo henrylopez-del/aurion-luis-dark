@@ -1,0 +1,612 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AuryOnTech · Automatización de Procesos</title>
+<meta name="description" content="Diseño e implementación de flujos de automatización con Make y Google. 14 días a producción. Desde 300 EUR.">
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:    #07090F;
+  --ink-2:  #0C0F1A;
+  --ink-3:  #111522;
+  --dawn:   #C46030;
+  --dawn-l: #D88050;
+  --dawn-ll:#ECA878;
+  --snow:   #EEF4F8;
+  --bone:   #EDE4D8;
+  --warm:   #9A8E80;
+  --bsub:   rgba(255,255,255,.07);
+  --border: rgba(196,96,48,.2);
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+
+body {
+  font-family:'DM Sans',sans-serif;
+  background:var(--ink); color:var(--bone);
+  cursor:none; overflow:hidden;
+}
+
+/* grain */
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+  opacity:.45;
+}
+
+/* cursor */
+#cr  { position:fixed; width:8px; height:8px; background:var(--dawn); border-radius:50%; pointer-events:none; z-index:99999; transform:translate(-50%,-50%); transition:width .15s,height .15s; }
+#crr { position:fixed; width:26px; height:26px; border:1px solid var(--dawn); border-radius:50%; pointer-events:none; z-index:99998; transform:translate(-50%,-50%); opacity:.4; transition:width .2s,height .2s; }
+
+/* nav */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:1000;
+  padding:0 6vw; height:60px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.nav-logo { display:flex; align-items:center; gap:9px; font-family:'Cabinet Grotesk',sans-serif; font-weight:700; font-size:16px; letter-spacing:-.3px; }
+.nav-logo img { width:28px; height:28px; object-fit:contain; }
+.nav-logo em { color:var(--dawn); font-style:normal; }
+.nav-right { display:flex; align-items:center; gap:20px; }
+.nav-link { font-size:13px; color:rgba(238,244,248,.5); transition:color .2s; }
+.nav-link:hover { color:var(--snow); }
+.nav-wa {
+  display:flex; align-items:center; gap:7px;
+  padding:8px 18px; background:var(--dawn); border-radius:100px;
+  font-family:'Cabinet Grotesk',sans-serif; font-weight:700; font-size:13px; color:#fff;
+  transition:background .2s;
+}
+.nav-wa:hover { background:var(--dawn-l); }
+
+/* scroll container */
+#slides {
+  height:100vh;
+  overflow-y:scroll;
+  scroll-snap-type:y mandatory;
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
+}
+#slides::-webkit-scrollbar { display:none; }
+
+/* slide base */
+.slide {
+  height:100vh; min-height:100vh;
+  scroll-snap-align:start;
+  display:flex; align-items:center;
+  padding:80px 6vw 60px;
+  position:relative; overflow:hidden;
+}
+
+/* slide inner */
+.s-inner {
+  width:100%; max-width:900px; margin:0 auto;
+  opacity:0; transform:translateY(40px);
+  transition:opacity .7s ease, transform .7s ease;
+}
+.slide.active .s-inner { opacity:1; transform:none; }
+
+/* slide indicator */
+.slide-num {
+  position:absolute; bottom:32px; right:6vw;
+  font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.1em;
+  color:rgba(238,244,248,.2);
+}
+
+/* nav dots */
+#dots {
+  position:fixed; right:28px; top:50%; transform:translateY(-50%);
+  display:flex; flex-direction:column; gap:10px; z-index:500;
+}
+.dot {
+  width:6px; height:6px; border-radius:50%;
+  background:rgba(238,244,248,.2);
+  cursor:pointer; transition:background .3s, transform .3s;
+}
+.dot.on { background:var(--dawn); transform:scale(1.4); }
+
+/* ── SLIDE 0: HERO ── */
+.s0 {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%,rgba(196,96,48,.18) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 50% at 80% 30%,rgba(58,100,148,.15) 0%,transparent 55%),
+    linear-gradient(175deg,#120A04 0%,#0A0E1C 40%,#07090F 100%);
+}
+.s0-grid {
+  position:absolute; inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 70% at 30% 50%,black 30%,transparent 100%);
+  pointer-events:none;
+}
+.eyebrow {
+  display:inline-flex; align-items:center; gap:7px;
+  padding:5px 13px; border:1px solid var(--border); border-radius:100px;
+  font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.12em; color:var(--dawn-ll);
+  margin-bottom:32px;
+}
+.eyebrow .pulse { width:6px; height:6px; border-radius:50%; background:var(--dawn); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(196,96,48,.5)} 50%{box-shadow:0 0 0 5px rgba(196,96,48,0)} }
+
+.hero-h1 {
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:clamp(2.6rem,4.5vw,4.4rem);
+  font-weight:800; line-height:1.05; letter-spacing:-.03em;
+  color:var(--snow); margin-bottom:20px; max-width:720px;
+}
+.hero-h1 em { color:var(--dawn-l); font-style:normal; }
+
+.hero-sub {
+  font-size:1rem; color:var(--warm); line-height:1.75; opacity:.75;
+  max-width:480px; margin-bottom:36px; font-weight:300;
+}
+
+.hero-ctas { display:flex; gap:12px; flex-wrap:wrap; }
+
+.btn-dawn {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:12px 24px; background:var(--dawn); border-radius:100px;
+  font-family:'Cabinet Grotesk',sans-serif; font-weight:700; font-size:14px; color:#fff;
+  transition:background .2s,transform .15s;
+}
+.btn-dawn:hover { background:var(--dawn-l); transform:translateY(-1px); }
+.btn-ghost {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:12px 24px; border:1px solid rgba(255,255,255,.12); border-radius:100px;
+  font-family:'Cabinet Grotesk',sans-serif; font-weight:600; font-size:14px; color:rgba(238,244,248,.7);
+  transition:border-color .2s,color .2s;
+}
+.btn-ghost:hover { border-color:var(--dawn); color:#fff; }
+
+.hero-metrics {
+  display:flex; gap:40px; margin-top:44px;
+  padding-top:28px; border-top:1px solid var(--bsub);
+}
+.hm-n { font-family:'Cabinet Grotesk',sans-serif; font-size:1.8rem; font-weight:800; letter-spacing:-.03em; color:var(--dawn-l); }
+.hm-l { font-size:.73rem; color:rgba(238,244,248,.35); margin-top:2px; line-height:1.4; }
+
+/* ── SLIDE 1: PROBLEMA ── */
+.s1 { background:radial-gradient(ellipse 80% 60% at 80% 20%,rgba(58,100,148,.12) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 10% 80%,rgba(196,96,48,.1) 0%,transparent 55%),linear-gradient(180deg,var(--ink) 0%,var(--ink-2) 100%); }
+
+.sec-tag {
+  font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.14em;
+  color:var(--dawn); text-transform:uppercase; margin-bottom:16px;
+}
+.sec-h {
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:clamp(2rem,3.5vw,3.2rem); font-weight:800;
+  letter-spacing:-.03em; line-height:1.1;
+  max-width:640px; margin-bottom:14px;
+}
+.sec-h em { color:var(--dawn-l); font-style:normal; }
+.sec-sub { font-size:.94rem; color:var(--warm); line-height:1.75; max-width:520px; margin-bottom:52px; font-weight:300; }
+
+.fugas { display:flex; flex-direction:column; }
+.fuga-row {
+  display:grid; grid-template-columns:160px 1fr;
+  align-items:center; gap:32px;
+  padding:20px 0; border-top:1px solid var(--bsub);
+  transition:border-color .2s;
+}
+.fuga-row:hover { border-top-color:rgba(196,96,48,.35); }
+.fuga-n {
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:clamp(3rem,5vw,4.5rem); font-weight:800;
+  letter-spacing:-3px; line-height:1; color:var(--dawn);
+}
+.fuga-n em { font-style:normal; font-size:.55em; color:var(--dawn-ll); }
+.fuga-tag { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.1em; color:var(--dawn); margin-bottom:6px; }
+.fuga-txt { font-size:.9rem; font-weight:600; letter-spacing:-.01em; color:var(--snow); line-height:1.3; }
+
+/* ── SLIDE 2: PIEZAS ── */
+.s2 { background:radial-gradient(ellipse 60% 50% at 30% 50%,rgba(196,96,48,.07) 0%,transparent 60%),var(--ink-3); }
+
+.piezas {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:1px; background:var(--bsub);
+  border:1px solid var(--bsub); border-radius:14px; overflow:hidden;
+  margin-top:0;
+}
+.pieza {
+  background:var(--ink-2); padding:24px 20px;
+  transition:background .2s;
+}
+.pieza:hover { background:var(--ink-3); }
+.pieza-n { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.1em; color:var(--dawn); margin-bottom:10px; }
+.pieza h3 { font-size:.9rem; font-weight:700; letter-spacing:-.02em; margin-bottom:6px; }
+.pieza p { font-size:.78rem; color:var(--warm); line-height:1.55; }
+
+/* ── SLIDE 3: CASOS ── */
+.s3 { background:radial-gradient(ellipse 70% 50% at 70% 80%,rgba(58,100,148,.1) 0%,transparent 55%),var(--ink-2); }
+
+.casos { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.caso {
+  padding:28px; border:1px solid var(--bsub); border-radius:12px;
+  background:var(--ink-3); transition:border-color .2s;
+}
+.caso:hover { border-color:rgba(196,96,48,.3); }
+.caso-sector { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.1em; color:var(--dawn); margin-bottom:10px; text-transform:uppercase; }
+.caso h3 { font-size:1rem; font-weight:700; letter-spacing:-.02em; margin-bottom:12px; line-height:1.3; font-style:italic; color:rgba(238,244,248,.85); }
+.caso-desc { font-size:.82rem; color:var(--warm); line-height:1.65; margin-bottom:16px; }
+.caso-stats { display:flex; gap:24px; padding-top:16px; border-top:1px solid var(--bsub); }
+.cs-n { font-family:'Cabinet Grotesk',sans-serif; font-size:1.8rem; font-weight:800; letter-spacing:-.03em; color:var(--snow); }
+.cs-n em { color:var(--dawn); font-style:normal; }
+.cs-l { font-size:.72rem; color:rgba(238,244,248,.35); line-height:1.4; }
+
+/* ── SLIDE 4: PRICING ── */
+.s4 { background:radial-gradient(ellipse 70% 50% at 30% 70%,rgba(196,96,48,.07) 0%,transparent 55%),var(--ink-3); }
+
+.planes { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.plan {
+  padding:28px 24px; border:1px solid var(--bsub); border-radius:12px;
+  background:var(--ink-2); display:flex; flex-direction:column;
+  transition:border-color .2s;
+}
+.plan:hover { border-color:rgba(196,96,48,.25); }
+.plan.featured { border-color:var(--dawn); background:rgba(196,96,48,.04); }
+.plan-badge { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.12em; color:var(--dawn); background:rgba(196,96,48,.1); border:1px solid var(--border); padding:3px 9px; border-radius:4px; display:inline-block; margin-bottom:14px; }
+.plan-name { font-size:1.1rem; font-weight:700; letter-spacing:-.02em; margin-bottom:6px; }
+.plan-price { font-family:'Cabinet Grotesk',sans-serif; font-size:2.4rem; font-weight:800; letter-spacing:-.03em; line-height:1; margin-bottom:3px; }
+.plan-price em { color:var(--dawn); font-style:normal; font-size:1rem; }
+.plan-period { font-size:.7rem; color:rgba(238,244,248,.28); margin-bottom:18px; font-family:'DM Mono',monospace; }
+.plan hr { border:none; border-top:1px solid var(--bsub); margin-bottom:16px; }
+.plan ul { list-style:none; display:flex; flex-direction:column; gap:8px; flex:1; }
+.plan li { font-size:.8rem; color:rgba(238,244,248,.5); display:flex; gap:7px; }
+.plan li::before { content:'→'; color:var(--dawn); flex-shrink:0; }
+.plan-cta {
+  margin-top:20px; display:block; text-align:center; padding:10px;
+  border:1px solid rgba(255,255,255,.1); border-radius:100px;
+  font-family:'Cabinet Grotesk',sans-serif; font-weight:700; font-size:13px;
+  transition:background .2s,border-color .2s,color .2s;
+}
+.plan-cta:hover { background:var(--dawn); border-color:var(--dawn); color:#fff; }
+.plan.featured .plan-cta { background:var(--dawn); border-color:var(--dawn); color:#fff; }
+
+/* ── SLIDE 5: CTA FINAL ── */
+.s5 {
+  background:
+    radial-gradient(ellipse 70% 60% at 20% 30%,rgba(196,96,48,.12) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 70%,rgba(58,100,148,.1) 0%,transparent 55%),
+    var(--ink-3);
+  justify-content:center; align-items:center; text-align:center;
+}
+.s5 .s-inner { max-width:600px; }
+.cta-h {
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:clamp(2rem,3.5vw,3.2rem); font-weight:800;
+  letter-spacing:-.03em; line-height:1.08;
+  margin-bottom:16px;
+}
+.cta-h em { color:var(--dawn-l); font-style:normal; }
+.cta-sub { font-size:.94rem; color:var(--warm); line-height:1.75; max-width:440px; margin:0 auto 36px; font-weight:300; }
+.cta-btns { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+.cta-note { margin-top:16px; font-size:.75rem; color:rgba(238,244,248,.22); font-family:'DM Mono',monospace; }
+
+/* strip entre slides */
+.strip-mini {
+  position:absolute; bottom:0; left:0; right:0;
+  overflow:hidden; height:36px; display:flex; align-items:center;
+  border-top:1px solid var(--bsub);
+}
+.strip-track {
+  display:flex; width:max-content;
+  animation:marquee 28s linear infinite;
+}
+@keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+.strip-item {
+  display:flex; align-items:center; gap:8px; padding:0 28px;
+  font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.1em;
+  color:rgba(238,244,248,.2); white-space:nowrap;
+}
+.strip-item span { color:var(--dawn); }
+.sdot { width:3px; height:3px; background:var(--dawn); border-radius:50%; opacity:.4; }
+
+@media(max-width:900px) {
+  .piezas { grid-template-columns:repeat(2,1fr); }
+  .casos  { grid-template-columns:1fr; }
+  .planes { grid-template-columns:1fr; }
+  .hero-metrics { gap:24px; }
+  .nav-link { display:none; }
+  .fuga-row { grid-template-columns:120px 1fr; }
+}
+
+
+/* === MINIMAL ESSENTIAL OVERRIDES (auto-applied) === */
+body, .hero, .about, .services, .testi, .uc, .valor, .flow-demo, .cta, .manifesto, footer {
+  background-color: #000 !important;
+}
+.hero {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/iceberg-sunset-amber.jpeg') !important;
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+  background-attachment: scroll, fixed !important;
+}
+.eyebrow, .kicker, .nav-cta { color: #ECA878 !important; }
+.flake { opacity: .55 !important; font-size: 13px !important; }
+
+/* === ICEBERGS on sections === */
+.manifesto { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/mountains-sunset-pink.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.about, section.about { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-aerial-dark.jpeg') !important; background-size: cover, cover !important; background-position: right center !important; }
+.services { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/iceberg-texture-blue.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.flow-demo { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/glacier-wall-blue.jpeg') !important; background-size: cover, cover !important; }
+.valor { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-minimal.jpeg') !important; background-size: cover, cover !important; }
+.uc { background-image: linear-gradient(180deg, rgba(0,0,0,.86), rgba(0,0,0,.92)), url('assets/img/aerial-snow-scale.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+.testi { background-image: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.9)), url('assets/img/iceberg-ice-columns.jpeg') !important; background-size: cover, cover !important; }
+.cta { background-image: linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.9)), url('assets/img/icebergs-twin-massive.jpeg') !important; background-size: cover, cover !important; background-attachment: fixed !important; }
+footer, .footer { background-image: linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.98)), url('assets/img/antarctic-moon.jpeg') !important; background-size: cover, cover !important; }
+@media (max-width: 900px) { .hero, .services, .uc, .cta, .manifesto { background-attachment: scroll !important; } }
+
+</style>
+</head>
+<body>
+<div id="cr"></div>
+<div id="crr"></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img decoding="async" src="assets/img/Aury-Art-Computadora-1-2.png" alt="Aury">
+    <span>Aury<em>On</em>Tech</span>
+  </a>
+  <div class="nav-right">
+    <a href="#" class="nav-link" onclick="goTo(1);return false;">El problema</a>
+    <a href="#" class="nav-link" onclick="goTo(2);return false;">Qué hacemos</a>
+    <a href="#" class="nav-link" onclick="goTo(4);return false;">Precios</a>
+    <a href="https://wa.me/34000000000?text=Hola%2C%20quiero%20automatizar%20mi%20negocio" class="nav-wa" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .18h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+      WhatsApp
+    </a>
+  </div>
+</nav>
+
+<div id="dots"></div>
+
+<div id="slides">
+
+  <!-- 0 · HERO -->
+  <div class="slide s0" data-i="0">
+    <div class="s0-grid"></div>
+    <div class="s-inner">
+      <div class="eyebrow"><span class="pulse"></span>AUTOMATIZACIÓN DE PROCESOS · IMPLEMENTACIÓN EN PRODUCCIÓN</div>
+      <h1 class="hero-h1">Tu negocio puede<br>trabajar sin que<br>tú estés <em>mirando.</em></h1>
+      <p class="hero-sub">Diseño e implemento los flujos que eliminan el trabajo repetitivo. Make + Google. 14 días a producción. Devolución íntegra si no entregamos.</p>
+      <div class="hero-ctas">
+        <a href="https://wa.me/34000000000?text=Hola%2C%20quiero%20automatizar%20mi%20negocio" class="btn-dawn" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .18h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+          Hablar por WhatsApp
+        </a>
+        <a href="https://calendly.com/clg1802/auditoria" class="btn-ghost" target="_blank" rel="noopener">Auditoría gratuita →</a>
+      </div>
+      <div class="hero-metrics">
+        <div><div class="hm-n">14d</div><div class="hm-l">de diagnóstico a<br>flujo en producción</div></div>
+        <div><div class="hm-n">~8h</div><div class="hm-l">recuperadas por<br>semana</div></div>
+        <div><div class="hm-n">60d</div><div class="hm-l">devolución íntegra<br>si no entregamos</div></div>
+      </div>
+    </div>
+    <div class="slide-num">01 / 06</div>
+  </div>
+
+  <!-- 1 · PROBLEMA -->
+  <div class="slide s1" data-i="1">
+    <div class="s-inner">
+      <div class="sec-tag">★ CUATRO FUGAS · OPERACIÓN MANUAL</div>
+      <h2 class="sec-h">Tu negocio pierde<br>tiempo <em>todos los días.</em></h2>
+      <div class="fugas">
+        <div class="fuga-row">
+          <span class="fuga-n">−40<em>%</em></span>
+          <div><div class="fuga-tag">★ SEGUIMIENTO MANUAL</div><div class="fuga-txt">Confirmaciones, recordatorios y respuestas que sigues haciendo a mano.</div></div>
+        </div>
+        <div class="fuga-row">
+          <span class="fuga-n">−35<em>%</em></span>
+          <div><div class="fuga-tag">★ REGISTRO DISPERSO</div><div class="fuga-txt">Datos de clientes en WhatsApp, papel y memoria sin sistema.</div></div>
+        </div>
+        <div class="fuga-row">
+          <span class="fuga-n">−25<em>%</em></span>
+          <div><div class="fuga-tag">★ REPORTES INEXISTENTES</div><div class="fuga-txt">Sin visibilidad hasta que alguien se sienta a revisarlo manualmente.</div></div>
+        </div>
+        <div class="fuga-row">
+          <span class="fuga-n">−30<em>%</em></span>
+          <div><div class="fuga-tag">★ LEADS SIN PROCESO</div><div class="fuga-txt">Formularios que se pierden antes de que alguien responda.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">02 / 06</div>
+  </div>
+
+  <!-- 2 · PIEZAS -->
+  <div class="slide s2" data-i="2">
+    <div class="s-inner">
+      <div class="sec-tag">★ SIETE PIEZAS · UNA ARQUITECTURA</div>
+      <h2 class="sec-h">Lo que construimos<br>en cada <em>implementación.</em></h2>
+      <div class="piezas">
+        <div class="pieza"><div class="pieza-n">PIEZA 01</div><h3>Diagnóstico</h3><p>Mapa de tu operación, fugas cuantificadas y hoja de ruta priorizada.</p></div>
+        <div class="pieza"><div class="pieza-n">PIEZA 02</div><h3>CRM en Sheets</h3><p>Mini CRM con etapas, historial de cliente y actualización automática.</p></div>
+        <div class="pieza"><div class="pieza-n">PIEZA 03</div><h3>Flujos de captación</h3><p>Formulario → Sheets → bienvenida automática. Cero leads perdidos.</p></div>
+        <div class="pieza"><div class="pieza-n">PIEZA 04</div><h3>Gestión de citas</h3><p>Confirmación + recordatorio + reagendamiento con Google Calendar.</p></div>
+        <div class="pieza"><div class="pieza-n">PIEZA 05</div><h3>Secuencias de email</h3><p>Correos automáticos post-cita, post-compra y de recuperación.</p></div>
+        <div class="pieza"><div class="pieza-n">PIEZA 06</div><h3>Reporte semanal</h3><p>Métricas en tu bandeja cada lunes. Sin abrir ninguna hoja de cálculo.</p></div>
+        <div class="pieza"><div class="pieza-n">PIEZA 07</div><h3>Documentación</h3><p>Manual de operación, grabación explicativa y 30 días de soporte.</p></div>
+        <div class="pieza" style="background:rgba(196,96,48,.05);border-left:2px solid var(--dawn);">
+          <div class="pieza-n">★ TODAS</div>
+          <h3>Incluidas en cada plan</h3>
+          <p>La diferencia entre tiers es el alcance, no qué piezas se entregan.</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">03 / 06</div>
+  </div>
+
+  <!-- 3 · CASOS -->
+  <div class="slide s3" data-i="3">
+    <div class="s-inner">
+      <div class="sec-tag">★ DEPLOYMENTS EN PRODUCCIÓN</div>
+      <h2 class="sec-h">Casos <em>verificables.</em></h2>
+      <p class="sec-sub">Negocios reales. Resultados medibles. Sin capturas inventadas.</p>
+      <div class="casos">
+        <div class="caso">
+          <div class="caso-sector">CASO 01 · SALÓN DE BELLEZA · MADRID</div>
+          <h3>«De agenda en papel a sistema que confirma, recuerda y registra solo.»</h3>
+          <p class="caso-desc">Confirmaciones manuales, citas perdidas por olvido, cero historial de cliente. Post-implementación: formulario → Calendar → confirmación automática → recordatorio 24h → registro en Sheets.</p>
+          <div class="caso-stats">
+            <div><div class="cs-n"><em>0</em></div><div class="cs-l">confirmaciones manuales<br>desde el día 1</div></div>
+            <div><div class="cs-n">6<em>h</em></div><div class="cs-l">recuperadas<br>por semana</div></div>
+            <div><div class="cs-n">14<em>d</em></div><div class="cs-l">a flujos en<br>producción</div></div>
+          </div>
+        </div>
+        <div class="caso">
+          <div class="caso-sector">CASO 02 · CONSULTORÍA · ESPAÑA</div>
+          <h3>«6 meses con leads que nadie procesaba a tiempo. Reconstrucción en una semana.»</h3>
+          <p class="caso-desc">Formulario sin integración, respuestas con días de retraso. Post-implementación: formulario → notificación inmediata → bienvenida automática → secuencia 3 correos → CRM Sheets.</p>
+          <div class="caso-stats">
+            <div><div class="cs-n"><em>&lt;</em>5<em>m</em></div><div class="cs-l">respuesta a<br>cada nuevo lead</div></div>
+            <div><div class="cs-n">3</div><div class="cs-l">correos automáticos<br>por contacto</div></div>
+            <div><div class="cs-n">7<em>d</em></div><div class="cs-l">a sistema<br>operativo</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">04 / 06</div>
+  </div>
+
+  <!-- 4 · PRICING -->
+  <div class="slide s4" data-i="4">
+    <div class="s-inner">
+      <div class="sec-tag">★ TARIFA FIJA · SIN % SOBRE NADA</div>
+      <h2 class="sec-h">Precios <em>públicos.</em></h2>
+      <p class="sec-sub">Sin setup fee. Sin contrato anual. Sin letra pequeña.</p>
+      <div class="planes">
+        <div class="plan">
+          <span class="plan-badge">★ SPRINT</span>
+          <div class="plan-name">Un flujo</div>
+          <div class="plan-price">300<em> EUR</em></div>
+          <div class="plan-period">entrega única · pago al cerrar</div>
+          <hr>
+          <ul>
+            <li>Un proceso crítico automatizado</li>
+            <li>Diagnóstico previo incluido</li>
+            <li>Entrega en 48–72 horas</li>
+            <li>30 días de soporte</li>
+          </ul>
+          <a href="https://wa.me/34000000000?text=Hola%2C%20me%20interesa%20el%20Sprint" class="plan-cta" target="_blank" rel="noopener">Hablar por WhatsApp</a>
+        </div>
+        <div class="plan featured">
+          <span class="plan-badge">★ SISTEMA COMPLETO</span>
+          <div class="plan-name">Operación entera</div>
+          <div class="plan-price">600<em> EUR/mes</em></div>
+          <div class="plan-period">2 meses por adelantado · sin permanencia</div>
+          <hr>
+          <ul>
+            <li>Las 7 piezas implementadas</li>
+            <li>CRM + captación + citas + reportes</li>
+            <li>Flujos en producción en 14 días</li>
+            <li>Devolución íntegra 60 días</li>
+          </ul>
+          <a href="https://wa.me/34000000000?text=Hola%2C%20me%20interesa%20el%20Sistema%20Completo" class="plan-cta" target="_blank" rel="noopener">Hablar por WhatsApp</a>
+        </div>
+        <div class="plan">
+          <span class="plan-badge">★ AUDITORÍA</span>
+          <div class="plan-name">Diagnóstico</div>
+          <div class="plan-price">Gratis</div>
+          <div class="plan-period">45 min · videollamada · sin compromiso</div>
+          <hr>
+          <ul>
+            <li>Revisión de tu operación actual</li>
+            <li>Fugas cuantificadas en horas</li>
+            <li>Hoja de ruta priorizada</li>
+            <li>Sin obligación de contratar</li>
+          </ul>
+          <a href="https://calendly.com/clg1802/auditoria" class="plan-cta" target="_blank" rel="noopener">Agendar ahora</a>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">05 / 06</div>
+  </div>
+
+  <!-- 5 · CTA FINAL -->
+  <div class="slide s5" data-i="5">
+    <div class="s-inner">
+      <div class="sec-tag" style="text-align:center;">★ RESPUESTA EN MENOS DE 1 HORA</div>
+      <h2 class="cta-h">¿Cuántas horas llevas<br>haciendo lo que podría<br>hacer un <em>flujo?</em></h2>
+      <p class="cta-sub">La auditoría es gratuita. En 45 minutos te digo exactamente qué automatizar primero y cuánto tiempo recuperarías.</p>
+      <div class="cta-btns">
+        <a href="https://wa.me/34000000000?text=Hola%2C%20quiero%20automatizar%20mi%20negocio" class="btn-dawn" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .18h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+          Escribir por WhatsApp
+        </a>
+        <a href="https://calendly.com/clg1802/auditoria" class="btn-ghost" target="_blank" rel="noopener">Agendar auditoría gratuita →</a>
+      </div>
+      <p class="cta-note">Sin compromiso · Sin formulario de 10 campos · Sin esperar 3 días</p>
+      <p style="margin-top:32px;font-size:.72rem;color:rgba(238,244,248,.18);">© 2026 AuryOnTech — Automation &#038; Growth Partner</p>
+    </div>
+
+    <div class="strip-mini">
+      <div class="strip-track">
+        <div class="strip-item"><span>Make</span> · Automatización <div class="sdot"></div></div>
+        <div class="strip-item"><span>Google Sheets</span> · CRM sin coste <div class="sdot"></div></div>
+        <div class="strip-item"><span>Gmail</span> · Secuencias automáticas <div class="sdot"></div></div>
+        <div class="strip-item"><span>Google Calendar</span> · Citas sin intervención <div class="sdot"></div></div>
+        <div class="strip-item"><span>Brevo</span> · Email marketing <div class="sdot"></div></div>
+        <div class="strip-item"><span>n8n</span> · Flujos avanzados <div class="sdot"></div></div>
+        <div class="strip-item"><span>Make</span> · Automatización <div class="sdot"></div></div>
+        <div class="strip-item"><span>Google Sheets</span> · CRM sin coste <div class="sdot"></div></div>
+        <div class="strip-item"><span>Gmail</span> · Secuencias automáticas <div class="sdot"></div></div>
+        <div class="strip-item"><span>Google Calendar</span> · Citas sin intervención <div class="sdot"></div></div>
+        <div class="strip-item"><span>Brevo</span> · Email marketing <div class="sdot"></div></div>
+        <div class="strip-item"><span>n8n</span> · Flujos avanzados <div class="sdot"></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const cr=document.getElementById('cr'),crr=document.getElementById('crr');
+let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+document.addEventListener('mousedown',()=>document.body.classList.add('click'));
+document.addEventListener('mouseup',()=>document.body.classList.remove('click'));
+(function loop(){rx+=(mx-rx)*.18;ry+=(my-ry)*.18;cr.style.left=mx+'px';cr.style.top=my+'px';crr.style.left=rx+'px';crr.style.top=ry+'px';requestAnimationFrame(loop);})();
+
+const slides=document.querySelectorAll('.slide');
+const dotsEl=document.getElementById('dots');
+const container=document.getElementById('slides');
+let current=0;
+
+slides.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='dot'+(i===0?' on':'');
+  d.onclick=()=>goTo(i);
+  dotsEl.appendChild(d);
+});
+
+function goTo(i){
+  container.scrollTo({top:i*window.innerHeight,behavior:'smooth'});
+}
+window.goTo=goTo;
+
+function update(){
+  const i=Math.round(container.scrollTop/window.innerHeight);
+  if(i===current) return;
+  current=i;
+  document.querySelectorAll('.dot').forEach((d,j)=>d.classList.toggle('on',j===i));
+  slides.forEach((s,j)=>{
+    if(j===i) s.classList.add('active');
+  });
+}
+
+// activar slide visible al cargar
+slides[0].classList.add('active');
+
+container.addEventListener('scroll',update,{passive:true});
+
+// pre-activar slides cercanas
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('active');});
+},{threshold:.4,root:container});
+slides.forEach(s=>io.observe(s));
+</script>
+</body>
+</html>
