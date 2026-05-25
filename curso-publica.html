@@ -262,6 +262,167 @@ body::after{display:none;}
   .inst-img{width:160px;margin:0 auto;}
   .inst-stats{flex-wrap:wrap;gap:20px;}
 }
+
+/* ============================================
+   LINEAR / JELLYFISH FEEL OVERRIDE
+   Sharp corners, mono labels, hairlines no shadows.
+   Keeps: penguin, snow, icebergs, all copy.
+   ============================================ */
+
+/* Hero typography: contained, not display marketing */
+.hero-h1{
+  font-size:clamp(1.875rem,2.8vw,2.625rem) !important;
+  font-weight:700 !important;
+  letter-spacing:-.022em !important;
+  line-height:1.1 !important;
+}
+.hero-sub{
+  font-size:.95rem !important;
+  line-height:1.6 !important;
+  color:var(--bone3) !important;
+  max-width:480px !important;
+}
+
+/* Kicker pill → mono eyebrow */
+.kicker{
+  background:transparent !important;
+  border:none !important;
+  padding:0 !important;
+  border-radius:0 !important;
+  font-family:'DM Mono',monospace !important;
+  color:var(--dawn-l) !important;
+  font-size:.7rem !important;
+  letter-spacing:.16em !important;
+  margin-bottom:24px !important;
+}
+.kicker-dot{display:none !important;}
+
+/* Buttons: sharp Linear */
+.btn-dawn{
+  border-radius:6px !important;
+  padding:10px 20px !important;
+  font-size:.85rem !important;
+  font-weight:500 !important;
+  box-shadow:none !important;
+}
+.btn-dawn::after{display:none !important;}
+.btn-dawn:hover{
+  background:var(--dawn-l) !important;
+  box-shadow:none !important;
+  transform:none !important;
+}
+.btn-ghost{
+  border-radius:6px !important;
+  padding:10px 20px !important;
+  font-size:.85rem !important;
+  border-color:rgba(238,244,248,.15) !important;
+}
+
+/* Hero metrics: mono uppercase Linear */
+.hm-num{
+  font-family:'DM Mono',monospace !important;
+  font-size:1.05rem !important;
+  font-weight:500 !important;
+  color:var(--bone) !important;
+  letter-spacing:-.01em !important;
+}
+.hm-label{
+  font-family:'DM Mono',monospace !important;
+  text-transform:uppercase !important;
+  letter-spacing:.12em !important;
+  font-size:.62rem !important;
+}
+.hero-metrics{
+  gap:36px !important;
+  padding-top:24px !important;
+}
+
+/* Aury badge: hairline */
+.hero-aury-badge{
+  border-radius:4px !important;
+  background:transparent !important;
+  padding:5px 12px !important;
+  font-size:.68rem !important;
+}
+
+/* Chips floating: sharp Linear hairline */
+.chip{
+  border-radius:6px !important;
+  background:rgba(0,0,0,.82) !important;
+  border:1px solid var(--border) !important;
+  box-shadow:none !important;
+  backdrop-filter:blur(8px);
+}
+.chip-val{font-family:'DM Mono',monospace !important;}
+.chip-label{
+  font-family:'DM Mono',monospace !important;
+  text-transform:uppercase !important;
+  letter-spacing:.1em !important;
+  font-size:.58rem !important;
+}
+.chip-status{font-size:.6rem !important;}
+
+/* Hero speech: mono uppercase */
+.hero-speech{
+  border-radius:4px !important;
+  font-family:'DM Mono',monospace !important;
+  font-size:.65rem !important;
+  letter-spacing:.08em !important;
+  text-transform:uppercase !important;
+  background:rgba(0,0,0,.85) !important;
+  padding:6px 12px !important;
+  box-shadow:none !important;
+}
+
+/* Mascot bubble: mono */
+.aury-bubble{
+  border-radius:6px !important;
+  font-family:'DM Sans',sans-serif !important;
+  font-size:.75rem !important;
+  background:rgba(0,0,0,.88) !important;
+  border-color:var(--border) !important;
+  box-shadow:none !important;
+}
+
+/* Nav: sharper */
+.nav-cta{
+  border-radius:6px !important;
+  padding:6px 14px !important;
+  font-size:.78rem !important;
+}
+.nav-mark{
+  border-radius:6px !important;
+}
+.nav-links a{font-size:.84rem !important;}
+
+/* Section titles: more contained */
+.section-h2,.about h2,.services h2,.about-title,.svc-section h2,h2{
+  font-weight:700 !important;
+  letter-spacing:-.022em !important;
+}
+
+/* Section eyebrows */
+.section-eyebrow,.svc-eyebrow,.about-eyebrow{
+  font-family:'DM Mono',monospace !important;
+  text-transform:uppercase !important;
+  letter-spacing:.16em !important;
+  font-size:.7rem !important;
+  color:var(--dawn-l) !important;
+}
+
+/* Cards: sharper, hairline no shadows */
+.srv,.fn,.vblk,.testi-card,.uc-card,.av,.about-card{
+  border-radius:8px !important;
+  box-shadow:none !important;
+}
+.srv:hover,.vblk:hover{
+  box-shadow:none !important;
+  border-color:var(--border-dawn) !important;
+}
+
+/* Footer hairlines */
+.footer{border-top:1px solid var(--border) !important;}
+
 </style>
 </head>
 <body>
