@@ -1364,6 +1364,18 @@ footer, .footer {
     url('assets/img/antarctic-moon.jpeg') !important;
 }
 
+
+/* Hero penguin video — overrides */
+video.hero-aury-img {
+  width: 360px !important;
+  max-width: 90% !important;
+  display: block !important;
+  margin: 0 auto !important;
+  filter: drop-shadow(0 24px 60px rgba(0,0,0,.7)) !important;
+  object-fit: contain !important;
+  background: transparent !important;
+}
+
 </style>
 </head>
 <body>
@@ -1435,7 +1447,10 @@ footer, .footer {
       <div class="chip chip-3"><div class="chip-label">Último reporte</div><div class="chip-val">Lun 08:00</div><div class="chip-status">Auto-enviado</div></div>
       <div class="hero-aury-wrap">
         <div class="hero-speech">Esto ya funciona solo &#x2744;</div>
-        <img decoding="async" class="hero-aury-img" src="assets/img/Aury-enfrente-de-la-Compu.png" alt="Aury frente a la computadora trabajando"/>
+        <video class="hero-aury-img" autoplay loop muted playsinline
+              src="assets/img/aury-saludando.mp4"
+              poster="assets/img/Aury-enfrente-de-la-Compu.png"
+              style="width:360px;max-width:90%;display:block;margin:0 auto;filter:drop-shadow(0 24px 60px rgba(0,0,0,.7));"></video>
         <div class="hero-aury-badge">Hola, soy Aury</div>
       </div>
     </div>
