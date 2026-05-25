@@ -337,78 +337,230 @@ body::after{display:none;}
 
 
 
+
 /* ============================================
-   JELLYFISH FEEL — declarative huge typography
-   Amber #f8b133 accent (their signature)
-   Bold short statements, lots of whitespace
+   JELLYFISH REAL — extracted from jellyfish.com/es-es
+   Top bar + pill nav + amber huge logo + headline "Move."
+   Section taglines amber + amber outline metric cards
    ============================================ */
 
 :root {
   --jf-amber: #f8b133;
   --jf-amber-dark: #d99820;
+  --jf-amber-light: #fac861;
+  --jf-bg: #000000;
+  --jf-bg-2: #0a0a0a;
+  --jf-text: #ffffff;
+  --jf-text-2: #b9bbbf;
+  --jf-text-3: #71747a;
+  --jf-hairline: rgba(255,255,255,.1);
+  --jf-card-light: #f6f5f7;
 }
 
-/* Hero: declarative HUGE typography Jellyfish-style */
+/* === BODY ============================================ */
+body {
+  background: var(--jf-bg) !important;
+  color: var(--jf-text) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 15px !important;
+  line-height: 1.55 !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+/* === KILL all old Luis chrome ============================================ */
+.chip, .chip-1, .chip-2, .chip-3,
+.hero-speech, .ant-element, .bg-flow, .hero-grid, .hero-metrics,
+.aurora, .orb1, .orb2, .orb3, .hero-aury-wrap, .hero-aury-img, .hero-aury-badge,
+.kicker-dot, .footer__watermark {
+  display: none !important;
+}
+
+/* === TOP BAR (above nav) ============================================ */
+.nav::before {
+  content: 'ES   QUIÉNES SOMOS   CARRERAS   SOSTENIBILIDAD   CAPACITACIÓN';
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 32px;
+  background: #000;
+  border-bottom: 1px solid var(--jf-hairline);
+  color: var(--jf-text);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 32px;
+  z-index: 99;
+  font-weight: 500;
+}
+
+/* === NAV (main): pill rounded centered + logo amber + amber CTA right ============================================ */
+.nav {
+  position: fixed !important;
+  top: 32px !important; left: 0; right: 0;
+  background: #000 !important;
+  border-bottom: 1px solid var(--jf-hairline) !important;
+  backdrop-filter: none !important;
+  padding: 14px 32px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  z-index: 100 !important;
+}
+.nav-logo { gap: 0 !important; }
+.nav-mark {
+  display: none !important;
+}
+.nav-word {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1.75rem !important;
+  letter-spacing: -0.02em !important;
+  color: var(--jf-amber) !important;
+}
+.nav-word span { color: var(--jf-amber) !important; }
+.nav-links {
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: #000 !important;
+  border: 1px solid var(--jf-hairline) !important;
+  border-radius: 100px !important;
+  padding: 8px 8px !important;
+  display: flex !important;
+  gap: 4px !important;
+  list-style: none !important;
+}
+.nav-links a {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--jf-text) !important;
+  padding: 6px 14px !important;
+  border-radius: 100px !important;
+  text-decoration: none !important;
+  transition: background 120ms ease, color 120ms ease !important;
+}
+.nav-links a:hover {
+  background: var(--jf-amber) !important;
+  color: #000 !important;
+}
+.nav-cta {
+  background: var(--jf-amber) !important;
+  color: #000 !important;
+  border: 0 !important;
+  border-radius: 100px !important;
+  padding: 10px 18px 10px 22px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+.nav-cta::after {
+  content: '→';
+  font-size: 1rem;
+}
+.nav-cta:hover {
+  background: var(--jf-amber-dark) !important;
+  color: #000 !important;
+}
+
+/* === HERO: "Aprende." huge amber + tagline white + lines bg ============================================ */
 .hero {
-  padding: 120px 24px 60px !important;
-  min-height: 92vh !important;
+  background: #000 !important;
+  padding: 200px 24px 100px !important;
+  min-height: 100vh !important;
+  position: relative !important;
+  overflow: hidden !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  background: #000 !important;
 }
-.hero-inner {
-  display: block !important;
-  text-align: left !important;
-  max-width: 1200px !important;
-  width: 100% !important;
-  margin: 0 auto !important;
-  padding: 0 24px !important;
+/* Amber abstract wave lines in hero background */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 70% 60%, rgba(248,177,51,.12), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 30% 70%, rgba(248,177,51,.06), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
 }
-.hero-content, .hero-left {
-  text-align: left !important;
-  display: block !important;
-  width: 100% !important;
+/* SVG-like amber wave lines */
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 30%; right: -10%;
+  width: 70%; height: 60%;
+  background-image: repeating-linear-gradient(
+    -22deg,
+    transparent 0px,
+    transparent 8px,
+    rgba(248,177,51,.18) 8px,
+    rgba(248,177,51,.18) 9px
+  );
+  mask-image: radial-gradient(ellipse 60% 60% at center, black 0%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 60% at center, black 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.7;
 }
 
-/* HERO TITLE: massive declarative Jellyfish-style "Move." */
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  display: block !important;
+  text-align: center !important;
+  max-width: 800px !important;
+  margin: 0 auto !important;
+}
+.hero-content, .hero-left {
+  text-align: center !important;
+  display: block !important;
+  width: 100% !important;
+}
+.kicker {
+  display: none !important; /* Jellyfish hero has no eyebrow */
+}
+
+/* HUGE amber single-word/phrase title */
 .hero-h1 {
   font-family: 'Inter', sans-serif !important;
-  font-size: clamp(3rem, 9vw, 9rem) !important;
+  font-size: clamp(4rem, 11vw, 9rem) !important;
   font-weight: 700 !important;
   letter-spacing: -0.04em !important;
   line-height: 0.95 !important;
-  color: #fff !important;
-  text-align: left !important;
-  max-width: none !important;
-  margin: 0 0 32px 0 !important;
-}
-.hero-h1 .accent, .hero-h1 strong {
   color: var(--jf-amber) !important;
-  font-style: normal !important;
+  text-align: center !important;
+  margin: 0 auto 16px !important;
+  max-width: none !important;
 }
-.hero-h1 .accent-ice {
+/* Hide the original H1 - replace with custom amber word */
+.hero-h1 .accent, .hero-h1 .accent-ice {
   color: var(--jf-amber) !important;
 }
 
-/* Hero sub: BIG body text Jellyfish-style */
+/* Subtitle tagline white below */
 .hero-sub {
   font-family: 'Inter', sans-serif !important;
-  font-size: clamp(1.125rem, 1.4vw, 1.375rem) !important;
-  line-height: 1.45 !important;
-  color: #B0B3B8 !important;
-  max-width: 620px !important;
-  margin: 0 0 40px 0 !important;
-  text-align: left !important;
-  font-weight: 400 !important;
+  font-size: clamp(1.25rem, 2vw, 1.75rem) !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+  color: var(--jf-text) !important;
+  margin: 0 auto 24px !important;
+  text-align: center !important;
+  max-width: 600px !important;
 }
 
-/* CTAs Jellyfish-style: amber solid + ghost */
+/* CTAs centered Jellyfish-style */
 .hero-ctas {
   display: flex !important;
-  justify-content: flex-start !important;
+  justify-content: center !important;
   gap: 12px !important;
-  margin: 0 0 0 0 !important;
+  margin: 32px auto 0 !important;
 }
 .btn-dawn {
   background: var(--jf-amber) !important;
@@ -416,10 +568,18 @@ body::after{display:none;}
   font-family: 'Inter', sans-serif !important;
   font-size: 1rem !important;
   font-weight: 600 !important;
-  padding: 14px 28px !important;
-  border-radius: 4px !important;
-  box-shadow: none !important;
+  padding: 14px 24px 14px 28px !important;
+  border-radius: 100px !important;
   border: 0 !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+.btn-dawn::after {
+  content: '→' !important;
+  display: inline !important;
+  font-size: 1.1rem !important;
 }
 .btn-dawn:hover {
   background: var(--jf-amber-dark) !important;
@@ -427,204 +587,237 @@ body::after{display:none;}
 }
 .btn-ghost {
   background: transparent !important;
-  color: #fff !important;
-  border: 1px solid rgba(255,255,255,.25) !important;
+  color: var(--jf-text) !important;
+  border: 1px solid rgba(255,255,255,.3) !important;
   font-family: 'Inter', sans-serif !important;
   font-size: 1rem !important;
   font-weight: 600 !important;
   padding: 14px 28px !important;
-  border-radius: 4px !important;
+  border-radius: 100px !important;
 }
 .btn-ghost:hover {
   background: rgba(255,255,255,.06) !important;
-  border-color: #fff !important;
+  border-color: var(--jf-text) !important;
 }
 
-/* Kicker: small amber eyebrow Jellyfish-style (above h1) */
-.kicker {
-  display: inline-block !important;
-  background: transparent !important;
-  border: 0 !important;
-  padding: 0 !important;
-  color: var(--jf-amber) !important;
-  font-family: 'Inter', sans-serif !important;
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  margin-bottom: 24px !important;
-}
-.kicker-dot { display: none !important; }
-
-/* PENGUIN: small, absolute positioned, right side */
-.hero-visual, .hero-right, .hero-aury-wrap {
-  display: none !important;  /* clean hero — jellyfish uses video/photo not mascot */
+/* Scroll down indicator (centered bottom) */
+.hero::before {
+  /* keep gradient — already set above */
 }
 
-/* Kill all the noise */
-.chip, .chip-1, .chip-2, .chip-3,
-.hero-speech,
-.ant-element,
-.bg-flow,
-.hero-grid,
-.hero-metrics,
-.aurora,
-.orb1, .orb2, .orb3 {
-  display: none !important;
-}
-
-/* Mascot: keep but tiny, bottom-right */
-.aury-mascot {
-  bottom: 24px !important;
-  right: 24px !important;
-}
-.aury-img { width: 56px !important; }
-.aury-bubble {
-  font-family: 'Inter', sans-serif !important;
-  font-size: 0.75rem !important;
-  max-width: 200px !important;
-  background: rgba(15,15,16,.92) !important;
-  border: 1px solid rgba(255,255,255,.08) !important;
-  border-radius: 6px !important;
-  box-shadow: none !important;
-}
-
-/* Snow: subtle */
-.flake { opacity: .35 !important; font-size: 9px !important; }
-
-/* Nav Jellyfish-style: simple */
-.nav {
-  padding: 18px 32px !important;
-  background: rgba(0,0,0,.78) !important;
-  border-bottom: 1px solid rgba(255,255,255,.06) !important;
-  backdrop-filter: blur(12px) !important;
-}
-.nav-word {
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 700 !important;
-  font-size: 1rem !important;
-  letter-spacing: -0.01em !important;
-  color: #fff !important;
-}
-.nav-word span { color: var(--jf-amber) !important; }
-.nav-links a {
-  font-family: 'Inter', sans-serif !important;
-  font-size: 0.875rem !important;
-  font-weight: 500 !important;
-  color: #fff !important;
-}
-.nav-links a:hover { color: var(--jf-amber) !important; }
-.nav-cta {
-  background: var(--jf-amber) !important;
-  color: #000 !important;
-  border: 0 !important;
-  border-radius: 4px !important;
-  padding: 8px 16px !important;
-  font-family: 'Inter', sans-serif !important;
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-}
-.nav-cta:hover {
-  background: var(--jf-amber-dark) !important;
-  color: #000 !important;
-}
-
-/* SECTIONS Jellyfish: alternate dark/light */
+/* === SECTIONS Jellyfish-style ============================================ */
 section, .about, .services, .testi, .uc, .valor, .flow-demo, .cta {
+  background: #000 !important;
   padding: 120px 32px !important;
-  max-width: 1200px !important;
+  max-width: 1400px !important;
   margin: 0 auto !important;
+  position: relative !important;
 }
 
-/* MANIFESTO Jellyfish-style: HUGE statement */
+/* Manifesto: BIG statement with amber outline boxes around keywords */
 .manifesto {
-  padding: 160px 32px !important;
+  padding: 160px 40px !important;
   background: #000 !important;
-  border-top: 1px solid rgba(255,255,255,.06) !important;
-  border-bottom: 1px solid rgba(255,255,255,.06) !important;
-  text-align: left !important;
-  max-width: 1200px !important;
-  margin: 0 auto !important;
+  border-top: 1px solid var(--jf-hairline) !important;
+  border-bottom: 1px solid var(--jf-hairline) !important;
+  text-align: center !important;
 }
 .manifesto p, .manifesto h2 {
   font-family: 'Inter', sans-serif !important;
-  font-size: clamp(2rem, 5vw, 4.5rem) !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.03em !important;
-  line-height: 1.05 !important;
-  color: #fff !important;
-  max-width: 900px !important;
-  margin: 0 !important;
-  text-align: left !important;
+  font-size: clamp(2rem, 4.5vw, 3.5rem) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.15 !important;
+  color: var(--jf-text) !important;
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+  text-align: center !important;
 }
-.manifesto p strong, .manifesto h2 strong {
-  color: var(--jf-amber) !important;
+.manifesto strong, .manifesto em {
+  font-style: normal !important;
+  font-weight: 600 !important;
+  color: var(--jf-text) !important;
+  border: 2px solid var(--jf-amber) !important;
+  border-radius: 100px !important;
+  padding: 4px 24px !important;
+  margin: 0 4px !important;
+  display: inline-block !important;
 }
 
-/* SECTION TITLES big Jellyfish */
+/* Section titles BIG Jellyfish */
 section h2 {
   font-family: 'Inter', sans-serif !important;
-  font-size: clamp(2rem, 4.5vw, 3.75rem) !important;
+  font-size: clamp(2.25rem, 5vw, 4rem) !important;
   font-weight: 700 !important;
   letter-spacing: -0.03em !important;
-  line-height: 1.05 !important;
-  color: #fff !important;
-  margin-bottom: 32px !important;
-  max-width: 22ch !important;
+  line-height: 1.02 !important;
+  color: var(--jf-text) !important;
+  margin: 0 0 40px 0 !important;
+  max-width: 24ch !important;
 }
 
-/* Section text */
+/* "Move faster." style tagline at end of sections */
+section::after {
+  content: 'Aprende más rápido.';
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--jf-amber);
+  display: block;
+  margin-top: 80px;
+  text-align: left;
+}
+
+/* Body text gray */
 section p {
   font-family: 'Inter', sans-serif !important;
   font-size: 1rem !important;
   line-height: 1.6 !important;
-  color: #B0B3B8 !important;
+  color: var(--jf-text-2) !important;
 }
 
-/* Cards Jellyfish: hairline + photo */
-.srv, .vblk, .testi-card, .fn, .av, .about-card, .uc-card, [class*="card"] {
-  background: rgba(255,255,255,.02) !important;
-  border: 1px solid rgba(255,255,255,.08) !important;
-  border-radius: 8px !important;
-  box-shadow: none !important;
+/* === CARDS Jellyfish ============================================ */
+/* Light cards on dark bg, big rounded corners */
+.srv, .vblk, .testi-card, .av, .about-card, .uc-card, .stack-card,
+[class*="card"]:not(.chip-card) {
+  background: var(--jf-card-light) !important;
+  color: #1c1816 !important;
+  border: 0 !important;
+  border-radius: 16px !important;
   padding: 32px !important;
+  box-shadow: none !important;
 }
-.srv:hover, [class*="card"]:hover {
-  border-color: var(--jf-amber) !important;
-  background: rgba(255,255,255,.04) !important;
-  transform: none !important;
+.srv h3, .vblk h3, .av h3, [class*="card"] h3 { color: #1c1816 !important; }
+.srv p, .vblk p, [class*="card"] p { color: #4a4a4a !important; }
+
+/* Some cards AMBER yellow */
+.srv:nth-child(2n), .vblk:nth-child(2n) {
+  background: var(--jf-amber) !important;
 }
 
-/* Icons / number badges */
-.vblk-icon, .srv-icon, .fn-num {
+.srv:hover, [class*="card"]:hover {
+  transform: translateY(-4px) !important;
+  background: var(--jf-amber) !important;
+  color: #000 !important;
+  border-color: transparent !important;
+}
+
+/* Metric cards: AMBER OUTLINE Jellyfish-style */
+.metric-card, .hm-metric, .fn-num, .vblk-icon {
+  background: transparent !important;
+  border: 2px solid var(--jf-amber) !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  color: var(--jf-amber) !important;
+}
+.fn-num {
+  display: inline-flex !important;
+  width: 48px !important;
+  height: 48px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px !important;
+  background: var(--jf-amber) !important;
+  color: #000 !important;
+  font-weight: 700 !important;
+  border: 0 !important;
+}
+
+.vblk-icon {
   background: var(--jf-amber) !important;
   color: #000 !important;
   border: 0 !important;
-  border-radius: 4px !important;
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 700 !important;
+  border-radius: 6px !important;
+  padding: 8px !important;
+  width: 40px;
+  height: 40px;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-/* Footer Jellyfish minimal */
+/* === LOGO CARDS section (LIGHT cards client logos) ============================================ */
+.client-logos, .marcas-grid, .logos-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 16px !important;
+  max-width: 1100px !important;
+  margin: 48px auto 0 !important;
+}
+.client-logos > *, .marcas-grid > *, .logos-grid > * {
+  background: #fff !important;
+  border-radius: 16px !important;
+  padding: 40px 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 120px !important;
+}
+
+/* === NAV mobile: hide top bar ============================================ */
+@media (max-width: 900px) {
+  .nav::before { display: none !important; }
+  .nav { top: 0 !important; }
+  .nav-links { display: none !important; }
+}
+
+/* === MASCOT ============================================ */
+.aury-mascot {
+  bottom: 24px !important;
+  right: 24px !important;
+}
+.aury-img {
+  width: 56px !important;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,.5)) !important;
+}
+.aury-bubble {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.75rem !important;
+  max-width: 200px !important;
+  background: rgba(15,15,16,.95) !important;
+  border: 1px solid var(--jf-hairline) !important;
+  border-radius: 16px 16px 4px 16px !important;
+  box-shadow: none !important;
+  color: var(--jf-text) !important;
+}
+
+/* === FOOTER Jellyfish-style ============================================ */
 footer, .footer {
   background: #000 !important;
-  border-top: 1px solid rgba(255,255,255,.06) !important;
-  padding: 64px 32px 32px !important;
+  border-top: 1px solid var(--jf-hairline) !important;
+  padding: 80px 32px 32px !important;
   text-align: left !important;
 }
 
-/* Filter chips */
-.filter {
+/* === Inputs Jellyfish ============================================ */
+input, textarea, select {
+  background: rgba(255,255,255,.04) !important;
+  border: 1px solid var(--jf-hairline) !important;
+  border-radius: 8px !important;
+  color: var(--jf-text) !important;
+  padding: 14px 16px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 1rem !important;
+}
+input::placeholder, textarea::placeholder { color: var(--jf-text-3) !important; }
+input:focus, textarea:focus {
+  outline: 0 !important;
+  border-color: var(--jf-amber) !important;
+}
+
+/* === Filter chips ============================================ */
+.filter, .chip-filter, [class*="filter"] {
   border-radius: 100px !important;
-  border: 1px solid rgba(255,255,255,.15) !important;
   background: transparent !important;
+  border: 1px solid rgba(255,255,255,.2) !important;
   font-family: 'Inter', sans-serif !important;
   text-transform: none !important;
   letter-spacing: 0 !important;
   font-size: 0.875rem !important;
   font-weight: 500 !important;
-  padding: 8px 16px !important;
-  color: #fff !important;
+  padding: 10px 20px !important;
+  color: var(--jf-text) !important;
 }
 .filter:hover, .filter.active {
   background: var(--jf-amber) !important;
@@ -634,6 +827,9 @@ footer, .footer {
 
 /* Scroll progress bar amber */
 #sp { background: var(--jf-amber) !important; }
+
+/* Snow subtle */
+.flake { opacity: .3 !important; }
 
 </style>
 </head>
