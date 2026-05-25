@@ -1,0 +1,831 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AuryOnTech — IA y Automatización para tu negocio sin saber código</title>
+<meta name="description" content="Aprende a automatizar tu negocio con IA, Make y Google Sheets. Cursos prácticos sin código. Empieza gratis hoy con tu primer flujo activo en 30 minutos."/>
+<meta name="keywords" content="automatización, IA, ChatGPT, Make, Google Sheets, cursos automatización, productividad pyme, Madrid"/>
+<meta name="author" content="AuryOnTech — Cristian Lopez Garcia"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="AuryOnTech — IA y Automatización sin código"/>
+<meta property="og:description" content="Cursos prácticos para automatizar tu negocio con IA. Empieza gratis hoy."/>
+<meta property="og:image" content="https://auryontech.com/wp-content/uploads/2026/03/Aury-enfrente-de-la-Compu.png"/>
+<meta property="og:url" content="https://auryontech.com"/>
+<meta property="og:locale" content="es_ES"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="AuryOnTech — IA y Automatización sin código"/>
+<meta name="twitter:description" content="Cursos prácticos para automatizar tu negocio con IA. Empieza gratis hoy."/>
+<meta name="twitter:image" content="https://auryontech.com/wp-content/uploads/2026/03/Aury-enfrente-de-la-Compu.png"/>
+<link rel="icon" type="image/png" href="https://auryontech.com/wp-content/uploads/2026/03/Aury-Art-Computadora-1-2.png"/>
+<link rel="apple-touch-icon" href="https://auryontech.com/wp-content/uploads/2026/03/Aury-Art-Computadora-1-2.png"/>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,600&#038;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&#038;family=DM+Mono:wght@400;500&#038;display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#08090A;--ink2:#0E0F11;--ink3:#15171A;--ink4:#1C1E22;
+  --dawn:#C46030;--dawn-l:#D88050;--dawn-ll:#ECA878;--dawn-pale:#2A1008;--dawn-glow:rgba(196,96,48,.15);
+  --sky:#3A6494;--sky-l:#5A84B4;--sky-ll:#8AB4D4;
+  --green:#2D9E6B;--green-l:#3DBE88;--green-pale:#071A0F;
+  --ice:#B8D4EC;--ice-l:#D0E8F8;--ice-pale:rgba(184,212,236,.08);
+  --snow:#EEF4F8;--bone:#EDE4D8;--bone2:#D8CCBC;--bone3:#B4A898;
+  --warm:#7A6E60;--warm-l:#9A8E80;
+  --border:rgba(238,244,248,.07);--border-dawn:rgba(196,96,48,.22);--border-ice:rgba(184,212,236,.15);--border-green:rgba(45,158,107,.2);
+  --shadow:0 8px 32px rgba(0,0,0,.4);--shadow-lg:0 24px 80px rgba(0,0,0,.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--bone);overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9990;opacity:.35;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.045'/%3E%3C/svg%3E");}
+#sp{position:fixed;top:0;left:0;height:2px;z-index:9999;width:0%;background:linear-gradient(90deg,var(--dawn),var(--dawn-l),var(--dawn-ll));}
+.cr{position:fixed;width:9px;height:9px;background:var(--dawn);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s;}
+.crr{position:fixed;width:30px;height:30px;border:1.5px solid var(--dawn-l);border-radius:50%;pointer-events:none;z-index:9997;transform:translate(-50%,-50%);opacity:.3;transition:width .3s,height .3s;}
+.snow-field{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;}
+.flake{position:absolute;top:-20px;color:var(--ice-l);font-size:12px;animation:snowfall linear infinite;opacity:0;user-select:none;}
+@keyframes snowfall{0%{transform:translateY(-20px) rotate(0deg);opacity:0;}5%{opacity:.6;}95%{opacity:.3;}100%{transform:translateY(110vh) rotate(360deg);opacity:0;}}
+.aury-mascot{position:fixed;bottom:32px;right:32px;z-index:5000;display:flex;flex-direction:column;align-items:flex-end;gap:10px;pointer-events:none;}
+.aury-bubble{background:var(--ink3);border:1px solid var(--border-dawn);border-radius:16px 16px 4px 16px;padding:12px 16px;max-width:220px;font-size:.8rem;color:var(--bone);line-height:1.55;font-weight:400;box-shadow:var(--shadow);animation:bubblePop .3s cubic-bezier(.34,1.56,.64,1) both;opacity:0;transition:opacity .3s;pointer-events:auto;}
+.aury-bubble.visible{opacity:1;}
+.aury-bubble strong{color:var(--dawn-ll);font-weight:600;}
+.aury-img{width:90px;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 8px 20px rgba(196,96,48,.2));animation:auryFloat 4s ease-in-out infinite;transition:transform .2s;}
+.aury-img:hover{transform:scale(1.08);}
+@keyframes auryFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+@keyframes bubblePop{from{transform:scale(.8) translateY(10px);}to{transform:scale(1) translateY(0);}}
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:16px 60px;transition:background .4s,border-color .4s;border-bottom:1px solid transparent;}
+.nav.scrolled{background:rgba(7,9,15,.94);backdrop-filter:blur(20px);border-color:var(--border);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-mark{width:34px;height:34px;border-radius:10px;overflow:hidden;border:1px solid var(--border-dawn);background:var(--ink3);}
+.nav-mark img{width:100%;height:100%;object-fit:cover;}
+.nav-word{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:1.1rem;color:var(--bone);letter-spacing:-.02em;}
+.nav-word span{color:var(--dawn-l);}
+.nav-links{display:flex;align-items:center;gap:30px;list-style:none;}
+.nav-links a{font-size:.87rem;font-weight:500;color:var(--warm-l);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:var(--bone);}
+.nav-cta{background:transparent !important;color:var(--dawn-l) !important;border:1.5px solid var(--border-dawn) !important;padding:8px 20px;border-radius:100px;font-weight:600 !important;font-size:.84rem !important;transition:background .2s,color .2s !important;}
+.nav-cta:hover{background:var(--dawn-pale) !important;color:var(--dawn-ll) !important;}
+.hbg{display:none;flex-direction:column;gap:4.5px;cursor:pointer;background:none;border:none;padding:6px;}
+.hbg span{display:block;width:22px;height:2px;background:var(--bone);border-radius:2px;}
+.mmenu{display:none;position:fixed;inset:0;background:var(--ink);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:28px;}
+.mmenu.open{display:flex;}
+.mmenu a{font-family:'Cabinet Grotesk',sans-serif;font-size:1.8rem;font-weight:700;color:var(--bone);text-decoration:none;transition:color .2s;}
+.mmenu a:hover{color:var(--dawn-l);}
+.mm-close{position:absolute;top:20px;right:24px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--warm);}
+.bg-flow{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+.bg-flow svg{position:absolute;opacity:.18;filter:blur(3px);}
+.hero{min-height:100vh;display:flex;align-items:center;padding:120px 60px 80px;position:relative;overflow:hidden;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(196,96,48,.18) 0%,transparent 55%),radial-gradient(ellipse 60% 50% at 80% 30%,rgba(196,96,48,.08) 0%,transparent 55%),radial-gradient(ellipse 50% 40% at 50% 90%,rgba(196,96,48,.05) 0%,transparent 50%),linear-gradient(175deg,#0E0F11 0%,#0A0B0D 40%,#08090A 100%);}
+.hero-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(ellipse 70% 70% at 40% 50%,black 10%,transparent 100%);}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;animation:orbF linear infinite;}
+.orb1{width:420px;height:420px;background:rgba(196,96,48,.1);top:-60px;left:5%;animation-duration:24s;}
+.orb2{width:300px;height:300px;background:rgba(196,96,48,.06);bottom:10%;right:10%;animation-duration:30s;animation-delay:-12s;}
+.orb3{width:200px;height:200px;background:rgba(184,212,236,.06);top:40%;right:30%;animation-duration:20s;animation-delay:-7s;}
+@keyframes orbF{0%{transform:translateY(0) scale(1);}33%{transform:translateY(-24px) scale(1.04);}66%{transform:translateY(12px) scale(.97);}100%{transform:translateY(0) scale(1);}}
+.aurora{position:absolute;bottom:0;left:0;right:0;height:200px;pointer-events:none;background:linear-gradient(0deg,rgba(196,96,48,.08) 0%,transparent 100%);z-index:0;}
+.hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;position:relative;z-index:2;max-width:1160px;margin:0 auto;width:100%;}
+.kicker{display:inline-flex;align-items:center;gap:8px;background:rgba(196,96,48,.1);border:1px solid var(--border-dawn);color:var(--dawn-ll);font-size:.73rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:28px;animation:fadeUp .5s ease both;}
+.kicker-dot{width:6px;height:6px;background:var(--dawn);border-radius:50%;flex-shrink:0;animation:pulse 2s ease-in-out infinite;}
+.hero-h1{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:clamp(2.2rem,3.2vw,3.2rem);line-height:1.05;letter-spacing:-.03em;color:var(--snow);margin-bottom:24px;animation:fadeUp .6s ease .1s both;}
+.hero-h1 .accent{color:var(--dawn-l);}
+.hero-h1 .accent-ice{color:var(--ice);}
+.hero-sub{font-size:1rem;color:var(--warm-l);line-height:1.8;max-width:440px;margin-bottom:24px;font-weight:300;animation:fadeUp .6s ease .2s both;}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;animation:fadeUp .6s ease .3s both;margin-bottom:0;}
+.btn-dawn{background:var(--dawn);color:var(--snow);font-weight:600;font-size:.9rem;padding:13px 26px;border-radius:100px;text-decoration:none;display:inline-block;box-shadow:0 4px 18px rgba(196,96,48,.3);transition:box-shadow .2s,transform .15s,background .2s;position:relative;overflow:hidden;}
+.btn-dawn::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transform:translateX(-100%);transition:transform .5s;}
+.btn-dawn:hover::after{transform:translateX(100%);}
+.btn-dawn:hover{background:var(--dawn-l);box-shadow:0 6px 28px rgba(196,96,48,.45);transform:translateY(-2px);color:var(--snow);}
+.btn-ghost{background:transparent;color:var(--bone2);font-weight:500;font-size:.9rem;padding:13px 26px;border-radius:100px;text-decoration:none;display:inline-block;border:1px solid var(--border);transition:border-color .2s,background .2s;}
+.btn-ghost:hover{border-color:rgba(238,244,248,.2);background:rgba(238,244,248,.04);color:var(--bone);}
+.hero-metrics{display:flex;gap:32px;margin-top:44px;padding-top:28px;border-top:1px solid var(--border);animation:fadeUp .6s ease .4s both;}
+.hm-num{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1.8rem;color:var(--dawn-l);letter-spacing:-.03em;}
+.hm-label{font-size:.74rem;color:var(--warm);font-weight:400;margin-top:3px;line-height:1.4;}
+.hero-visual{position:relative;display:flex;justify-content:center;align-items:center;animation:fadeUp .8s ease .2s both;}
+.hero-aury-wrap{position:relative;display:flex;flex-direction:column;align-items:center;}
+.hero-aury-img{width:520px;display:block;filter:drop-shadow(0 20px 40px rgba(196,96,48,.15));}
+.hero-aury-badge{background:rgba(196,96,48,.12);border:1px solid var(--border-dawn);color:var(--dawn-ll);font-size:.74rem;font-weight:600;padding:7px 18px;border-radius:100px;margin-top:8px;letter-spacing:.05em;font-family:'DM Mono',monospace;}
+.hero-speech{position:absolute;top:30px;right:-10px;background:var(--ink3);border:1px solid var(--border-dawn);color:var(--bone);font-weight:500;font-size:.78rem;padding:9px 14px;border-radius:12px 12px 4px 12px;white-space:nowrap;box-shadow:var(--shadow);animation:floatBob 3.5s ease-in-out infinite .5s;}
+.chip{position:absolute;background:var(--ink2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;box-shadow:var(--shadow);font-size:.73rem;}
+.chip-1{top:8%;left:-28%;animation:floatBob 4.2s ease-in-out infinite 0s;}
+.chip-2{bottom:22%;left:-22%;animation:floatBob 4.8s ease-in-out infinite -1.8s;}
+.chip-3{top:15%;right:-24%;animation:floatBob 4s ease-in-out infinite -3s;}
+.chip-label{color:var(--warm);font-size:.63rem;margin-bottom:3px;font-weight:500;}
+.chip-val{color:var(--bone);font-weight:700;font-size:.88rem;}
+.chip-status{color:var(--dawn-l);font-size:.65rem;margin-top:2px;font-weight:600;font-family:'DM Mono',monospace;}
+.ant-element{position:absolute;pointer-events:none;opacity:.12;z-index:1;}
+
+/* MANIFESTO STRIP — reemplaza el viejo strip de marcas */
+.manifesto{padding:48px 60px;background:linear-gradient(180deg,rgba(7,9,15,0) 0%,var(--ink2) 30%,var(--ink2) 100%);border-bottom:1px solid var(--border);position:relative;}
+.manifesto-inner{max-width:1100px;margin:0 auto;text-align:center;}
+.manifesto-label{font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--warm);margin-bottom:16px;}
+.manifesto-text{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:clamp(1.1rem,1.8vw,1.6rem);color:var(--bone);line-height:1.4;letter-spacing:-.02em;}
+.manifesto-text em{color:var(--dawn-l);font-style:italic;font-family:'DM Sans',sans-serif;font-weight:300;}
+
+.sk{display:block;font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--dawn-l);margin-bottom:14px;}
+.h2{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:clamp(1.9rem,3vw,2.7rem);line-height:1.1;letter-spacing:-.03em;color:var(--snow);}
+.h2 em{font-style:italic;color:var(--dawn-l);font-family:'DM Sans',sans-serif;font-weight:300;}
+.sub{color:var(--warm-l);font-size:.94rem;line-height:1.78;max-width:480px;font-weight:300;margin-top:14px;}
+.about{padding:100px 60px;background:radial-gradient(ellipse 80% 60% at 80% 20%,rgba(58,100,148,.12) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 10% 80%,rgba(196,96,48,.1) 0%,transparent 55%),linear-gradient(180deg,var(--ink) 0%,var(--ink2) 100%);position:relative;overflow:hidden;}
+.about .inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:2;}
+.about-aury{position:relative;display:flex;justify-content:center;}
+.about-deco{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);width:280px;height:60px;opacity:.15;}
+.about-text .sk{color:var(--ice);}
+.about-text .h2 em{color:var(--ice);}
+.about-story{margin-top:24px;display:flex;flex-direction:column;gap:16px;}
+.story-p{font-size:.94rem;color:var(--warm-l);line-height:1.8;font-weight:300;}
+.story-p strong{color:var(--bone);font-weight:500;}
+.about-values{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:28px;}
+.av{background:var(--ink3);border:1px solid var(--border);border-radius:12px;padding:14px 18px;}
+.av-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.88rem;color:var(--bone);margin-bottom:4px;}
+.av-sub{font-size:.78rem;color:var(--warm-l);line-height:1.5;}
+.flow-demo{padding:100px 60px;background:radial-gradient(ellipse 60% 50% at 30% 50%,rgba(196,96,48,.07) 0%,transparent 60%),var(--ink3);position:relative;overflow:hidden;}
+.flow-demo .inner{max-width:1100px;margin:0 auto;position:relative;z-index:2;}
+.flow-demo-layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.flow-canvas{background:var(--ink);border:1px solid var(--border);border-radius:20px;padding:28px;position:relative;overflow:hidden;}
+.flow-canvas::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--dawn),transparent);}
+.fc-title{font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--warm);margin-bottom:22px;display:flex;align-items:center;gap:7px;font-family:'DM Mono',monospace;}
+.fc-title::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--dawn);box-shadow:0 0 6px var(--dawn);animation:pulse 1.5s ease-in-out infinite;flex-shrink:0;}
+.fn{display:flex;align-items:center;gap:12px;background:var(--ink2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;transition:border-color .4s,background .4s;}
+.fn.active{border-color:var(--border-dawn);background:var(--dawn-pale);}
+.fn.done{border-color:rgba(196,96,48,.12);opacity:.55;}
+.fn-num{width:26px;height:26px;border-radius:8px;background:var(--ink3);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-weight:500;font-size:.7rem;color:var(--warm-l);border:1px solid var(--border);flex-shrink:0;transition:background .4s,color .4s,border-color .4s;}
+.fn.active .fn-num{background:var(--dawn);color:var(--snow);border-color:var(--dawn);}
+.fn.done .fn-num{background:rgba(196,96,48,.15);color:var(--dawn-l);border-color:var(--border-dawn);}
+.fn-text{font-size:.82rem;font-weight:500;color:var(--bone2);transition:color .4s;}
+.fn.active .fn-text{color:var(--snow);}
+.fn-tag{margin-left:auto;font-size:.64rem;font-weight:600;padding:2px 8px;border-radius:100px;flex-shrink:0;opacity:0;transition:opacity .4s;}
+.fn.active .fn-tag,.fn.done .fn-tag{opacity:1;}
+.fn.active .fn-tag{background:rgba(196,96,48,.18);color:var(--dawn-ll);}
+.fn.done .fn-tag{background:rgba(196,96,48,.1);color:var(--dawn-l);}
+.fn-conn{height:18px;margin-left:25px;display:flex;align-items:center;position:relative;}
+.fn-conn-line{width:2px;height:0;background:var(--border-dawn);transition:height .5s ease;border-radius:2px;}
+.fn-conn-line.grown{height:18px;}
+.fn-conn-dot{width:6px;height:6px;border-radius:50%;background:var(--dawn);position:absolute;bottom:0;left:-2px;opacity:0;transition:opacity .3s;box-shadow:0 0 6px var(--dawn);}
+.fn-conn-dot.vis{opacity:1;}
+.flow-progress{margin-top:18px;padding-top:16px;border-top:1px solid var(--border);}
+.fp-label{display:flex;justify-content:space-between;margin-bottom:8px;font-size:.7rem;font-family:'DM Mono',monospace;}
+.fp-label span:first-child{color:var(--warm);}
+.fp-label span:last-child{color:var(--dawn-l);}
+.fp-bar{height:4px;background:var(--border);border-radius:4px;overflow:hidden;}
+.fp-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--dawn-pale),var(--dawn));border-radius:4px;transition:width .5s ease;}
+
+/* ── SECCIÓN VALOR (sustituye stats engañosas) ── */
+.valor{padding:100px 60px;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(58,100,148,.1) 0%,transparent 60%),var(--ink);}
+.valor .inner{max-width:1100px;margin:0 auto;position:relative;z-index:2;}
+.valor-head{text-align:center;margin-bottom:64px;}
+.valor-head .sub{margin:14px auto 0;}
+.valor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:18px;overflow:hidden;border:1px solid var(--border);}
+.vblk{background:var(--ink2);padding:36px 28px;transition:background .3s;position:relative;}
+.vblk::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--dawn),transparent);opacity:0;transition:opacity .3s;}
+.vblk:hover{background:var(--ink3);}
+.vblk:hover::after{opacity:1;}
+.vblk-icon{width:40px;height:40px;border-radius:10px;background:rgba(196,96,48,.1);border:1px solid var(--border-dawn);display:flex;align-items:center;justify-content:center;color:var(--dawn-l);font-family:'DM Mono',monospace;font-weight:700;font-size:.8rem;margin-bottom:18px;}
+.vblk-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:1rem;color:var(--snow);margin-bottom:8px;letter-spacing:-.02em;}
+.vblk-desc{color:var(--warm-l);font-weight:300;font-size:.84rem;line-height:1.65;}
+
+.uc{padding:100px 60px;background:radial-gradient(ellipse 60% 50% at 90% 80%,rgba(196,96,48,.07) 0%,transparent 55%),var(--ink3);}
+.uc .inner{max-width:1100px;margin:0 auto;}
+.tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--ink2);width:fit-content;margin-bottom:48px;}
+.tab{padding:10px 22px;font-size:.82rem;font-weight:500;cursor:pointer;background:transparent;border:none;color:var(--warm-l);transition:all .2s;white-space:nowrap;border-right:1px solid var(--border);}
+.tab:last-child{border-right:none;}
+.tab.on{background:var(--dawn-pale);color:var(--dawn-ll);font-weight:600;}
+.tab:hover:not(.on){color:var(--bone2);}
+.panel{display:none;}
+.panel.on{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+.panel-content h3{font-family:'Cabinet Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--snow);margin-bottom:14px;line-height:1.2;}
+.panel-content p{color:var(--warm-l);font-size:.92rem;line-height:1.78;margin-bottom:28px;font-weight:300;}
+.flows{display:flex;flex-direction:column;gap:10px;}
+.flow-item{display:flex;align-items:center;gap:12px;background:var(--ink2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:.83rem;color:var(--warm-l);transition:border-color .2s,transform .2s;}
+.flow-item:hover{border-color:var(--border-dawn);transform:translateX(3px);color:var(--bone2);}
+.fdot{width:5px;height:5px;border-radius:50%;background:var(--dawn);flex-shrink:0;}
+.panel-diagram{background:var(--ink2);border:1px solid var(--border);border-radius:18px;padding:24px;}
+.diag-label{font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--warm);margin-bottom:18px;display:flex;align-items:center;gap:7px;font-family:'DM Mono',monospace;}
+.diag-label::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--dawn);flex-shrink:0;}
+.dnode{display:flex;align-items:center;gap:10px;background:var(--ink3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:.8rem;}
+.dnode.trigger{border-color:var(--border-dawn);background:var(--dawn-pale);}
+.dnode.result{border-color:var(--border-ice);background:rgba(184,212,236,.05);}
+.dconn{width:1.5px;height:16px;margin-left:23px;background:var(--border);}
+.dico{width:26px;height:26px;border-radius:7px;background:var(--ink4);display:flex;align-items:center;justify-content:center;font-size:.68rem;flex-shrink:0;color:var(--dawn-l);font-weight:700;border:1px solid var(--border);font-family:'DM Mono',monospace;}
+.dtxt{font-weight:500;color:var(--bone2);font-size:.8rem;}
+.dtag{margin-left:auto;font-size:.64rem;font-weight:600;padding:2px 7px;border-radius:100px;flex-shrink:0;}
+.dtag.t1{background:rgba(196,96,48,.16);color:var(--dawn-ll);}
+.dtag.t2{background:rgba(238,244,248,.07);color:var(--bone3);}
+.dtag.t3{background:rgba(184,212,236,.1);color:var(--ice);}
+
+/* SECCIÓN CURSOS REDISEÑADA — alineada con catálogo */
+.services{padding:100px 60px;background:radial-gradient(ellipse 70% 50% at 30% 70%,rgba(196,96,48,.07) 0%,transparent 55%),var(--ink3);}
+.services .inner{max-width:1100px;margin:0 auto;}
+.services-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:52px;gap:40px;flex-wrap:wrap;}
+.srv-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.srv{background:var(--ink2);border:1px solid var(--border);border-radius:18px;padding:28px;transition:background .3s,border-color .3s,transform .3s;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+.srv::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.srv.cat-ia::before{background:linear-gradient(90deg,var(--dawn-pale),var(--dawn),var(--dawn-pale));}
+.srv.cat-auto::before{background:linear-gradient(90deg,rgba(58,100,148,.1),var(--sky-l),rgba(58,100,148,.1));}
+.srv.cat-neg::before{background:linear-gradient(90deg,var(--green-pale),var(--green),var(--green-pale));}
+.srv.cat-pago::before{background:linear-gradient(90deg,var(--green-pale),var(--green-l),var(--green-pale));}
+.srv:hover{transform:translateY(-3px);}
+.srv.cat-ia:hover{border-color:var(--border-dawn);box-shadow:0 16px 48px rgba(196,96,48,.1);}
+.srv.cat-auto:hover{border-color:rgba(58,100,148,.3);box-shadow:0 16px 48px rgba(58,100,148,.1);}
+.srv.cat-neg:hover, .srv.cat-pago:hover{border-color:var(--border-green);box-shadow:0 16px 48px rgba(45,158,107,.1);}
+.srv-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.srv-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-weight:700;font-size:.74rem;flex-shrink:0;}
+.srv.cat-ia .srv-icon{background:rgba(196,96,48,.09);color:var(--dawn-l);border:1px solid var(--border-dawn);}
+.srv.cat-auto .srv-icon{background:rgba(58,100,148,.09);color:var(--sky-l);border:1px solid rgba(58,100,148,.2);}
+.srv.cat-neg .srv-icon, .srv.cat-pago .srv-icon{background:rgba(45,158,107,.08);color:var(--green-l);border:1px solid var(--border-green);}
+.srv-cat{font-family:'DM Mono',monospace;font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--warm);}
+.srv-pago-badge{margin-left:auto;background:var(--green);color:var(--snow);font-family:'DM Mono',monospace;font-size:.58rem;font-weight:700;padding:3px 9px;border-radius:100px;letter-spacing:.06em;}
+.srv h3{font-family:'Cabinet Grotesk',sans-serif;font-size:1rem;font-weight:700;color:var(--snow);margin-bottom:10px;letter-spacing:-.01em;line-height:1.3;}
+.srv p{color:var(--warm-l);font-size:.84rem;line-height:1.65;font-weight:300;flex:1;margin-bottom:18px;}
+.srv-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:14px;border-top:1px solid var(--border);}
+.srv-price{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:.86rem;letter-spacing:-.02em;}
+.srv-price.gratis{color:var(--green-l);}
+.srv-price.pago{color:var(--green-l);font-size:1rem;}
+.srv-price-extra{font-size:.66rem;color:var(--warm);font-family:'DM Mono',monospace;margin-left:4px;}
+.srv-cta{font-weight:600;font-size:.78rem;padding:8px 18px;border-radius:100px;text-decoration:none;transition:all .2s;}
+.srv.cat-ia .srv-cta{background:var(--dawn);color:var(--snow);}
+.srv.cat-ia .srv-cta:hover{background:var(--dawn-l);color:var(--snow);}
+.srv.cat-auto .srv-cta{background:var(--sky);color:var(--snow);}
+.srv.cat-auto .srv-cta:hover{background:var(--sky-l);color:var(--snow);}
+.srv.cat-neg .srv-cta, .srv.cat-pago .srv-cta{background:var(--green);color:var(--snow);}
+.srv.cat-neg .srv-cta:hover, .srv.cat-pago .srv-cta:hover{background:var(--green-l);color:var(--snow);}
+.srv.prox{opacity:.55;}
+.srv.prox .srv-cta{background:rgba(255,255,255,.05);color:var(--warm);pointer-events:none;}
+.srv-prox-tag{background:rgba(255,255,255,.04);color:var(--warm-l);border:1px solid var(--border);font-family:'DM Mono',monospace;font-size:.6rem;font-weight:600;padding:2px 8px;border-radius:100px;letter-spacing:.06em;margin-left:auto;}
+.services-cta{text-align:center;margin-top:52px;}
+
+.testi{padding:100px 60px;background:radial-gradient(ellipse 70% 50% at 50% 100%,rgba(58,100,148,.1) 0%,transparent 55%),var(--ink2);}
+.testi .inner{max-width:1100px;margin:0 auto;}
+.testi-head{text-align:center;margin-bottom:52px;}
+.carousel{position:relative;overflow:hidden;}
+.carousel-track{display:flex;transition:transform .5s cubic-bezier(.25,.46,.45,.94);}
+.testi-slide{min-width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+.tc{background:var(--ink);border:1px solid var(--border);border-radius:18px;padding:26px;transition:border-color .3s;}
+.tc:hover{border-color:var(--border-dawn);}
+.tc-stars{color:var(--dawn-l);font-size:.8rem;letter-spacing:.08em;margin-bottom:12px;}
+.tc-text{font-size:.89rem;color:var(--warm-l);line-height:1.75;font-style:italic;margin-bottom:16px;font-weight:300;}
+.tc-author{display:flex;align-items:center;gap:10px;}
+.tc-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--dawn-pale),var(--dawn));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.76rem;color:var(--snow);flex-shrink:0;border:1px solid var(--border-dawn);}
+.tc-name{font-weight:600;font-size:.85rem;color:var(--snow);}
+.tc-role{font-size:.73rem;color:var(--warm);margin-top:2px;}
+.carousel-nav{display:flex;justify-content:center;gap:8px;margin-top:28px;}
+.cdot{width:8px;height:8px;border-radius:50%;background:var(--border);cursor:pointer;transition:background .2s,transform .2s;}
+.cdot.on{background:var(--dawn);transform:scale(1.3);}
+.carousel-btns{display:flex;justify-content:center;gap:12px;margin-top:16px;}
+.cbtn{background:var(--ink3);border:1px solid var(--border);color:var(--warm-l);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;transition:border-color .2s,color .2s;display:flex;align-items:center;justify-content:center;}
+.cbtn:hover{border-color:var(--border-dawn);color:var(--dawn-l);}
+
+.cta{padding:120px 60px;background:radial-gradient(ellipse 80% 60% at 20% 40%,rgba(196,96,48,.12) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 60%,rgba(58,100,148,.1) 0%,transparent 55%),var(--ink3);}
+.cta .inner{max-width:640px;margin:0 auto;text-align:center;position:relative;z-index:2;}
+.cta-img{width:180px;margin:0 auto 24px;filter:drop-shadow(0 8px 24px rgba(196,96,48,.25));animation:floatBob 4.5s ease-in-out infinite;}
+.cta .h2{font-size:clamp(2rem,3.2vw,2.8rem);}
+.cta .h2 em{color:var(--dawn-l);}
+.cta .sub{margin:14px auto 32px;text-align:center;}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-snow{background:var(--snow);color:var(--ink);font-weight:700;font-size:.9rem;padding:13px 26px;border-radius:100px;text-decoration:none;display:inline-block;box-shadow:0 4px 18px rgba(0,0,0,.3);transition:transform .15s,box-shadow .2s;}
+.btn-snow:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.4);color:var(--ink);}
+
+.footer{background:var(--ink);padding:52px 60px 34px;border-top:1px solid var(--border);}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr;gap:56px;padding-bottom:36px;border-bottom:1px solid var(--border);margin-bottom:28px;}
+.footer-brand p{color:var(--warm);font-size:.84rem;line-height:1.75;max-width:260px;margin-top:12px;font-weight:300;}
+.footer-col h4{font-family:'Cabinet Grotesk',sans-serif;font-size:.76rem;font-weight:700;color:var(--bone2);margin-bottom:14px;letter-spacing:.06em;text-transform:uppercase;}
+.footer-col a{display:block;color:var(--warm);font-size:.83rem;text-decoration:none;margin-bottom:10px;transition:color .2s;}
+.footer-col a:hover{color:var(--dawn-l);}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;}
+.footer-bottom p{color:var(--warm);font-size:.77rem;}
+.footer-mono{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--warm);}
+
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.vis{opacity:1;transform:translateY(0);}
+.d1{transition-delay:.1s;}.d2{transition-delay:.2s;}.d3{transition-delay:.3s;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+@keyframes floatBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important;}
+  .orb,.flake,.aury-img,.cta-img,.hero-aury-img{animation:none !important;}
+}
+
+@media(max-width:960px){
+  body{cursor:auto;}.cr,.crr{display:none;}
+  .nav{padding:14px 24px;}.nav-links{display:none;}.hbg{display:flex;}
+  .hero{padding:100px 24px 60px;}
+  .hero-inner{grid-template-columns:1fr;gap:48px;}
+  .hero-visual{order:-1;justify-content:center;}
+  .hero-aury-img{width:240px;}
+  .chip{display:none;}
+  .about .inner,.flow-demo-layout{grid-template-columns:1fr;}
+  .about{padding:70px 24px;}
+  .manifesto,.flow-demo,.valor,.uc,.services,.testi,.cta{padding:70px 24px;}
+  .manifesto{padding:40px 24px;}
+  .valor-grid{grid-template-columns:repeat(2,1fr);}
+  .srv-grid{grid-template-columns:1fr;}
+  .testi-slide{grid-template-columns:1fr;}
+  .services-head{flex-direction:column;align-items:flex-start;}
+  .panel.on{grid-template-columns:1fr;}
+  .footer{padding:44px 24px 30px;}
+  .footer-top{grid-template-columns:1fr;gap:28px;}
+  .footer-bottom{flex-direction:column;gap:10px;text-align:center;}
+  .hero-metrics{flex-wrap:wrap;gap:22px;}
+  .tabs{overflow-x:auto;width:100%;}
+  .cta-btns{flex-direction:column;align-items:center;}
+  .aury-mascot{bottom:16px;right:16px;}
+  .aury-img{width:100px;}
+  .aury-bubble{max-width:180px;font-size:.75rem;}
+  .about-values{grid-template-columns:1fr;}
+}
+@media(max-width:600px){.valor-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div id="sp"></div>
+<div class="cr" id="cr"></div>
+<div class="crr" id="crr"></div>
+<div class="snow-field" id="snowField" aria-hidden="true"></div>
+
+<div class="aury-mascot" id="auryMascot">
+  <div class="aury-bubble" id="auryBubble"><strong>¡Hola! Soy Aury.</strong> Vine desde la Antártida para que tu negocio trabaje sin que tengas que mirarlo todo el tiempo.</div>
+  <img decoding="async" class="aury-img" src="https://auryontech.com/wp-content/uploads/2026/03/Aury-Estudiando.png" alt="Mascota Aury, una pingüina de AuryOnTech" id="auryImg" onclick="toggleBubble()"/>
+</div>
+
+<div class="mmenu" id="mm">
+  <button class="mm-close" onclick="closeMM()" aria-label="Cerrar menú">&#x2715;</button>
+  <a href="#about" onclick="closeMM()">Sobre Aury</a>
+  <a href="https://auryontech.com/catalogo-de-cursos/" onclick="closeMM()">Cursos</a>
+  <a href="https://auryontech.com/3907-2/" onclick="closeMM()">¿Cuánto pierdes?</a>
+  <a href="#valor" onclick="closeMM()">Por qué automatizar</a>
+  <a href="#formacion" onclick="closeMM()">Empezar gratis</a>
+</div>
+
+<nav class="nav" id="nav">
+  <a href="#" class="nav-logo">
+    <div class="nav-mark"><img decoding="async" src="https://auryontech.com/wp-content/uploads/2026/03/Aury-Art-Computadora-1-2.png" alt="Logo AuryOnTech"/></div>
+    <span class="nav-word">Aury<span>OnTech</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">Sobre Aury</a></li>
+    <li><a href="https://auryontech.com/catalogo-de-cursos/">Cursos</a></li>
+    <li><a href="https://auryontech.com/calculadora-descrube-para-automatizar/">¿Cuánto pierdes?</a></li>
+    <li><a href="#valor">Por qué automatizar</a></li>
+    <li><a href="#formacion" class="nav-cta">Empezar gratis</a></li>
+  </ul>
+  <button class="hbg" onclick="openMM()" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+</nav>
+
+<section class="hero" id="hero">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="orb orb1" data-speed=".25" aria-hidden="true"></div>
+  <div class="orb orb2" data-speed=".18" aria-hidden="true"></div>
+  <div class="orb orb3" data-speed=".35" aria-hidden="true"></div>
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="bg-flow" aria-hidden="true">
+    <svg width="600" height="400" style="top:10%;right:-100px;" viewBox="0 0 600 400"><rect x="50" y="50" width="140" height="44" rx="10" fill="none" stroke="#C46030" stroke-width="1.5"/><line x1="120" y1="94" x2="120" y2="130" stroke="#C46030" stroke-width="1.5" stroke-dasharray="4,4"/><rect x="50" y="130" width="140" height="44" rx="10" fill="none" stroke="#5A84B4" stroke-width="1.5"/><line x1="190" y1="152" x2="250" y2="152" stroke="#5A84B4" stroke-width="1.5" stroke-dasharray="4,4"/><rect x="250" y="130" width="140" height="44" rx="10" fill="none" stroke="#C46030" stroke-width="1.5"/><circle cx="450" cy="100" r="30" fill="none" stroke="#C46030" stroke-width="1.5"/></svg>
+    <svg width="400" height="300" style="bottom:5%;left:-60px;" viewBox="0 0 400 300"><circle cx="60" cy="60" r="25" fill="none" stroke="#5A84B4" stroke-width="1.5"/><line x1="85" y1="60" x2="150" y2="60" stroke="#5A84B4" stroke-width="1.5" stroke-dasharray="4,4"/><rect x="150" y="40" width="100" height="40" rx="8" fill="none" stroke="#C46030" stroke-width="1.5"/><line x1="200" y1="80" x2="200" y2="140" stroke="#C46030" stroke-width="1.5" stroke-dasharray="4,4"/><rect x="150" y="140" width="100" height="40" rx="8" fill="none" stroke="#5A84B4" stroke-width="1.5"/></svg>
+  </div>
+  <svg class="ant-element" aria-hidden="true" style="bottom:0;right:20%;width:200px;opacity:.08" viewBox="0 0 200 100"><polygon points="40,100 80,40 120,60 160,100" fill="#B8D4EC"/><polygon points="80,100 105,55 130,100" fill="#D0E8F8"/></svg>
+
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="kicker"><span class="kicker-dot"></span>Formación en IA y Automatización · Madrid</div>
+      <h1 class="hero-h1">Aprende a Automatizar<br/><span class="accent">sin Saber</span><span class="accent-ice"> Código.</span></h1>
+      <p class="hero-sub">Tanto si tienes tu propio negocio como si trabajas para otro, hay tareas que no deberías estar haciendo tú. Aprende a delegarlas a la tecnología.</p>
+      <div class="hero-ctas">
+        <a href="https://auryontech.com/catalogo-de-cursos/" class="btn-dawn">Empezar con la formación gratis</a>
+        <a href="https://auryontech.com/catalogo-de-cursos/" class="btn-ghost">Ver todos los cursos</a>
+      </div>
+      <div class="hero-metrics">
+        <div><div class="hm-num">+40h</div><div class="hm-label">recuperadas<br/>por mes</div></div>
+        <div><div class="hm-num">30min</div><div class="hm-label">para tu primer<br/>flujo activo</div></div>
+        <div><div class="hm-num">0€</div><div class="hm-label">para<br/>empezar</div></div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="chip chip-1"><div class="chip-label">Tiempo recuperado hoy</div><div class="chip-val">3h 42min</div><div class="chip-status">En ejecución</div></div>
+      <div class="chip chip-2"><div class="chip-label">Flujos activos</div><div class="chip-val">12 procesos</div><div class="chip-status">Sin incidencias</div></div>
+      <div class="chip chip-3"><div class="chip-label">Último reporte</div><div class="chip-val">Lun 08:00</div><div class="chip-status">Auto-enviado</div></div>
+      <div class="hero-aury-wrap">
+        <div class="hero-speech">Esto ya funciona solo &#x2744;</div>
+        <img decoding="async" class="hero-aury-img" src="https://auryontech.com/wp-content/uploads/2026/03/Aury-enfrente-de-la-Compu.png" alt="Aury frente a la computadora trabajando"/>
+        <div class="hero-aury-badge">Hola, soy Aury</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MANIFESTO STRIP — reemplaza el strip de marcas -->
+<div class="manifesto">
+  <div class="manifesto-inner">
+    <div class="manifesto-label">Lo que enseñamos aquí</div>
+    <p class="manifesto-text">Las mismas herramientas que usan las grandes empresas. <em>Adaptadas para que las uses tú</em> — sin equipo técnico, sin presupuesto, sin código.</p>
+  </div>
+</div>
+
+<section class="about" id="about">
+  <div class="bg-flow" style="z-index:1;" aria-hidden="true"><svg width="500" height="400" style="top:0;right:-80px;opacity:.1;filter:blur(4px);" viewBox="0 0 500 400"><rect x="50" y="50" width="120" height="40" rx="8" fill="none" stroke="#B8D4EC" stroke-width="1.5"/><line x1="110" y1="90" x2="110" y2="130" stroke="#B8D4EC" stroke-width="1.5" stroke-dasharray="4,4"/><rect x="50" y="130" width="120" height="40" rx="8" fill="none" stroke="#B8D4EC" stroke-width="1.5"/><line x1="170" y1="150" x2="220" y2="150" stroke="#C46030" stroke-width="1.5" stroke-dasharray="4,4"/><rect x="220" y="130" width="120" height="40" rx="8" fill="none" stroke="#C46030" stroke-width="1.5"/></svg></div>
+  <svg class="ant-element" aria-hidden="true" style="bottom:0;left:0;width:300px;opacity:.06" viewBox="0 0 300 120"><polygon points="0,120 60,50 120,80 180,30 240,70 300,120" fill="#B8D4EC"/><polygon points="60,120 90,60 120,120" fill="#D0E8F8" opacity=".8"/><polygon points="160,120 195,45 230,120" fill="#B8D4EC" opacity=".9"/><ellipse cx="260" cy="110" rx="35" ry="18" fill="#D0E8F8"/><rect x="225" y="95" width="70" height="15" fill="#B8D4EC"/><ellipse cx="260" cy="95" rx="35" ry="20" fill="#D0E8F8"/><rect x="250" y="100" width="12" height="14" rx="6" fill="#0A0E1C"/></svg>
+  <div class="inner">
+    <div class="about-aury reveal">
+      <img decoding="async" src="https://auryontech.com/wp-content/uploads/2026/03/Aury-Estudiando.png" alt="Aury estudiando" style="width:100%;max-width:300px;filter:drop-shadow(0 20px 40px rgba(58,100,148,.25));animation:floatBob 5s ease-in-out infinite;"/>
+      <svg class="about-deco" viewBox="0 0 280 60" aria-hidden="true"><polygon points="20,60 80,20 140,40 200,10 260,60" fill="#B8D4EC" opacity=".3"/><polygon points="60,60 90,30 120,60" fill="#D0E8F8" opacity=".4"/></svg>
+    </div>
+    <div class="about-text reveal">
+      <span class="sk">Quién es Aury</span>
+      <h2 class="h2">Una pingüina de la Antártida<br/><em>que descubrió el poder de la automatización.</em></h2>
+      <div class="about-story">
+        <p class="story-p">Aury no siempre fue una experta en automatización. <strong>Empezó como una pequeña comerciante de pescado en la Antártida, su natal,</strong> gestionando pedidos a mano, enviando confirmaciones una a una y olvidándose de los seguimientos más de lo que le gustaba admitir.</p>
+        <p class="story-p">Un día, harta de perder tiempo en tareas repetitivas mientras sus vecinos de iceberg avanzaban, <strong>decidió aprender a construir flujos automáticos.</strong> En pocas semanas, su negocio funcionaba solo mientras ella se dedicaba a lo que realmente le gustaba: explorar, aprender y conectar con otros.</p>
+        <p class="story-p">Hoy, <strong>Aury viaja de negocio en negocio</strong> (con su laptop siempre a mano) compartiendo esa misma libertad con emprendedores, pymes y equipos que buscan trabajar de manera más inteligente, no más dura.</p>
+      </div>
+      <div class="about-values">
+        <div class="av"><div class="av-title">Sin complicaciones</div><div class="av-sub">Si Aury lo aprendió en la Antártida con WiFi malo, tú también puedes implementarlo.</div></div>
+        <div class="av"><div class="av-title">Resultados reales</div><div class="av-sub">No tecnología por tecnología. Cada flujo resuelve un problema concreto.</div></div>
+        <div class="av"><div class="av-title">Trato cercano</div><div class="av-sub">Trabajamos contigo, no para ti. Tu negocio, tus reglas, nuestra metodología.</div></div>
+        <div class="av"><div class="av-title">Siempre disponibles</div><div class="av-sub">Como los pingüinos, estamos cuando más frío hace, es decir, cuando más nos necesitas.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     CURSOS — alineados al catálogo
+══════════════════════════════════════ -->
+<section class="services" id="formacion">
+  <div class="inner">
+    <div class="services-head reveal">
+      <div><span class="sk">Formación</span><h2 class="h2">Aprende a automatizar<br/><em>a tu propio ritmo.</em></h2></div>
+      <p class="sub">6 cursos gratuitos y 1 de pago para que cualquier negocio pueda implementar IA y automatización sin saber de código. Empieza gratis hoy.</p>
+    </div>
+    <div class="srv-grid reveal">
+
+      <!-- IA Y CONTENIDO -->
+      <div class="srv cat-ia">
+        <div class="srv-head">
+          <div class="srv-icon">01</div>
+          <span class="srv-cat">IA y Contenido</span>
+        </div>
+        <h3>Prompts que trabajan: la guía que nadie te dio</h3>
+        <p>Las 6 técnicas reales de prompting para dejar de obtener respuestas genéricas y conseguir resultados profesionales desde el primer intento.</p>
+        <div class="srv-foot">
+          <span class="srv-price gratis">Gratis</span>
+          <a href="https://auryontech.com/curso-prompts-que-trabajan/" class="srv-cta">Ver curso →</a>
+        </div>
+      </div>
+
+      <div class="srv cat-ia">
+        <div class="srv-head">
+          <div class="srv-icon">02</div>
+          <span class="srv-cat">IA y Contenido</span>
+        </div>
+        <h3>Publica con IA. Sin que se note.</h3>
+        <p>El sistema para crear contenido que suena a ti, no a robot. Los 5 síntomas del texto generado por IA y cómo eliminarlos en segundos.</p>
+        <div class="srv-foot">
+          <span class="srv-price gratis">Gratis</span>
+          <a href="https://auryontech.com/curso-publica-con-ia-sin-que-se-note/" class="srv-cta">Ver curso →</a>
+        </div>
+      </div>
+
+      <div class="srv cat-ia">
+        <div class="srv-head">
+          <div class="srv-icon">03</div>
+          <span class="srv-cat">IA y Contenido</span>
+        </div>
+        <h3>Cierra con IA. Sin Perder tu Estilo.</h3>
+        <p>Cierra más con los leads que ya tienes. Prompts para primer contacto, seguimiento y propuesta — sin sonar a copia genérica.</p>
+        <div class="srv-foot">
+          <span class="srv-price gratis">Gratis</span>
+          <a href="https://auryontech.com/curso-publica-con-ia-sin-que-se-note-2/" class="srv-cta">Ver curso →</a>
+        </div>
+      </div>
+
+      <!-- AUTOMATIZACIÓN -->
+      <div class="srv cat-auto">
+        <div class="srv-head">
+          <div class="srv-icon">04</div>
+          <span class="srv-cat">Automatización</span>
+        </div>
+        <h3>Automatiza tus documentos. Sin tocar nada.</h3>
+        <p>Genera presupuestos, propuestas y contratos desde Excel en segundos con Power Automate Desktop. Gratis e incluido en Windows.</p>
+        <div class="srv-foot">
+          <span class="srv-price gratis">Gratis</span>
+          <a href="URL_CURSO_DOCUMENTOS" class="srv-cta">Ver curso →</a>
+        </div>
+      </div>
+
+      <div class="srv cat-auto">
+        <div class="srv-head">
+          <div class="srv-icon">05</div>
+          <span class="srv-cat">Automatización</span>
+        </div>
+        <h3>Tu primera automatización en 30 minutos</h3>
+        <p>Crea tu primer flujo automático con Make y Google Sheets. El email con «factura» que guarda los datos solo. Sin código, sin experiencia previa.</p>
+        <div class="srv-foot">
+          <span class="srv-price gratis">Gratis</span>
+          <a href="https://auryontech.com/curso-tu-primera-automatizacion-en-30-minutos/" class="srv-cta">Ver curso →</a>
+        </div>
+      </div>
+
+      <div class="srv cat-auto">
+        <div class="srv-head">
+          <div class="srv-icon">06</div>
+          <span class="srv-cat">Automatización</span>
+        </div>
+        <h3>Correos en Piloto Automático</h3>
+        <p>Convierte tu Google Sheets en el cerebro de tu comunicación. Cada fila que agregas dispara un correo personalizado automáticamente — sin tocar nada más.</p>
+        <div class="srv-foot">
+          <span class="srv-price gratis">Gratis</span>
+          <a href="https://auryontech.com/curso-correos-a-sheets/" class="srv-cta">Ver curso →</a>
+        </div>
+      </div>
+
+      <div class="srv cat-auto">
+        <div class="srv-head">
+          <div class="srv-icon">06</div>
+          <span class="srv-cat">Automatización</span>
+        </div>
+        <h3>Correos en Piloto Automático</h3>
+        <p>Convierte tu Google Sheets en el cerebro de tu comunicación. Cada fila que agregas dispara un correo automático y personalizado — sin tocar nada.</p>
+        <div class="srv-foot">
+          <span class="srv-price gratis">Gratis</span>
+          <a href="URL_LANDING_CORREOS" class="srv-cta">Ver curso →</a>
+        </div>
+      </div>
+
+      <!-- NEGOCIO -->
+      <div class="srv cat-neg">
+        <div class="srv-head">
+          <div class="srv-icon">07</div>
+          <span class="srv-cat">Negocio</span>
+        </div>
+        <h3>Tu Mini CRM Gratis en Google Sheets</h3>
+        <p>Organiza tus clientes y leads en Google Sheets con un sistema que funciona como un CRM real. Sin pagar suscripciones.</p>
+        <div class="srv-foot">
+          <span class="srv-price gratis">Gratis</span>
+          <a href="https://auryontech.com/curso-tu-mini-crm-gratis-en-google-sheets/" class="srv-cta">Ver curso →</a>
+        </div>
+      </div>
+
+      <div class="srv cat-neg">
+        <div class="srv-head">
+          <div class="srv-icon">07</div>
+          <span class="srv-cat">Negocio</span>
+        </div>
+        <h3>Tu primer producto digital con IA</h3>
+        <p>El sistema completo para crear, validar y vender tu primer producto digital. De la idea a la página de venta en una tarde.</p>
+        <div class="srv-foot">
+          <span class="srv-price gratis">Gratis</span>
+          <a href="URL_CURSO_PRODUCTO_DIGITAL" class="srv-cta">Ver curso →</a>
+        </div>
+      </div>
+
+      <!-- PAGO -->
+      <div class="srv cat-pago">
+        <div class="srv-head">
+          <div class="srv-icon">08</div>
+          <span class="srv-cat">Negocio · Curso de pago</span>
+          <span class="srv-pago-badge">MÁS COMPLETO</span>
+        </div>
+        <h3>Tu Tienda en Automático</h3>
+        <p>El sistema completo para automatizar tu tienda online: pedidos, respuestas a clientes, inventario y reportes funcionando solos.</p>
+        <div class="srv-foot">
+          <div><span class="srv-price pago">47€</span><span class="srv-price-extra">pago único</span></div>
+          <a href="URL_CURSO_TIENDA_AUTOMATICO" class="srv-cta">Ver curso →</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="services-cta">
+      <a href="https://auryontech.com/catalogo-de-cursos/" class="btn-dawn">Ver el catálogo completo →</a>
+    </div>
+  </div>
+</section>
+
+<section class="flow-demo" id="flow-demo">
+  <div class="bg-flow" aria-hidden="true"><svg width="400" height="350" style="top:5%;right:0;opacity:.1;filter:blur(3.5px);" viewBox="0 0 400 350"><rect x="20" y="20" width="110" height="36" rx="8" fill="none" stroke="#C46030" stroke-width="1.5"/><line x1="75" y1="56" x2="75" y2="90" stroke="#C46030" stroke-width="1.5" stroke-dasharray="4,4"/><rect x="20" y="90" width="110" height="36" rx="8" fill="none" stroke="#5A84B4" stroke-width="1.5"/><line x1="130" y1="108" x2="180" y2="108" stroke="#5A84B4" stroke-width="1.5" stroke-dasharray="4,4"/><rect x="180" y="90" width="110" height="36" rx="8" fill="none" stroke="#C46030" stroke-width="1.5"/></svg></div>
+  <div class="inner">
+    <div class="flow-demo-layout">
+      <div class="flow-demo-text reveal">
+        <span class="sk">Demo en vivo</span>
+        <h2 class="h2">Así se ve un flujo<br/><em>ejecutándose en tiempo real.</em></h2>
+        <p class="sub">Cada vez que un cliente agenda una cita, este flujo se activa solo. Sin intervención humana. Sin errores. Aury lo gestiona todo mientras tú te dedicas a tu trabajo.</p>
+        <div style="margin-top:28px;display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--warm-l);"><div style="width:5px;height:5px;border-radius:50%;background:var(--dawn);flex-shrink:0;"></div>Funciona 24 horas al día, 7 días a la semana</div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--warm-l);"><div style="width:5px;height:5px;border-radius:50%;background:var(--dawn);flex-shrink:0;"></div>Se adapta a cualquier herramienta que ya uses</div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--warm-l);"><div style="width:5px;height:5px;border-radius:50%;background:var(--dawn);flex-shrink:0;"></div>Lo aprendes en el primer curso gratuito</div>
+        </div>
+        <div style="margin-top:32px;"><a href="URL_CURSO_PRIMERA_AUTOMATIZACION" class="btn-dawn">Quiero aprender a hacerlo</a></div>
+      </div>
+      <div class="flow-canvas reveal" id="flowCanvas">
+        <div class="fc-title">Flujo activo · Gestión de citas</div>
+        <div id="flowNodes">
+          <div class="fn" id="fn0"><div class="fn-num">01</div><div class="fn-text">Cliente agenda una cita</div><span class="fn-tag">Inicio</span></div>
+          <div class="fn-conn"><div class="fn-conn-line" id="conn0"></div><div class="fn-conn-dot" id="dot0"></div></div>
+          <div class="fn" id="fn1"><div class="fn-num">02</div><div class="fn-text">Confirmación enviada automáticamente</div><span class="fn-tag">Email</span></div>
+          <div class="fn-conn"><div class="fn-conn-line" id="conn1"></div><div class="fn-conn-dot" id="dot1"></div></div>
+          <div class="fn" id="fn2"><div class="fn-num">03</div><div class="fn-text">Recordatorio 24h antes de la cita</div><span class="fn-tag">WhatsApp</span></div>
+          <div class="fn-conn"><div class="fn-conn-line" id="conn2"></div><div class="fn-conn-dot" id="dot2"></div></div>
+          <div class="fn" id="fn3"><div class="fn-num">04</div><div class="fn-text">Post-servicio: solicitar valoración</div><span class="fn-tag">Seguimiento</span></div>
+          <div class="fn-conn"><div class="fn-conn-line" id="conn3"></div><div class="fn-conn-dot" id="dot3"></div></div>
+          <div class="fn" id="fn4"><div class="fn-num">05</div><div class="fn-text">Historial actualizado en Sheets</div><span class="fn-tag">Registro</span></div>
+        </div>
+        <div class="flow-progress">
+          <div class="fp-label"><span>Progreso del flujo</span><span id="fpPct">0%</span></div>
+          <div class="fp-bar"><div class="fp-fill" id="fpFill"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     POR QUÉ AUTOMATIZAR — sustituye stats falsas
+══════════════════════════════════════ -->
+<section class="valor" id="valor">
+  <svg class="ant-element" aria-hidden="true" style="top:0;right:5%;width:180px;opacity:.06;transform:rotate(180deg)" viewBox="0 0 200 80"><polygon points="10,80 60,20 110,50 160,10 200,80" fill="#B8D4EC"/></svg>
+  <div class="inner">
+    <div class="valor-head reveal">
+      <span class="sk">Por qué automatizar</span>
+      <h2 class="h2">No es magia.<br/><em>Es tiempo que recuperas.</em></h2>
+      <p class="sub">Los pequeños negocios que automatizan no se hacen ricos de la noche a la mañana — pero sí dejan de perder horas en las mismas tareas repetitivas todos los días.</p>
+    </div>
+    <div class="valor-grid reveal">
+      <div class="vblk">
+        <div class="vblk-icon">⏱</div>
+        <div class="vblk-title">Más tiempo para lo que importa</div>
+        <div class="vblk-desc">Las tareas repetitivas (responder emails básicos, registrar datos, enviar recordatorios) ocupan horas cada semana. Automatizarlas te devuelve esas horas para vender, crear o descansar.</div>
+      </div>
+      <div class="vblk">
+        <div class="vblk-icon">🎯</div>
+        <div class="vblk-title">Menos errores humanos</div>
+        <div class="vblk-desc">Una vez configurado, un flujo no se olvida, no se confunde de cliente y no manda dos veces el mismo email. Hace lo mismo cada vez, exactamente igual.</div>
+      </div>
+      <div class="vblk">
+        <div class="vblk-icon">📈</div>
+        <div class="vblk-title">Tu negocio escala sin contratar</div>
+        <div class="vblk-desc">Procesar 10 pedidos al día o 100 puede ser exactamente el mismo trabajo si lo automatizas bien. Eso es lo que separa un negocio que crece de uno que se ahoga.</div>
+      </div>
+      <div class="vblk">
+        <div class="vblk-icon">🌙</div>
+        <div class="vblk-title">Funciona mientras duermes</div>
+        <div class="vblk-desc">Tu negocio no debería detenerse cuando tú no estás. Los flujos siguen activos las 24 horas, atendiendo, registrando y procesando — sin que tú levantes un dedo.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="uc" id="negocios">
+  <div class="bg-flow" aria-hidden="true"><svg width="350" height="300" style="bottom:5%;left:-40px;opacity:.09;filter:blur(3px);" viewBox="0 0 350 300"><rect x="30" y="30" width="100" height="35" rx="7" fill="none" stroke="#C46030" stroke-width="1.5"/><line x1="80" y1="65" x2="80" y2="100" stroke="#C46030" stroke-width="1.5" stroke-dasharray="4,4"/><rect x="30" y="100" width="100" height="35" rx="7" fill="none" stroke="#5A84B4" stroke-width="1.5"/></svg></div>
+  <div class="inner">
+    <div class="uc-head reveal">
+      <span class="sk">Aplicado a tu sector</span>
+      <h2 class="h2">Si hay tareas repetitivas,<br/><em>hay margen para automatizar.</em></h2>
+      <p class="sub">No importa el sector ni el tamaño. Donde hay un proceso que se repite, hay tiempo y dinero que se pueden recuperar.</p>
+    </div>
+    <div class="tabs reveal">
+      <button class="tab on" onclick="swTab(0)">Salón de belleza</button>
+      <button class="tab" onclick="swTab(1)">Tienda online</button>
+      <button class="tab" onclick="swTab(2)">Servicios profesionales</button>
+      <button class="tab" onclick="swTab(3)">Formación online</button>
+    </div>
+    <div class="panels reveal">
+      <div class="panel on">
+        <div class="panel-content"><h3>Salón de belleza y estética</h3><p>La gestión de citas, los recordatorios y la recopilación de reseñas consumen tiempo que debería ir al servicio. Con los flujos correctos, toda esa carga operativa desaparece sin perder el toque personal.</p><div class="flows"><div class="flow-item"><span class="fdot"></span>Recordatorio automático 24h antes de cada cita vía WhatsApp o email</div><div class="flow-item"><span class="fdot"></span>Mensaje post-servicio con solicitud de reseña y registro automático de la visita</div><div class="flow-item"><span class="fdot"></span>Reagendamiento automático cuando una clienta cancela con más de 48h de antelación</div><div class="flow-item"><span class="fdot"></span>Historial de servicios por clienta actualizado automáticamente en Google Sheets</div></div></div>
+        <div class="panel-diagram"><div class="diag-label">Flujo activo en tiempo real</div><div class="dnode trigger"><div class="dico">01</div><span class="dtxt">Nueva cita confirmada</span><span class="dtag t1">Inicio</span></div><div class="dconn"></div><div class="dnode"><div class="dico">02</div><span class="dtxt">Esperar hasta 23h antes</span><span class="dtag t2">Espera</span></div><div class="dconn"></div><div class="dnode"><div class="dico">03</div><span class="dtxt">Enviar recordatorio personalizado</span><span class="dtag t2">Acción</span></div><div class="dconn"></div><div class="dnode"><div class="dico">04</div><span class="dtxt">Solicitar valoración post-servicio</span><span class="dtag t2">Acción</span></div><div class="dconn"></div><div class="dnode result"><div class="dico">05</div><span class="dtxt">Actualizar historial de la clienta</span><span class="dtag t3">Resultado</span></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-content"><h3>Tienda online y comercio electrónico</h3><p>Pedidos, inventario, devoluciones y seguimiento de clientes. La operación logística puede ejecutarse casi sin intervención humana una vez los flujos están configurados correctamente.</p><div class="flows"><div class="flow-item"><span class="fdot"></span>Confirmación de pedido y tracking enviados automáticamente al comprar</div><div class="flow-item"><span class="fdot"></span>Alerta interna cuando el stock de un producto baja del umbral definido</div><div class="flow-item"><span class="fdot"></span>Secuencia de recuperación de carrito abandonado a las 2 y 24 horas</div><div class="flow-item"><span class="fdot"></span>Reporte semanal de ventas, márgenes y devoluciones generado automáticamente</div></div></div>
+        <div class="panel-diagram"><div class="diag-label">Flujo activo en tiempo real</div><div class="dnode trigger"><div class="dico">01</div><span class="dtxt">Pago completado en la tienda</span><span class="dtag t1">Inicio</span></div><div class="dconn"></div><div class="dnode"><div class="dico">02</div><span class="dtxt">Email confirmación con tracking</span><span class="dtag t2">Acción</span></div><div class="dconn"></div><div class="dnode"><div class="dico">03</div><span class="dtxt">Actualizar inventario en tiempo real</span><span class="dtag t2">Acción</span></div><div class="dconn"></div><div class="dnode"><div class="dico">04</div><span class="dtxt">Stock bajo el límite: alerta proveedor</span><span class="dtag t2">Condicional</span></div><div class="dconn"></div><div class="dnode result"><div class="dico">05</div><span class="dtxt">Añadir al reporte semanal automático</span><span class="dtag t3">Resultado</span></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-content"><h3>Consultoría y servicios profesionales</h3><p>El onboarding de clientes, el seguimiento de proyectos y la gestión administrativa pueden quitarte hasta el 40% del tiempo productivo. Automatizarlos no degrada la relación con el cliente, la mejora.</p><div class="flows"><div class="flow-item"><span class="fdot"></span>Firma de contrato activa la creación de carpeta en Drive y el email de bienvenida</div><div class="flow-item"><span class="fdot"></span>Recordatorio de pago automático 5 días antes del vencimiento de cada factura</div><div class="flow-item"><span class="fdot"></span>Informe mensual de horas y avances generado y enviado automáticamente</div><div class="flow-item"><span class="fdot"></span>Seguimiento automático si un cliente no responde en 72 horas</div></div></div>
+        <div class="panel-diagram"><div class="diag-label">Flujo activo en tiempo real</div><div class="dnode trigger"><div class="dico">01</div><span class="dtxt">Contrato firmado detectado</span><span class="dtag t1">Inicio</span></div><div class="dconn"></div><div class="dnode"><div class="dico">02</div><span class="dtxt">Crear carpeta del cliente en Drive</span><span class="dtag t2">Acción</span></div><div class="dconn"></div><div class="dnode"><div class="dico">03</div><span class="dtxt">Enviar email de bienvenida y accesos</span><span class="dtag t2">Acción</span></div><div class="dconn"></div><div class="dnode"><div class="dico">04</div><span class="dtxt">Programar recordatorios de facturación</span><span class="dtag t2">Acción</span></div><div class="dconn"></div><div class="dnode result"><div class="dico">05</div><span class="dtxt">CRM y pipeline actualizados</span><span class="dtag t3">Resultado</span></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-content"><h3>Formación online y academias digitales</h3><p>Desde la compra hasta el certificado, cada paso del recorrido del alumno puede ejecutarse automáticamente. La experiencia mejora y la carga operativa desaparece por completo.</p><div class="flows"><div class="flow-item"><span class="fdot"></span>Acceso a la plataforma activado automáticamente al confirmar el pago</div><div class="flow-item"><span class="fdot"></span>Recordatorio semanal si el alumno no ha avanzado en 7 días</div><div class="flow-item"><span class="fdot"></span>Certificado generado y enviado automáticamente al completar el programa</div><div class="flow-item"><span class="fdot"></span>Secuencia de upsell hacia el siguiente nivel activada al finalizar</div></div></div>
+        <div class="panel-diagram"><div class="diag-label">Flujo activo en tiempo real</div><div class="dnode trigger"><div class="dico">01</div><span class="dtxt">Pago del curso confirmado</span><span class="dtag t1">Inicio</span></div><div class="dconn"></div><div class="dnode"><div class="dico">02</div><span class="dtxt">Activar acceso a la plataforma</span><span class="dtag t2">Acción</span></div><div class="dconn"></div><div class="dnode"><div class="dico">03</div><span class="dtxt">Secuencia de bienvenida e incorporación</span><span class="dtag t2">Acción</span></div><div class="dconn"></div><div class="dnode"><div class="dico">04</div><span class="dtxt">Certificado automático al completar</span><span class="dtag t2">Acción</span></div><div class="dconn"></div><div class="dnode result"><div class="dico">05</div><span class="dtxt">Propuesta del siguiente nivel activada</span><span class="dtag t3">Resultado</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="testi">
+  <svg class="ant-element" aria-hidden="true" style="bottom:0;right:0;width:250px;opacity:.06" viewBox="0 0 250 100"><polygon points="0,100 50,40 100,70 160,20 220,60 250,100" fill="#B8D4EC"/><polygon points="30,100 60,50 90,100" fill="#D0E8F8" opacity=".8"/><ellipse cx="200" cy="90" rx="28" ry="14" fill="#D0E8F8"/><ellipse cx="200" cy="76" rx="28" ry="16" fill="#EEF4F8" opacity=".6"/><rect x="190" y="82" width="10" height="11" rx="5" fill="#0A0E1C" opacity=".4"/></svg>
+  <div class="inner">
+    <div class="testi-head reveal">
+      <span class="sk">Resultados reales</span>
+      <h2 class="h2">Lo que dicen quienes ya<br/><em>trabajan con AuryOnTech.</em></h2>
+    </div>
+    <div class="carousel reveal" id="carousel">
+      <div class="carousel-track" id="carouselTrack">
+        <div class="testi-slide">
+          <div class="tc"><div class="tc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="tc-text">«Dejamos de registrar ventas a mano. Ahora todo entra automáticamente a Google Sheets y tenemos reportes al instante. No puedo creer que tardamos tanto en tomar esta decisión.»</p><div class="tc-author"><div class="tc-av">MR</div><div><div class="tc-name">María R.</div><div class="tc-role">Responsable operaciones · Retail</div></div></div></div>
+          <div class="tc"><div class="tc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="tc-text">«Automatizaron el envío de notificaciones internas y la limpieza de datos. Ahorramos horas cada semana y el seguimiento de proyectos mejoró notablemente desde el primer mes.»</p><div class="tc-author"><div class="tc-av">JL</div><div><div class="tc-name">Jorge L.</div><div class="tc-role">Director de operaciones · Consultoría</div></div></div></div>
+        </div>
+        <div class="testi-slide">
+          <div class="tc"><div class="tc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="tc-text">«Teníamos miedo de que fuera muy técnico para nosotras. Aury lo hizo todo en dos días y ahora nuestra agenda, los recordatorios y las reseñas de Google funcionan solos. Increíble.»</p><div class="tc-author"><div class="tc-av">SC</div><div><div class="tc-name">Sofía C.</div><div class="tc-role">Propietaria · Salón de Belleza</div></div></div></div>
+          <div class="tc"><div class="tc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="tc-text">«Nuestro curso de marketing digital ahora da acceso automático, envía los módulos por semana y genera el certificado al terminar. Lo que antes tomaba 2 horas de mi tiempo ahora es cero.»</p><div class="tc-author"><div class="tc-av">AR</div><div><div class="tc-name">Alejandro R.</div><div class="tc-role">Fundador · Academia Online</div></div></div></div>
+        </div>
+        <div class="testi-slide">
+          <div class="tc"><div class="tc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="tc-text">«Vendemos ropa online y el inventario era un caos. Ahora cuando el stock baja, el proveedor recibe el pedido automáticamente. Las ventas perdidas por falta de stock bajaron un 80%.»</p><div class="tc-author"><div class="tc-av">LP</div><div><div class="tc-name">Laura P.</div><div class="tc-role">CEO · Tienda de Moda Online</div></div></div></div>
+          <div class="tc"><div class="tc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="tc-text">«El curso gratuito me abrió los ojos. En 30 minutos tenía mi primer flujo funcionando. Nunca pensé que fuera tan accesible para alguien sin conocimientos técnicos.»</p><div class="tc-author"><div class="tc-av">DM</div><div><div class="tc-name">David M.</div><div class="tc-role">Consultor independiente · Madrid</div></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="carousel-nav" id="carouselNav"></div>
+    <div class="carousel-btns"><button class="cbtn" onclick="prevSlide()" aria-label="Anterior testimonio">&#8592;</button><button class="cbtn" onclick="nextSlide()" aria-label="Siguiente testimonio">&#8594;</button></div>
+  </div>
+</section>
+
+<section class="cta" id="contacto">
+  <div class="bg-flow" style="z-index:1;" aria-hidden="true"><svg width="500" height="400" style="top:0;left:0;opacity:.08;filter:blur(4px);" viewBox="0 0 500 400"><rect x="50" y="50" width="120" height="40" rx="8" fill="none" stroke="#C46030" stroke-width="1.5"/><line x1="110" y1="90" x2="110" y2="130" stroke="#C46030" stroke-width="1.5" stroke-dasharray="4,4"/><rect x="50" y="130" width="120" height="40" rx="8" fill="none" stroke="#B8D4EC" stroke-width="1.5"/></svg></div>
+  <svg class="ant-element" aria-hidden="true" style="bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:800px;opacity:.05" viewBox="0 0 800 80"><polygon points="0,80 80,30 160,55 280,15 400,50 520,20 640,45 720,25 800,80" fill="#B8D4EC"/><polygon points="60,80 100,35 140,80" fill="#D0E8F8" opacity=".9"/><polygon points="260,80 290,18 320,80" fill="#B8D4EC" opacity=".8"/></svg>
+  <div class="inner" style="position:relative;z-index:2;">
+    <div class="cta-inner reveal">
+      <img decoding="async" class="cta-img" src="https://auryontech.com/wp-content/uploads/2026/03/Aury-Saludando.png" alt="Aury saludando"/>
+      <h2 class="h2">Empieza hoy.<br/><em>El primer curso es gratis.</em></h2>
+      <p class="sub">Sin tarjeta de crédito, sin compromiso. En 30 minutos tienes tu primer flujo automático activo y funcionando.</p>
+      <div class="cta-btns">
+        <a href="https://auryontech.com/catalogo-de-cursos/" class="btn-snow">Empezar el curso gratuito</a>
+        <a href="https://auryontech.com/catalogo-de-cursos/" class="btn-ghost">Ver todos los cursos</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo"><div class="nav-mark"><img decoding="async" src="https://auryontech.com/wp-content/uploads/2026/03/Aury-enfrente-de-la-Compu.png" alt="Logo AuryOnTech"/></div><span class="nav-word">Aury<span>OnTech</span></span></a>
+      <p>Formación en IA, productividad y automatización para negocios y personas que quieren crecer sin trabajar el doble. Madrid, España.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Cursos</h4>
+      <a href="URL_CURSO_PROMPTS">Prompts que trabajan</a>
+      <a href="URL_CURSO_PRIMERA_AUTOMATIZACION">Tu Primera Automatización</a>
+      <a href="URL_CURSO_MINICRM">Mini CRM en Sheets</a>
+      <a href="https://auryontech.com/catalogo-de-cursos/">Ver todos los cursos</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <a href="mailto:contacto@auryontech.com">contacto@auryontech.com</a>
+      <a href="#about">Sobre Aury</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&#169; 2026 AuryOnTech · Automatización para humanos</p>
+    <span class="footer-mono">Hecho con dedicación (y automatización) en Madrid</span>
+  </div>
+</footer>
+
+<script>
+const sp=document.getElementById('sp');
+window.addEventListener('scroll',()=>{sp.style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100)+'%';});
+const cr=document.getElementById('cr'),crr=document.getElementById('crr');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cr.style.left=mx+'px';cr.style.top=my+'px';});
+(function anim(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;crr.style.left=rx+'px';crr.style.top=ry+'px';requestAnimationFrame(anim);})();
+document.querySelectorAll('a,button,.tab').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cr.style.width='16px';cr.style.height='16px';crr.style.width='44px';crr.style.height='44px';crr.style.opacity='.18';});
+  el.addEventListener('mouseleave',()=>{cr.style.width='9px';cr.style.height='9px';crr.style.width='30px';crr.style.height='30px';crr.style.opacity='.3';});
+});
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>40));
+document.querySelectorAll('[data-speed]').forEach(el=>{window.addEventListener('scroll',()=>{el.style.transform=`translateY(${window.scrollY*parseFloat(el.dataset.speed)}px)`;});});
+const obs=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis');});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+function openMM(){document.getElementById('mm').classList.add('open');document.body.style.overflow='hidden';}
+function closeMM(){document.getElementById('mm').classList.remove('open');document.body.style.overflow='';}
+function swTab(i){document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('on',i===j));document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('on',i===j));}
+const snowField=document.getElementById('snowField');
+const snowChars=['*','+','·','❄','✦','·'];
+for(let i=0;i<28;i++){const f=document.createElement('div');f.className='flake';f.textContent=snowChars[Math.floor(Math.random()*snowChars.length)];f.style.left=Math.random()*100+'vw';f.style.animationDuration=(8+Math.random()*14)+'s';f.style.animationDelay=(-Math.random()*14)+'s';f.style.fontSize=(8+Math.random()*10)+'px';f.style.opacity=Math.random()*.5;snowField.appendChild(f);}
+const auryDialogs={hero:"¡Hola! Soy Aury. Vine desde la Antártida para que tu negocio trabaje solo. ¿Empezamos?",about:"¿Sabías que yo empecé vendiendo pescado y ahora mis procesos son 100% automáticos? ¡Tú también puedes!",'flow-demo':"Mira este flujo en acción. Cada paso que ves se ejecuta solo, sin que nadie lo active. ¡Magia fría!",valor:"Automatizar no te hace rico de la noche a la mañana. Pero sí te devuelve horas que pierdes todos los días.",negocios:"¿En qué tipo de negocio estás? Tengo flujos para todos. Hasta para vender pescado congelado.",formacion:"¡Aquí están mis cursos! El primero es gratis. Sin excusas para no empezar hoy.",contacto:"¿Lista para dar el paso? ¡Empieza con el curso gratuito ahora mismo!"};
+let bubbleVisible=true,currentSection='hero';
+const bubble=document.getElementById('auryBubble');
+function showBubble(text){bubble.innerHTML=text;bubble.classList.add('visible');bubbleVisible=true;}
+function toggleBubble(){if(bubbleVisible){bubble.classList.remove('visible');bubbleVisible=false;}else{showBubble(auryDialogs[currentSection]||auryDialogs.hero);}}
+setTimeout(()=>showBubble(auryDialogs.hero),1500);
+const sectionIds=['hero','about','flow-demo','valor','negocios','formacion','contacto'];
+const sectionObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>.3){const id=e.target.id;if(auryDialogs[id]&&id!==currentSection){currentSection=id;showBubble(auryDialogs[id]);setTimeout(()=>{bubble.classList.remove('visible');bubbleVisible=false;},6000);}}});},{threshold:.3});
+sectionIds.forEach(id=>{const el=document.getElementById(id);if(el)sectionObs.observe(el);});
+const STEPS=5;
+function resetFlow(){for(let i=0;i<STEPS;i++){['fn','conn','dot'].forEach(p=>{const el=document.getElementById(p+i);if(el){el.classList.remove('active','done','grown','vis');}});}document.getElementById('fpFill').style.width='0%';document.getElementById('fpPct').textContent='0%';}
+function activateStep(i){if(i>0){const prev=document.getElementById('fn'+(i-1));if(prev){prev.classList.remove('active');prev.classList.add('done');}}const fn=document.getElementById('fn'+i);if(fn)fn.classList.add('active');const pct=Math.round(((i+1)/STEPS)*100);document.getElementById('fpFill').style.width=pct+'%';document.getElementById('fpPct').textContent=pct+'%';if(i<STEPS-1){setTimeout(()=>{const conn=document.getElementById('conn'+i);if(conn)conn.classList.add('grown');setTimeout(()=>{const dot=document.getElementById('dot'+i);if(dot)dot.classList.add('vis');setTimeout(()=>{if(dot)dot.classList.remove('vis');activateStep(i+1);},600);},400);},1600);}else{setTimeout(()=>{const last=document.getElementById('fn'+(STEPS-1));if(last){last.classList.remove('active');last.classList.add('done');}setTimeout(()=>{resetFlow();setTimeout(()=>activateStep(0),400);},1500);},1800);}}
+const flowObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){resetFlow();setTimeout(()=>activateStep(0),600);flowObs.disconnect();}});},{threshold:.3});
+const fc=document.getElementById('flowCanvas');if(fc)flowObs.observe(fc);
+let slide=0;
+const slides=document.querySelectorAll('.testi-slide');
+const total=slides.length;
+const track=document.getElementById('carouselTrack');
+const navEl=document.getElementById('carouselNav');
+slides.forEach((_,i)=>{const d=document.createElement('div');d.className='cdot'+(i===0?' on':'');d.onclick=()=>goSlide(i);navEl.appendChild(d);});
+function goSlide(n){slide=((n%total)+total)%total;track.style.transform=`translateX(-${slide*100}%)`;document.querySelectorAll('.cdot').forEach((d,i)=>d.classList.toggle('on',i===slide));}
+function prevSlide(){goSlide(slide-1);}
+function nextSlide(){goSlide(slide+1);}
+</script>
+</body>
+</html>
+
+
+
+<p></p>
