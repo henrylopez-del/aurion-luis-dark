@@ -336,238 +336,304 @@ body::after{display:none;}
 @media(max-width:600px){.valor-grid{grid-template-columns:1fr;}}
 
 
+
 /* ============================================
-   LINEAR / JELLYFISH NUCLEAR REWRITE v2
+   JELLYFISH FEEL — declarative huge typography
+   Amber #f8b133 accent (their signature)
+   Bold short statements, lots of whitespace
    ============================================ */
-body, p, li, a, button, span, div, h1, h2, h3, h4, h5, h6 {
-  font-family: 'Inter', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+
+:root {
+  --jf-amber: #f8b133;
+  --jf-amber-dark: #d99820;
 }
-.kicker, .chip, .chip-label, .chip-val, .chip-status, .hero-speech,
-.hm-num, .hm-label, [class*="eyebrow"], [class*="mono"], [class*="tag"],
-[class*="badge"], .nav-cta, .hero-aury-badge, .fn-num, .fn-tag, .vblk-icon,
-.dtag, .srv-tag {
-  font-family: 'JetBrains Mono', 'DM Mono', ui-monospace, monospace !important;
+
+/* Hero: declarative HUGE typography Jellyfish-style */
+.hero {
+  padding: 120px 24px 60px !important;
+  min-height: 92vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #000 !important;
 }
-body { background: #000 !important; color: #E4E5E9 !important; font-size: 15px !important; line-height: 1.55 !important; -webkit-font-smoothing: antialiased !important; }
-h1, .hero-h1 { font-weight: 600 !important; letter-spacing: -0.024em !important; line-height: 1.05 !important; color: #E4E5E9 !important; }
-.hero-h1 { font-size: clamp(2rem, 3.2vw, 2.875rem) !important; max-width: 18ch; }
-h2 { font-weight: 600 !important; letter-spacing: -0.022em !important; line-height: 1.1 !important; font-size: clamp(1.625rem, 2.6vw, 2.125rem) !important; }
-h3, h4 { font-weight: 600 !important; letter-spacing: -0.015em !important; font-size: 1.125rem !important; }
-p, .hero-sub, .testi-quote { font-weight: 400 !important; color: #B0B3B8 !important; font-size: 0.9375rem !important; line-height: 1.6 !important; }
-.hero-sub { max-width: 460px !important; }
+.hero-inner {
+  display: block !important;
+  text-align: left !important;
+  max-width: 1200px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 24px !important;
+}
+.hero-content, .hero-left {
+  text-align: left !important;
+  display: block !important;
+  width: 100% !important;
+}
 
-.kicker, .nav-cta, .btn-dawn, .btn-ghost, .hero-aury-badge, .chip, .fn-tag, .fn-num, .vblk-icon, .srv-icon, .dtag, .hero-speech, .aury-bubble { border-radius: 6px !important; }
+/* HERO TITLE: massive declarative Jellyfish-style "Move." */
+.hero-h1 {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(3rem, 9vw, 9rem) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.04em !important;
+  line-height: 0.95 !important;
+  color: #fff !important;
+  text-align: left !important;
+  max-width: none !important;
+  margin: 0 0 32px 0 !important;
+}
+.hero-h1 .accent, .hero-h1 strong {
+  color: var(--jf-amber) !important;
+  font-style: normal !important;
+}
+.hero-h1 .accent-ice {
+  color: var(--jf-amber) !important;
+}
 
-.btn-dawn { background: #C46030 !important; color: #fff !important; font-size: 0.8125rem !important; font-weight: 500 !important; padding: 8px 16px !important; box-shadow: none !important; border: 0 !important; }
-.btn-dawn::after { display: none !important; }
-.btn-dawn:hover { background: #D88050 !important; box-shadow: none !important; transform: none !important; }
-.btn-ghost { background: transparent !important; color: #E4E5E9 !important; border: 1px solid rgba(228,229,233,.14) !important; font-size: 0.8125rem !important; font-weight: 500 !important; padding: 8px 16px !important; box-shadow: none !important; }
-.btn-ghost:hover { background: rgba(228,229,233,.04) !important; border-color: rgba(228,229,233,.24) !important; color: #fff !important; }
-.nav-cta { background: transparent !important; color: #C46030 !important; border: 1px solid rgba(196,96,48,.4) !important; padding: 6px 12px !important; font-size: 0.75rem !important; font-weight: 500 !important; }
-.nav-cta:hover { background: #C46030 !important; color: #000 !important; }
+/* Hero sub: BIG body text Jellyfish-style */
+.hero-sub {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1.125rem, 1.4vw, 1.375rem) !important;
+  line-height: 1.45 !important;
+  color: #B0B3B8 !important;
+  max-width: 620px !important;
+  margin: 0 0 40px 0 !important;
+  text-align: left !important;
+  font-weight: 400 !important;
+}
 
-.kicker { background: transparent !important; border: 0 !important; padding: 0 !important; color: #C46030 !important; font-size: 0.6875rem !important; letter-spacing: 0.16em !important; text-transform: uppercase !important; margin-bottom: 24px !important; }
+/* CTAs Jellyfish-style: amber solid + ghost */
+.hero-ctas {
+  display: flex !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  margin: 0 0 0 0 !important;
+}
+.btn-dawn {
+  background: var(--jf-amber) !important;
+  color: #000 !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  padding: 14px 28px !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+.btn-dawn:hover {
+  background: var(--jf-amber-dark) !important;
+  transform: none !important;
+}
+.btn-ghost {
+  background: transparent !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,.25) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  padding: 14px 28px !important;
+  border-radius: 4px !important;
+}
+.btn-ghost:hover {
+  background: rgba(255,255,255,.06) !important;
+  border-color: #fff !important;
+}
+
+/* Kicker: small amber eyebrow Jellyfish-style (above h1) */
+.kicker {
+  display: inline-block !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  color: var(--jf-amber) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  margin-bottom: 24px !important;
+}
 .kicker-dot { display: none !important; }
 
-.hm-num { font-size: 1rem !important; font-weight: 500 !important; color: #E4E5E9 !important; letter-spacing: -0.01em !important; }
-.hm-label { font-size: 0.625rem !important; text-transform: uppercase !important; letter-spacing: 0.12em !important; color: #71747A !important; }
-.hero-metrics { gap: 32px !important; padding-top: 24px !important; border-top: 1px solid rgba(228,229,233,.08) !important; }
+/* PENGUIN: small, absolute positioned, right side */
+.hero-visual, .hero-right, .hero-aury-wrap {
+  display: none !important;  /* clean hero — jellyfish uses video/photo not mascot */
+}
 
-.hero-aury-badge { background: transparent !important; border: 1px solid rgba(196,96,48,.4) !important; color: #C46030 !important; font-size: 0.65rem !important; padding: 4px 10px !important; }
-
-.chip { background: rgba(15,15,16,.85) !important; border: 1px solid rgba(228,229,233,.1) !important; box-shadow: none !important; backdrop-filter: blur(8px) !important; padding: 8px 12px !important; }
-.chip-label { font-size: 0.56rem !important; text-transform: uppercase !important; letter-spacing: 0.12em !important; color: #71747A !important; }
-.chip-val { font-size: 0.82rem !important; font-weight: 500 !important; color: #E4E5E9 !important; }
-.chip-status { font-size: 0.58rem !important; color: #C46030 !important; }
-.hero-speech { background: rgba(15,15,16,.9) !important; border: 1px solid rgba(228,229,233,.1) !important; font-size: 0.625rem !important; letter-spacing: 0.08em !important; text-transform: uppercase !important; color: #E4E5E9 !important; padding: 6px 10px !important; box-shadow: none !important; }
-.aury-bubble { background: rgba(15,15,16,.92) !important; border: 1px solid rgba(228,229,233,.1) !important; font-size: 0.75rem !important; color: #E4E5E9 !important; box-shadow: none !important; padding: 10px 14px !important; }
-
-.nav { padding: 12px 40px !important; background: rgba(0,0,0,.78) !important; backdrop-filter: blur(12px) !important; border-bottom: 1px solid rgba(228,229,233,.08) !important; }
-.nav.scrolled { background: rgba(0,0,0,.92) !important; }
-.nav-word { font-weight: 600 !important; font-size: 0.95rem !important; letter-spacing: -0.01em !important; color: #E4E5E9 !important; }
-.nav-word span { color: #C46030 !important; }
-.nav-mark { border-radius: 6px !important; border: 1px solid rgba(196,96,48,.3) !important; background: transparent !important; }
-.nav-links a { font-size: 0.8125rem !important; font-weight: 500 !important; color: #B0B3B8 !important; }
-.nav-links a:hover { color: #C46030 !important; }
-
-.srv, .vblk, .testi-card, .fn, .av, .about-card, .uc-card, .pillar, [class*="card"], .stack-card { background: rgba(228,229,233,.02) !important; border: 1px solid rgba(228,229,233,.08) !important; border-radius: 8px !important; box-shadow: none !important; transition: border-color 150ms ease, transform 150ms ease !important; }
-.srv:hover, .vblk:hover, .testi-card:hover, [class*="card"]:hover { border-color: rgba(196,96,48,.35) !important; background: rgba(228,229,233,.04) !important; box-shadow: none !important; transform: translateY(-1px) !important; }
-.vblk-icon, .srv-icon, .fn-num { background: transparent !important; border: 1px solid rgba(196,96,48,.4) !important; color: #C46030 !important; border-radius: 4px !important; font-size: 0.7rem !important; }
-
-.manifesto { padding: 80px 40px !important; border-top: 1px solid rgba(228,229,233,.08) !important; border-bottom: 1px solid rgba(228,229,233,.08) !important; background: transparent !important; }
-.manifesto-line, .manifesto p, .manifesto h2 { font-size: clamp(1.25rem, 1.8vw, 1.625rem) !important; font-weight: 400 !important; letter-spacing: -0.012em !important; line-height: 1.4 !important; color: #E4E5E9 !important; max-width: 720px !important; margin: 0 auto !important; text-align: center !important; }
-
-section, .hero, .about, .services, .testi, .uc, .valor, .flow-demo, .cta { padding: 100px 40px !important; max-width: 1200px !important; margin: 0 auto !important; background: #000 !important; }
-.hero { padding: 120px 40px 80px !important; min-height: 88vh !important; }
-.hero-inner { max-width: 1100px !important; gap: 64px !important; margin: 0 auto !important; }
-.hero-aury-img { width: 360px !important; max-width: 90% !important; filter: drop-shadow(0 16px 40px rgba(0,0,0,.6)) !important; }
-
-.footer, footer { background: #000 !important; border-top: 1px solid rgba(228,229,233,.08) !important; padding: 48px 40px 32px !important; }
-
-[class*="eyebrow"] { font-family: 'JetBrains Mono', 'DM Mono', monospace !important; text-transform: uppercase !important; letter-spacing: 0.16em !important; font-size: 0.6875rem !important; color: #C46030 !important; font-weight: 500 !important; margin-bottom: 16px !important; }
-
-input, textarea, select { border-radius: 6px !important; background: rgba(228,229,233,.04) !important; border: 1px solid rgba(228,229,233,.1) !important; color: #E4E5E9 !important; }
-
-.filter, .chip-filter, [class*="filter"] { border-radius: 6px !important; background: transparent !important; border: 1px solid rgba(228,229,233,.1) !important; font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; letter-spacing: 0.1em !important; font-size: 0.7rem !important; padding: 6px 12px !important; }
-.filter:hover, .filter.active { border-color: #C46030 !important; color: #C46030 !important; }
-
-.fp-fill { background: #C46030 !important; }
-
-
-/* ============================================
-   LINEAR LAYOUT REWRITE — single column centered hero
-   Kill chips. Tiny penguin. Bottom-centered.
-   ============================================ */
-
-/* HIDE all the noise that screams Luis */
+/* Kill all the noise */
 .chip, .chip-1, .chip-2, .chip-3,
 .hero-speech,
 .ant-element,
 .bg-flow,
-.hero-grid {
+.hero-grid,
+.hero-metrics,
+.aurora,
+.orb1, .orb2, .orb3 {
   display: none !important;
 }
 
-/* But KEEP the mascot bottom-right + snow + hero penguin */
-.aury-mascot, .snow-field, .hero-aury-wrap {
-  display: flex !important;
-}
-
-/* HERO: single column centered Linear style */
-.hero {
-  padding: 140px 24px 80px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-height: 100vh !important;
-}
-.hero-inner {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  text-align: center !important;
-  max-width: 760px !important;
-  gap: 32px !important;
-  margin: 0 auto !important;
-}
-.hero-content, .hero-left {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  text-align: center !important;
-  width: 100% !important;
-}
-.hero-visual, .hero-right {
-  order: 99 !important;
-  margin-top: 48px !important;
-}
-
-/* Hero H1: HUGE Linear-style centered display */
-.hero-h1 {
-  font-size: clamp(2.5rem, 5.5vw, 4.5rem) !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.03em !important;
-  line-height: 1.02 !important;
-  text-align: center !important;
-  max-width: 22ch !important;
-  margin: 0 auto 0 !important;
-}
-
-/* Hero sub: contained */
-.hero-sub {
-  font-size: 1.0625rem !important;
-  line-height: 1.55 !important;
-  text-align: center !important;
-  max-width: 540px !important;
-  color: #8A8F98 !important;
-  margin: 0 auto 8px !important;
-}
-
-/* CTAs centered row */
-.hero-ctas {
-  display: flex !important;
-  justify-content: center !important;
-  gap: 12px !important;
-  margin: 16px auto 0 !important;
-}
-
-/* Penguin: small, centered, BELOW the CTA */
-.hero-aury-wrap {
-  margin: 64px auto 0 !important;
-  align-items: center !important;
-}
-.hero-aury-img {
-  width: 220px !important;
-  filter: drop-shadow(0 16px 48px rgba(0,0,0,.6)) !important;
-}
-
-/* Kill the metrics row in hero (move to nowhere) */
-.hero-metrics {
-  display: none !important;
-}
-
-/* Manifesto more Linear */
-.manifesto {
-  padding: 120px 24px !important;
-  text-align: center !important;
-  background: #000 !important;
-  border-top: 1px solid rgba(228,229,233,.06) !important;
-  border-bottom: 1px solid rgba(228,229,233,.06) !important;
-}
-.manifesto p, .manifesto h2 {
-  font-size: clamp(1.5rem, 2.4vw, 2rem) !important;
-  font-weight: 400 !important;
-  letter-spacing: -0.02em !important;
-  line-height: 1.3 !important;
-  max-width: 640px !important;
-  margin: 0 auto !important;
-  color: #E4E5E9 !important;
-}
-
-/* About: linear contained grid */
-.about, .about-grid {
-  padding: 120px 40px !important;
-  max-width: 1100px !important;
-  margin: 0 auto !important;
-}
-.about-text, .about-content { max-width: 640px !important; margin: 0 auto !important; }
-
-/* Services: 2-3 col Linear grid */
-.services { padding: 120px 40px !important; max-width: 1200px !important; margin: 0 auto !important; }
-.srv-grid, .services-grid {
-  display: grid !important;
-  grid-template-columns: repeat(3, 1fr) !important;
-  gap: 24px !important;
-  margin-top: 48px !important;
-}
-@media (max-width: 900px) {
-  .srv-grid, .services-grid { grid-template-columns: 1fr !important; }
-}
-
-/* Footer Linear */
-footer, .footer {
-  background: #000 !important;
-  border-top: 1px solid rgba(228,229,233,.06) !important;
-  padding: 64px 40px 32px !important;
-  text-align: center !important;
-}
-
-/* Mascot stays bottom-right but smaller */
+/* Mascot: keep but tiny, bottom-right */
 .aury-mascot {
   bottom: 24px !important;
   right: 24px !important;
 }
-.aury-img {
-  width: 64px !important;
-  filter: drop-shadow(0 8px 20px rgba(0,0,0,.5)) !important;
-}
+.aury-img { width: 56px !important; }
 .aury-bubble {
-  font-size: 0.72rem !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.75rem !important;
   max-width: 200px !important;
+  background: rgba(15,15,16,.92) !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
 }
 
-/* Scroll progress bar single dawn */
-#sp { background: #C46030 !important; }
+/* Snow: subtle */
+.flake { opacity: .35 !important; font-size: 9px !important; }
+
+/* Nav Jellyfish-style: simple */
+.nav {
+  padding: 18px 32px !important;
+  background: rgba(0,0,0,.78) !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+  backdrop-filter: blur(12px) !important;
+}
+.nav-word {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  letter-spacing: -0.01em !important;
+  color: #fff !important;
+}
+.nav-word span { color: var(--jf-amber) !important; }
+.nav-links a {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: #fff !important;
+}
+.nav-links a:hover { color: var(--jf-amber) !important; }
+.nav-cta {
+  background: var(--jf-amber) !important;
+  color: #000 !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  padding: 8px 16px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+}
+.nav-cta:hover {
+  background: var(--jf-amber-dark) !important;
+  color: #000 !important;
+}
+
+/* SECTIONS Jellyfish: alternate dark/light */
+section, .about, .services, .testi, .uc, .valor, .flow-demo, .cta {
+  padding: 120px 32px !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+}
+
+/* MANIFESTO Jellyfish-style: HUGE statement */
+.manifesto {
+  padding: 160px 32px !important;
+  background: #000 !important;
+  border-top: 1px solid rgba(255,255,255,.06) !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+  text-align: left !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+}
+.manifesto p, .manifesto h2 {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(2rem, 5vw, 4.5rem) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.03em !important;
+  line-height: 1.05 !important;
+  color: #fff !important;
+  max-width: 900px !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+.manifesto p strong, .manifesto h2 strong {
+  color: var(--jf-amber) !important;
+}
+
+/* SECTION TITLES big Jellyfish */
+section h2 {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(2rem, 4.5vw, 3.75rem) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.03em !important;
+  line-height: 1.05 !important;
+  color: #fff !important;
+  margin-bottom: 32px !important;
+  max-width: 22ch !important;
+}
+
+/* Section text */
+section p {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 1rem !important;
+  line-height: 1.6 !important;
+  color: #B0B3B8 !important;
+}
+
+/* Cards Jellyfish: hairline + photo */
+.srv, .vblk, .testi-card, .fn, .av, .about-card, .uc-card, [class*="card"] {
+  background: rgba(255,255,255,.02) !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  padding: 32px !important;
+}
+.srv:hover, [class*="card"]:hover {
+  border-color: var(--jf-amber) !important;
+  background: rgba(255,255,255,.04) !important;
+  transform: none !important;
+}
+
+/* Icons / number badges */
+.vblk-icon, .srv-icon, .fn-num {
+  background: var(--jf-amber) !important;
+  color: #000 !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+}
+
+/* Footer Jellyfish minimal */
+footer, .footer {
+  background: #000 !important;
+  border-top: 1px solid rgba(255,255,255,.06) !important;
+  padding: 64px 32px 32px !important;
+  text-align: left !important;
+}
+
+/* Filter chips */
+.filter {
+  border-radius: 100px !important;
+  border: 1px solid rgba(255,255,255,.15) !important;
+  background: transparent !important;
+  font-family: 'Inter', sans-serif !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  padding: 8px 16px !important;
+  color: #fff !important;
+}
+.filter:hover, .filter.active {
+  background: var(--jf-amber) !important;
+  color: #000 !important;
+  border-color: var(--jf-amber) !important;
+}
+
+/* Scroll progress bar amber */
+#sp { background: var(--jf-amber) !important; }
 
 </style>
 </head>
